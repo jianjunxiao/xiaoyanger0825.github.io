@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java集合," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在JDK1.7之前，LinkedList是采用双向环形链表来实现的，在1.7及之后，Oracle将LinkedList做了优化，将环形链表改成了线性链表。本文对于LinkedList的源码分析基于JDK1.8。 LinkedList既然是通过一个双向线性链表来实现，那么肯定就能够很轻易的找到链表的第一个节点和最后一个节点，在源码中可以看到有这两个字段： transient Node&amp;lt;E&amp;gt">
+<meta name="keywords" content="Java集合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java集合框架 —— LinkedList源码分析">
+<meta property="og:url" content="http://yoursite.com/2017/12/07/Java集合框架-——-LinkedList源码分析/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="在JDK1.7之前，LinkedList是采用双向环形链表来实现的，在1.7及之后，Oracle将LinkedList做了优化，将环形链表改成了线性链表。本文对于LinkedList的源码分析基于JDK1.8。 LinkedList既然是通过一个双向线性链表来实现，那么肯定就能够很轻易的找到链表的第一个节点和最后一个节点，在源码中可以看到有这两个字段： transient Node&amp;lt;E&amp;gt">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://i.imgur.com/SuHIva6.png">
+<meta property="og:image" content="https://i.imgur.com/QAwP1zC.png">
+<meta property="og:image" content="https://i.imgur.com/tTw37wG.png">
+<meta property="og:image" content="https://i.imgur.com/h1JzRfl.png">
+<meta property="og:updated_time" content="2017-12-07T09:33:06.864Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java集合框架 —— LinkedList源码分析">
+<meta name="twitter:description" content="在JDK1.7之前，LinkedList是采用双向环形链表来实现的，在1.7及之后，Oracle将LinkedList做了优化，将环形链表改成了线性链表。本文对于LinkedList的源码分析基于JDK1.8。 LinkedList既然是通过一个双向线性链表来实现，那么肯定就能够很轻易的找到链表的第一个节点和最后一个节点，在源码中可以看到有这两个字段： transient Node&amp;lt;E&amp;gt">
+<meta name="twitter:image" content="https://i.imgur.com/SuHIva6.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/07/Java集合框架-——-LinkedList源码分析/"/>
+
+
+
+
+
+  <title>Java集合框架 —— LinkedList源码分析 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/07/Java集合框架-——-LinkedList源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java集合框架 —— LinkedList源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-07T17:29:44+08:00">
+                2017-12-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在JDK1.7之前，<code>LinkedList</code>是采用双向环形链表来实现的，在1.7及之后，Oracle将<code>LinkedList</code>做了优化，将环形链表改成了线性链表。本文对于<code>LinkedList</code>的源码分析基于JDK1.8。</p>
+<p><code>LinkedList</code>既然是通过一个双向线性链表来实现，那么肯定就能够很轻易的找到链表的第一个节点和最后一个节点，在源码中可以看到有这两个字段：</p>
+<pre><code>transient Node&lt;E&gt; first; // 链表第一个节点
+transient Node&lt;E&gt; last;  // 链表最后一个节点
+</code></pre><p>先来看一下什么是节点<code>Node</code>：</p>
+<pre><code>private static class Node&lt;E&gt; {
+    E item;
+    Node&lt;E&gt; next;
+    Node&lt;E&gt; prev;
+
+    Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) {
+        this.item = element;
+        this.next = next;
+        this.prev = prev;
+    }
+}
+</code></pre><p>节点<code>Node</code>中有三个成员：</p>
+<ul>
+<li>item ： 存储的元素</li>
+<li>next ： 下一个节点</li>
+<li>prev ： 上一个节点</li>
+</ul>
+<p>节点中保存有需要存储的元素，同时持有上一个节点和下一个节点的引用，各个节点依次持有前后节点的引用就形成了一个链，这样，当我们需要查找链中某一个节点保存的元素时，只需要通过第一个节点或者最后一个节点依次查找，就可以找到我们需要的节点。</p>
+<p>需要注意的是，在JDK1.7及之后，第一个节点<code>first</code>的前一个节点<code>prev</code>为<code>null</code>，最后一个节点<code>last</code>的后一个节点<code>next</code>也为<code>null</code>。而在JDK1.6及之前，头节点<code>header</code>是一个不保存元素的节点，<code>header</code>的下一个节点<code>next</code>是第一个元素节点，而<code>header</code>的上一个节点是最后一个元素节点，这样使得它形成一个环形的双向链表。</p>
+<p><img src="https://i.imgur.com/SuHIva6.png" alt="LinkedList节点结构图1（JDK1.7及以后）"><br><img src="https://i.imgur.com/QAwP1zC.png" alt="LinkedList节点结构图2（JDK1.6及以前）"></p>
+<p><code>LinkedList</code>的构造函数有两个，一个无参，另一个可以传入一个集合：</p>
+<pre><code>public LinkedList() {
+}
+
+public LinkedList(Collection&lt;? extends E&gt; c) {
+    this();
+    addAll(c);
+}
+</code></pre><p>看下<code>addAll</code>方法的实现：</p>
+<pre><code>public boolean addAll(Collection&lt;? extends E&gt; c) {
+    return addAll(size, c);
+}
+
+public boolean addAll(int index, Collection&lt;? extends E&gt; c) {
+    // 检查是否越界
+    checkPositionIndex(index);
+    // 将集合c转化为数组a
+    Object[] a = c.toArray();
+    int numNew = a.length;
+    if (numNew == 0)
+        return false;
+    // pred为插入元素位置点前一个节点，succ为插入元素位置的后一个节点
+    Node&lt;E&gt; pred, succ;     
+    if (index == size) {    // index==size的话，在链表的末尾添加元素
+        succ = null;
+        pred = last;
+    } else {                // 否则的话，从链表中间加入
+        succ = node(index);
+        pred = succ.prev;
+    }
+    // 遍历需要加入的元素数组a
+    for (Object o : a) {   
+        // 通过元素o构造一个节点Node
+        @SuppressWarnings(&quot;unchecked&quot;) E e = (E) o;
+        Node&lt;E&gt; newNode = new Node&lt;&gt;(pred, e, null);
+        if (pred == null) // 插入位置的前一个节点为null，说明需要插入的是first节点
+            first = newNode;
+        else            // 插入位置的前一个节点不为null，即从链表中或链表末尾插入
+            // 将要插入的节点复制给插入位置的上一个节点的next
+            pred.next = newNode;
+        // 将newNode赋值给下个需要插入的节点的pred
+        pred = newNode;
+    }
+
+    if (succ == null) { // succ为null，说明是从末尾添加的元素，将添加的最后一个元素赋值给last
+        last = pred;
+    } else {            // 从链表中某个位置添加的，重新连接上添加元素时断开的引用链
+        pred.next = succ;
+        succ.prev = pred;
+    }
+    // 更新链表的大小
+    size += numNew;
+    modCount++;
+    return true;
+}
+</code></pre><p>在构造方法中调用<code>addAll</code>方法，相当于是向一个空链表中添加集合<code>c</code>中的元素。</p>
+<p>如果是在已有元素的链表中调用<code>addAll</code>方法来添加元素的话，就需要判断指定的添加位置<code>index</code>是否越界，如果越界会抛出异常；如果没有越界，根据添加的位置<code>index</code>，断开链表中<code>index</code>位置的节点前后的引用，加入新元素，重新连上断开位置的前后节点的引用。过程如下图：</p>
+<p><img src="https://i.imgur.com/tTw37wG.png" alt="LinkedList加入元素1"><br><img src="https://i.imgur.com/h1JzRfl.png" alt="LinkedList加入元素2"></p>
+<p><code>add</code>方法:</p>
+<pre><code>public boolean add(E e) {
+    linkLast(e);
+    return true;
+}
+</code></pre><p>直接就调用了<code>linkLast</code>方法，说明默认的<code>add</code>方法是直接将元素添加到已有的链表的末尾。</p>
+<pre><code>void linkLast(E e) {
+    final Node&lt;E&gt; l = last;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);
+    last = newNode;
+    if (l == null)
+        first = newNode;
+    else
+        l.next = newNode;
+    size++;
+    modCount++;
+}
+</code></pre><p>新加入元素的节点赋值给<code>last</code>节点，然后判断了一下加入之前的<code>last</code>节点是否为空，为空的话，说明链表中没有元素，新加入的就是链表的<code>first</code>节点；不为空直接将之前的最后一个节点的<code>next</code>引用添加的节点即可。</p>
+<p>还有一个add方法，指定了添加位置：</p>
+<pre><code>public void add(int index, E element) {
+    checkPositionIndex(index);
+
+    if (index == size)
+        linkLast(element);
+    else
+        linkBefore(element, node(index));
+}
+</code></pre><p>这里需要先判断是否越界，再看添加的位置是否在已有链表的末尾，如果在末尾就直接添加到末尾，不在末尾的话，调用linkBefore添加到index位置的节点之前。</p>
+<pre><code>void linkBefore(E e, Node&lt;E&gt; succ) {
+    // assert succ != null;
+    final Node&lt;E&gt; pred = succ.prev;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(pred, e, succ);
+    succ.prev = newNode;
+    if (pred == null)
+        first = newNode;
+    else
+        pred.next = newNode;
+    size++;
+    modCount++;
+}
+</code></pre><p><code>pred</code>为<code>null</code>的话，说明<code>succ</code>是添加元素前链表的<code>first</code>节点，加入元素<code>e</code>，更新<code>first</code>节点，并更改引用链。</p>
+<p><code>addFirst</code>和<code>addLast</code>方法中分别调用了<code>linkFirst</code>方法和<code>linkLast</code>方法：</p>
+<pre><code>private void linkFirst(E e) {
+    final Node&lt;E&gt; f = first;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(null, e, f);
+    first = newNode;
+    if (f == null)
+        last = newNode;
+    else
+        f.prev = newNode;
+    size++;
+    modCount++;
+}
+
+void linkLast(E e) {
+    final Node&lt;E&gt; l = last;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);
+    last = newNode;
+    if (l == null)
+        first = newNode;
+    else
+        l.next = newNode;
+    size++;
+    modCount++;
+}
+</code></pre><p><code>linkFirst/linkLast</code>方法即是将新节点添加到链表的头部或者尾部，更新链表的<code>prev</code>和<code>next</code>引用。</p>
+<p><code>remove</code>方法：</p>
+<pre><code>public boolean remove(Object o) {
+    if (o == null) {
+        for (Node&lt;E&gt; x = first; x != null; x = x.next) {
+            if (x.item == null) {
+                unlink(x);
+                return true;
+            }
+        }
+    } else {
+        for (Node&lt;E&gt; x = first; x != null; x = x.next) {
+            if (o.equals(x.item)) {
+                unlink(x);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+</code></pre><p>不管需要移除的元素<code>O</code>是否为空，都是遍历后调用<code>unlink</code>方法来删除节点，继续看<code>unlink</code>方法：</p>
+<pre><code>E unlink(Node&lt;E&gt; x) {
+    // assert x != null;
+    final E element = x.item;
+    final Node&lt;E&gt; next = x.next;
+    final Node&lt;E&gt; prev = x.prev;
+
+    if (prev == null) {
+        // 如果prev为null的话，那么删除的是first节点，将next指定为删除后的first节点
+        first = next;
+    } else {
+        // prev不为null，将prev的next引用指向next，并解除x元素对prev的引用
+        prev.next = next;
+        x.prev = null;
+    }
+
+    if (next == null) {
+        // 如果next为null，那么删除的是last节点，将prev指定为删除后的last节点
+        last = prev;
+    } else {
+        // next不为null，将next的prev引用指向prev，并解除x的next引用
+        next.prev = prev;
+        x.next = null;
+    }
+    // 置空x节点中的元素
+    x.item = null;
+    size--;
+    modCount++;
+    return element;
+}
+</code></pre><p><code>removeFirst</code>和<code>removeLast</code>方法同样是直接调用了<code>unlinkFirst</code>和<code>unlinkLast</code>，实现和<code>unlink</code>差不多，不做过多解释。</p>
+<p><code>set</code>方法，<code>set</code>方法即修改链表中指定位置的元素：</p>
+<pre><code>public E set(int index, E element) {
+    checkElementIndex(index);
+    Node&lt;E&gt; x = node(index);
+    E oldVal = x.item;
+    x.item = element;
+    return oldVal;
+}
+</code></pre><p>找到指定位置的节点<code>x</code>，更改该节点的<code>item</code>属性就行了。</p>
+<p>看下获取节点的<code>node</code>方法：</p>
+<pre><code>Node&lt;E&gt; node(int index) {
+    // assert isElementIndex(index);
+
+    if (index &lt; (size &gt;&gt; 1)) { // 靠近头部
+        Node&lt;E&gt; x = first;
+        for (int i = 0; i &lt; index; i++)
+            x = x.next;
+        return x;
+    } else {                // 靠近尾部
+        Node&lt;E&gt; x = last;
+        for (int i = size - 1; i &gt; index; i--)
+            x = x.prev;
+        return x;
+    }
+}
+</code></pre><p>判断位置<code>index</code>是靠近头部还是尾部，靠近头部，则从<code>first</code>节点往后遍历，靠近尾部则从<code>last</code>节点往前遍历，这种方式可以使得链表查找的时候遍历次数不会超过链表长度的一半，从而提升查找效率。</p>
+<p><code>get</code>、<code>getFirst</code>、<code>getLast</code>方法：</p>
+<pre><code>public E get(int index) {
+    checkElementIndex(index);
+    return node(index).item;
+}
+
+public E getFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return f.item;
+}
+
+public E getLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return l.item;
+}
+</code></pre><p><code>getFirst</code>和<code>getLast</code>直接后去<code>first</code>和<code>last</code>节点中的元素值，<code>get</code>方法则直接调用了<code>node</code>方法，不再解释。</p>
+<p><code>LinkedList</code>源码中的其他方法不再分析了，实现都很容易理解。从<code>LinkedList</code>的增、删、改、查等方法的实现逻辑可以看出来，<code>LinkedList</code>的增和删效率相对于改和查要高，因为每次修改和查询都要从链表的头节点或尾节点开始遍历，而增加和删除，只需要在制定位置断开节点引用，添加和删除元素后，重新连上引用链即可。所以，<code>LinkedList</code>适合用在添加和删除比较频繁，而修改和查询较少的情况下。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java集合/" rel="tag"># Java集合</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/07/Java集合框架-——-ArrayList源码分析/" rel="next" title="Java集合框架 —— ArrayList源码分析">
+                <i class="fa fa-chevron-left"></i> Java集合框架 —— ArrayList源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/07/Java集合框架-——-HashMap源码分析/" rel="prev" title="Java集合框架 —— HashMap源码分析">
+                Java集合框架 —— HashMap源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

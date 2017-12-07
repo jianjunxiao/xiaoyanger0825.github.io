@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java集合," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言我们知道HashMap底层是采用数组+单向线性链表/红黑树来实现的，HashMap在扩容或者链表与红黑树转换过程时可能会改变元素的位置和顺序。如果需要保存元素存入或访问的先后顺序，那就需要采用LinkedHashMap了。 LinkedHashMap结构LinkedHashMap继承自HashMap，它的所有操作和HashMap类似，底层结构也和HashMap一样，只不过为了维护元素的存入/访">
+<meta name="keywords" content="Java集合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java集合框架 —— LinkedHashMap源码分析">
+<meta property="og:url" content="http://yoursite.com/2017/12/07/Java集合框架-——-LinkedHashMap源码分析/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="前言我们知道HashMap底层是采用数组+单向线性链表/红黑树来实现的，HashMap在扩容或者链表与红黑树转换过程时可能会改变元素的位置和顺序。如果需要保存元素存入或访问的先后顺序，那就需要采用LinkedHashMap了。 LinkedHashMap结构LinkedHashMap继承自HashMap，它的所有操作和HashMap类似，底层结构也和HashMap一样，只不过为了维护元素的存入/访">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://i.imgur.com/7q4Qif4.png">
+<meta property="og:updated_time" content="2017-12-07T09:33:36.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java集合框架 —— LinkedHashMap源码分析">
+<meta name="twitter:description" content="前言我们知道HashMap底层是采用数组+单向线性链表/红黑树来实现的，HashMap在扩容或者链表与红黑树转换过程时可能会改变元素的位置和顺序。如果需要保存元素存入或访问的先后顺序，那就需要采用LinkedHashMap了。 LinkedHashMap结构LinkedHashMap继承自HashMap，它的所有操作和HashMap类似，底层结构也和HashMap一样，只不过为了维护元素的存入/访">
+<meta name="twitter:image" content="https://i.imgur.com/7q4Qif4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/07/Java集合框架-——-LinkedHashMap源码分析/"/>
+
+
+
+
+
+  <title>Java集合框架 —— LinkedHashMap源码分析 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/07/Java集合框架-——-LinkedHashMap源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java集合框架 —— LinkedHashMap源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-07T17:30:47+08:00">
+                2017-12-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>我们知道<code>HashMap</code>底层是采用数组+单向线性链表/红黑树来实现的，<code>HashMap</code>在扩容或者链表与红黑树转换过程时可能会改变元素的位置和顺序。如果需要保存元素存入或访问的先后顺序，那就需要采用<code>LinkedHashMap</code>了。</p>
+<h4 id="LinkedHashMap结构"><a href="#LinkedHashMap结构" class="headerlink" title="LinkedHashMap结构"></a>LinkedHashMap结构</h4><p><code>LinkedHashMap</code>继承自<code>HashMap</code>，它的所有操作和<code>HashMap</code>类似，底层结构也和<code>HashMap</code>一样，只不过为了维护元素的存入/访问顺序，增加了一个双向链表。</p>
+<p><img src="https://i.imgur.com/7q4Qif4.png" alt="LinkedHashMap结构图"></p>
+<p><code>LinkedHashMap</code>由数组、单向线性链表、红黑树、双向线性链表组成。如上图：灰色区域为数组，蓝色节点和蓝色箭头为单向链表的引用关系，绿色节点和绿色箭头为红黑树的引用关系，节点中的数字依次表示元素的存入/访问顺序，由橙色的双向箭头表示双向链表的引用关系。</p>
+<p>注：在JDK1.7及之前<code>HashMap</code>中没有红黑树，<code>LinkedHashMap中</code>也不存在红黑树。另在JDK1.6及之前，HashMap中的链表为单向环形链表，<code>LinkedHashMap中</code>中的单向链表和双向链表都是环形链表。在JDK1.8，<code>LinkedHashMap</code>中可能会存在红黑树，同时单向链表和双向链表都是线性的。本文是基于JDK1.8来分析的。</p>
+<h4 id="LinkedHashMap源码分析"><a href="#LinkedHashMap源码分析" class="headerlink" title="LinkedHashMap源码分析"></a>LinkedHashMap源码分析</h4><p>基本属性：</p>
+<pre><code>transient LinkedHashMap.Entry&lt;K,V&gt; head;    // 双向链表头节点
+transient LinkedHashMap.Entry&lt;K,V&gt; tail;    // 双向链表尾节点
+final boolean accessOrder;                    // 是否按照访问顺序排序
+</code></pre><p>head和tail分别记录了双向链表的头节点和尾节点，遍历时通过<code>head</code>或<code>tail</code>就可以按照存入/访问的顺序来取数据。</p>
+<p><code>accessOrder</code>用以表示<code>LinkedHashMap</code>是否按照访问顺序来排序，为<code>true</code>的话表示按照访问顺序排序，为<code>false</code>表示按照存入顺序排序，默认为<code>false</code>。</p>
+<p>构造函数：</p>
+<pre><code>// 无参构造
+public LinkedHashMap() {
+    super();
+    accessOrder = false;
+}
+// 给定初始容量
+public LinkedHashMap(int initialCapacity) {
+    super(initialCapacity);
+    accessOrder = false;
+}
+// 给定初始容量和加载因子
+public LinkedHashMap(int initialCapacity, float loadFactor) {
+    super(initialCapacity, loadFactor);
+    accessOrder = false;
+}
+// 给定初始容量、加载因子、是否按访问先后排序
+public LinkedHashMap(int initialCapacity,
+                     float loadFactor,
+                     boolean accessOrder) {
+    super(initialCapacity, loadFactor);
+    this.accessOrder = accessOrder;
+}
+</code></pre><p>构造函数都是调用父类<code>HashMap</code>的构造函数。前3个都默认<code>accessOrder</code>为<code>false</code>，<code>LinkedHashMap</code>内部按照存入顺序排序。最后一个构造函数可以指定<code>accessOrder</code>的值。</p>
+<p>增：</p>
+<p><code>LinkedHashMap</code>添加数据要调用了父类的<code>HashMap</code>的<code>put</code>方法，在<code>HashMap</code>的源码中，<code>put</code>方法存入元素后，调用了<code>afterNodeAccess</code>和<code>afterNodeInsertion</code>方法，这两个方法在<code>HashMap</code>中都是空方法，<code>LinkedHashMap</code>实现了这两个方法：</p>
+<pre><code>void afterNodeAccess(Node&lt;K,V&gt; e) { 
+    LinkedHashMap.Entry&lt;K,V&gt; last;
+    // 如果按照访问顺序排序，并且添加的元素e不是双向链表的尾节点
+    if (accessOrder &amp;&amp; (last = tail) != e) {
+        LinkedHashMap.Entry&lt;K,V&gt; p =
+            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;
+        p.after = null;
+        if (b == null)
+            head = a;
+        else
+            b.after = a;
+        if (a != null)
+            a.before = b;
+        else
+            last = b;
+        if (last == null)
+            head = p;
+        else {
+            p.before = last;
+            last.after = p;
+        }
+        tail = p;
+        ++modCount;
+    }
+}
+</code></pre><p><code>afterNodeAccess</code>方法的逻辑就是将当前节点<code>e</code>移动到双向链表的尾部。每次<code>LinkedHashMap</code>中有元素被访问时，就会按照访问先后来排序，先访问的在双向链表中靠前，越后访问的越接近尾部。当然只有当<code>accessOrder</code>为<code>true</code>时，才会执行这个操作。</p>
+<pre><code>void afterNodeInsertion(boolean evict) { // possibly remove eldest
+    LinkedHashMap.Entry&lt;K,V&gt; first;
+    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) {
+        K key = first.key;
+        removeNode(hash(key), key, null, false, true);
+    }
+}
+</code></pre><p><code>afterNodeInsertion</code>方法意思是<code>evict</code>为<code>true</code>时删除双向链表的头节点。</p>
+<p>通过<code>afterNodeAccess</code>和<code>afterNodeInsertion</code>这两个方法，如果当<code>LinkedHashMap</code>的容量达到一定量时，需要保存它的<code>size</code>不变，那么每次添加一个元素到双向链表的尾部，就要删除一个双向链表头部的元素，这相当于实现了<code>LruCache</code>的策略。</p>
+<p>删：</p>
+<p>删除元素同样也是调用了<code>HashMap</code>的<code>remove</code>方法，在<code>remove</code>方法中，调用了<code>afterNodeRemoval</code>方法。</p>
+<pre><code>void afterNodeRemoval(Node&lt;K,V&gt; e) { // unlink
+    LinkedHashMap.Entry&lt;K,V&gt; p =
+        (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;
+    p.before = p.after = null;
+    if (b == null)
+        head = a;
+    else
+        b.after = a;
+    if (a == null)
+        tail = b;
+    else
+        a.before = b;
+}
+</code></pre><p><code>afterNodeRemoval</code>方法就是将<code>e</code>节点从双向链表中删除，更改<code>e</code>前后节点引用关系，使之重新连成完整的双向链表。</p>
+<p>改：</p>
+<p><code>LinkedHashMap</code>更改元素的<code>value</code>值，仍是调用<code>put</code>方法，涉及到的逻辑可以看上面的<code>afterNodeAccess</code>和<code>afterNodeInsertion</code>这两个方法。</p>
+<p>查：</p>
+<p><code>LinkedHashMap</code>自己实现了<code>get</code>方法。</p>
+<pre><code>public V get(Object key) {
+    Node&lt;K,V&gt; e;
+    if ((e = getNode(hash(key), key)) == null)
+        return null;
+    if (accessOrder)
+        afterNodeAccess(e);
+    return e.value;
+}
+</code></pre><p>逻辑非常简单，直接调用<code>HashMap</code>的<code>getNode</code>方法，如果需要按照访问先后排序，调用<code>afterNodeAccess</code>更新双向链表排序。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><code>LinkedHashMap</code>继承了<code>HashMap</code>的所有特性，唯一的区别就是<code>LinkedHashMap</code>是一个有序的映射集合，而<code>HashMap</code>则是无序的。<code>LinkedHashMap</code>实现排序的原理就是再内部增加了一个双向链表来记录元素的存入/访问顺序。<code>LinkedHashMap</code>内部是记录的是存入还是访问顺序取决于关键属性<code>accessOrder</code>，默认是按存入顺序记录。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java集合/" rel="tag"># Java集合</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/07/Java集合框架-——-HashMap源码分析/" rel="next" title="Java集合框架 —— HashMap源码分析">
+                <i class="fa fa-chevron-left"></i> Java集合框架 —— HashMap源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/07/Java集合框架-——-HashSet、LinkedHashSet源码分析/" rel="prev" title="Java集合框架 —— HashSet、LinkedHashSet源码分析">
+                Java集合框架 —— HashSet、LinkedHashSet源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LinkedHashMap结构"><span class="nav-number">2.</span> <span class="nav-text"><a href="#LinkedHashMap&#x7ED3;&#x6784;" class="headerlink" title="LinkedHashMap&#x7ED3;&#x6784;"></a>LinkedHashMap&#x7ED3;&#x6784;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LinkedHashMap源码分析"><span class="nav-number">3.</span> <span class="nav-text"><a href="#LinkedHashMap&#x6E90;&#x7801;&#x5206;&#x6790;" class="headerlink" title="LinkedHashMap&#x6E90;&#x7801;&#x5206;&#x6790;"></a>LinkedHashMap&#x6E90;&#x7801;&#x5206;&#x6790;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
