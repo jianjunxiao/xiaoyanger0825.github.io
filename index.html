@@ -181,7 +181,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            Home
           </a>
         </li>
       
@@ -191,7 +191,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archiv
+            Archives
           </a>
         </li>
       
@@ -257,7 +257,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-07T16:37:20+08:00">
                 2017-12-07
@@ -278,7 +278,7 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">In</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -415,155 +415,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/07/Java虚拟机-——-运行时数据区/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/07/Java虚拟机-——-运行时数据区/" itemprop="url">Unbenannt</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Veröffentlicht am</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-07T16:12:13+08:00">
-                2017-12-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="JVM运行时数据区"><a href="#JVM运行时数据区" class="headerlink" title="JVM运行时数据区"></a>JVM运行时数据区</h2><p>Java虚拟机内存，是指JVM的运行时数据区域，主要分为：方法区、堆、虚拟机栈、本地方法栈、程序计数器。其中方法区和堆为索引线程的共享数据区，而虚拟机栈、本地方法栈、程序计数器为线程隔离的数据区。<br><img src="http://i.imgur.com/mNNVN4G.png" alt=""></p>
-<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>每个线程都有一个独立的计数器用来记录程序当前执行的指令，可以看成是当前线程所执行的字节码的行号指示器。如果线程正在执行Java方法，计数器记录的是正在执行的虚拟机字节码指令的地址；如果执行的是Native方法，计数器记录值为空(<code>Undefined</code>)。程序计数器占用的内存空间非常小，是线程的私有区域，此内存区域是唯一一个在Java虚拟机规范中没有规定任何<code>OutOfMemoryError</code>情况的区域。</p>
-<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><p>虚拟机栈也是线程私有的，它的生命周期与线程相同。虚拟机栈是一个后进先出的数据结构，里面存放的是栈帧，每个Java方法的调用对应一个栈帧在虚拟机栈中的入栈和出栈。当线程执行一个Java方法执行时，就会创建一个新的栈帧并压入到该线程的虚拟机栈的栈顶，Java方法执行结束后栈顶的该栈帧就会弹出栈并销毁。</p>
-<p>栈帧里面存放的是Java方法执行的一些数据，包括局部变量表、操作数栈、动态连接、方法出口等。<br><img src="http://i.imgur.com/DEiQRe6.png" alt=""></p>
-<h5 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h5><p>局部变量表是一组变量值存储空间，用于存放方法参数和方法内部定义的局部变量。</p>
-<p>局部变量表的容量以变量槽（Slot）为最小单位，32位虚拟机中一个Slot可以存放一个32位以内的数据类型（boolean、byte、char、short、int、float、reference和returnAddress八种）。reference类型虚拟机规范没有明确说明它的长度，但一般来说，虚拟机实现至少都应当能从此引用中直接或者间接地查找到对象在Java堆中的起始地址索引和方法区中的对象类型数据。returnAddress类型是为字节码指令jsr、jsr_w和ret服务的，它指向了一条字节码指令的地址。</p>
-<p>Java虚拟机是使用局部变量表完成参数值到Java方法参数变量列表的传递过程的，如果是实例方法（非static），那么局部变量表的第0位索引的Slot默认是用于传递方法所属对象实例的引用，在方法中通过this访问。</p>
-<p>Slot是可以重用的，下一次分配Slot的时候，将会覆盖原来的数据。Slot对对象的引用会影响GC（要是被引用，将不会被回收）。</p>
-<h5 id="操作数栈"><a href="#操作数栈" class="headerlink" title="操作数栈"></a>操作数栈</h5><p>操作数栈也常被称为操作栈，同样是一个后进先出的数据结构。当一个方法刚刚开始执行的时候，这个方法的操作数栈是空的，在方法的执行过程中，会有各种字节码指令向操作数栈中写入和提取内容，也就是入栈出栈操作。在做算术运算的时候是通过操作数栈来进行的，在调用其他方法的时候是通过操作数栈来进行参数传递的。JVM将操作数栈作为工作区。JVM没有寄存器，所有的参数传递和返回值都是基于操作数栈来完成的。</p>
-<p>比如，执行引擎执行<code>c = a + b</code>时，会先被操作的参数<code>a</code>和<code>b</code>压入操作数栈，然后操作指令将他们弹出栈，并执行操作，将结果再压入栈。</p>
-<p>Java虚拟机的解释执行引擎称为“基于栈的执行引擎”，其中所指的“栈”就是操作数栈。</p>
-<h5 id="动态连接"><a href="#动态连接" class="headerlink" title="动态连接"></a>动态连接</h5><p>每个栈帧都包含一个指向运行时常量池中该栈帧所属方法的引用，持有这个引用是为了支持方法调用过程中的动态连接。Class文件的常量池有存有大量的符号引用，字节码中的方法调用指令就以常量池中指向方法的符号引用为参数。这些符号引用一部分会在类加载阶段或第一次使用的时候转化为直接引用，这种转化称为静态解析。另外一部分将在每一次的运行期间转化为直接引用，这部分称为动态连接。</p>
-<h5 id="方法出口-返回地址"><a href="#方法出口-返回地址" class="headerlink" title="方法出口(返回地址)"></a>方法出口(返回地址)</h5><p>当一个方法被执行后，有两种方式退出这个方法。第一种方式是执行引擎遇到任意一个方法返回的字节码指令，这时候可能会有返回值传递给上层的方法调用者（调用当前方法的方法称为调用者），是否有返回值和返回值的类型将根据遇到何种方法返回指令来决定，这种退出方法的方式称为正常完成出口（Normal Method Invocation Completion）。</p>
-<p>另外一种退出方式是，在方法执行过程中遇到了异常，并且这个异常没有在方法体内得到处理，无论是Java虚拟机内部产生的异常，还是代码中使用athrow字节码指令产生的异常，只要在本方法的异常表中没有搜索到匹配的异常处理器，就会导致方法退出，这种退出方法的方式称为异常完成出口（Abrupt Method Invocation Completion）。一个方法使用异常完成出口的方式退出，是不会给它的上层调用者产生任何返回值的。</p>
-<p>无论采用何种退出方式，在方法退出之后，都需要返回到方法被调用的位置，程序才能继续执行，方法返回时可能需要在栈帧中保存一些信息，用来帮助恢复它的上层方法的执行状态。一般来说，方法正常退出时，调用者的PC计数器的值就可以作为返回地址，栈帧中很可能会保存这个计数器值。而方法异常退出时，返回地址是要通过异常处理器来确定的，栈帧中一般不会保存这部分信息。</p>
-<p>方法退出的过程实际上等同于把当前栈帧出栈，因此退出时可能执行的操作有：恢复上层方法的局部变量表和操作数栈，把返回值（如果有的话）压入调用者栈帧的操作数栈中，调整PC计数器的值以指向方法调用指令后面的一条指令等。</p>
-<h5 id="虚拟机栈Error"><a href="#虚拟机栈Error" class="headerlink" title="虚拟机栈Error"></a>虚拟机栈Error</h5><p>Java虚拟机栈有可能出现的error就是<code>StackOverflowError</code>和<code>OutOfMemoryError</code>。当线程请求的栈深度大于Java虚拟机栈允许的深度时，就会抛出<code>StackOverflowError</code>错误。比如将一个方法反复递归，最终就会出现<code>StackOverflowError</code>。当Java虚拟机栈可以动态扩展时（大部分的 Java 虚拟机都可动态扩展，不过 Java 虚拟机规范中也允许固定长度的虚拟机栈），如果无法申请到足够的内存来扩展栈，就会抛出<code>OutOfMemoryError</code>错误。</p>
-<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈与虚拟机栈的功能类似，他们的区别在于虚拟机栈为执行Java代码方法服务，而本地方法栈是为Native方法服务。本地方法栈就是一个C的方法栈，本地方法栈的参数顺序、返回值和典型的C程序相同，本地方法一般来说可以（依赖 JVM 的实现）反过来调用 JVM 中的 Java 方法。这种native方法调用Java会发生在栈（一般是Java栈）上，线程将离开本地方法栈，并在 Java 栈上开辟一个新的栈帧。</p>
-<p>与虚拟机栈一样，本地方法栈也会抛出<code>StackOverflowError</code>和<code>OutOfMemoryError</code>。</p>
-<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>堆是Java虚拟机中最大的一块内存区域，它是有所有的线程共享。几乎所有的实例对象和数组都是在堆中存放。只要是通过<code>new</code>关键字创建对象或者直接声明数组，都会在堆中开辟内存空间来存放。因为在栈帧被创建后无法调整大小，栈帧中只能存放对象和数组在堆中的引用。方法或线程结束时对象和数组不会立即被移除销毁，它只能由垃圾回收器回收。</p>
-<p>同样地，如果在堆中没有内存来完成实例分配，并且堆也无法扩展时，将会抛出<code>OutOfMemoryError</code>。</p>
-<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>方法区与堆一样，是各个线程共享的内存区域，它存储已经被虚拟机加载的类信息(包括字段信息、方法信息、方法代码等)、常量、静态变量、即时编译器编译后的代码等数据。</p>
-<p>方法区中的内存一般不会被GC回收，GC也很难回收。方法区的内存回收主要是针对针对常量池的回收和对类的卸载。根据 Java 虚拟机规范的规定，当方法区无法满足内存分配需求时，将抛出 OutOfMemoryError 异常。</p>
-<h5 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h5><p>运行时常量池是方法区的一部分，Class文件除了有关类的版本、字段、方法、接口等描述信息外，还有一项信息是常量池，用于存放编译期生成的各种字面量和符号引用，这部分内容将在类加载后进入方法区的运行时常量池中存放。运行时常量池可以理解为是类或接口的常量池的运行时表现形式。</p>
-<hr>
-<p>参考：</p>
-<ul>
-<li><a href="http://blog.csdn.net/xlgen157387/article/details/45044655" target="_blank" rel="noopener">Java虚拟机内存区域划分详解</a></li>
-<li><a href="http://www.360doc.com/content/17/0804/15/46080707_676628168.shtml" target="_blank" rel="noopener">JAVA内存结构之运行时栈帧结构</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -610,8 +461,8 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
-                  <span class="site-state-item-name">Artikel</span>
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">posts</span>
                 </a>
               </div>
             
@@ -622,7 +473,7 @@
               <div class="site-state-item site-state-categories">
                 
                   <span class="site-state-item-count">1</span>
-                  <span class="site-state-item-name">Kategorien</span>
+                  <span class="site-state-item-name">categories</span>
                 
               </div>
             
@@ -633,7 +484,7 @@
               <div class="site-state-item site-state-tags">
                 
                   <span class="site-state-item-count">1</span>
-                  <span class="site-state-item-name">Tags</span>
+                  <span class="site-state-item-name">tags</span>
                 
               </div>
             
@@ -681,7 +532,7 @@
 </div>
 
 
-  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
 
 
 
