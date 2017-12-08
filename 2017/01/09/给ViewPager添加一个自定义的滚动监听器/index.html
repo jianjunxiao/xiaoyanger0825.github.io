@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="自定义View," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ViewPager是在日常开发业务中使用较多的，通常我们都会使用OnPagerChangeListener来监听ViewPager页面的滚动和状态变化：12345678910111213141516171819202122mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() &amp;#123;    @Overri">
+<meta name="keywords" content="自定义View">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给ViewPager添加一个自定义的滚动监听器">
+<meta property="og:url" content="http://yoursite.com/2017/01/09/给ViewPager添加一个自定义的滚动监听器/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="ViewPager是在日常开发业务中使用较多的，通常我们都会使用OnPagerChangeListener来监听ViewPager页面的滚动和状态变化：12345678910111213141516171819202122mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() &amp;#123;    @Overri">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-4bc957ef07fbf473.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-c885bb1563eee506.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-e0656589ae779581.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-6db76b746e818385.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-55bc5d8be7f8199e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-24737869f913e660.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-bb4b8d3d1fea999f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-0374d08ece707375.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-12-08T06:42:51.241Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="给ViewPager添加一个自定义的滚动监听器">
+<meta name="twitter:description" content="ViewPager是在日常开发业务中使用较多的，通常我们都会使用OnPagerChangeListener来监听ViewPager页面的滚动和状态变化：12345678910111213141516171819202122mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() &amp;#123;    @Overri">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-4bc957ef07fbf473.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/01/09/给ViewPager添加一个自定义的滚动监听器/"/>
+
+
+
+
+
+  <title>给ViewPager添加一个自定义的滚动监听器 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/09/给ViewPager添加一个自定义的滚动监听器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">给ViewPager添加一个自定义的滚动监听器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-09T17:33:07+08:00">
+                2017-01-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>ViewPager是在日常开发业务中使用较多的，通常我们都会使用OnPagerChangeListener来监听ViewPager页面的滚动和状态变化：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onPageScrolled(int position, float positionOffset, int     positionOffsetPixels) &#123;</span><br><span class="line">        // 页面正在滚动时不断调用</span><br><span class="line">        Log.d(&quot;ViewPager&quot;, &quot;onPageScrolled————&gt;&quot;        </span><br><span class="line">              + &quot;    position：&quot; + position        </span><br><span class="line">              + &quot;    positionOffest：&quot; + positionOffset       </span><br><span class="line">              + &quot;    positionOffsetPixels：&quot; + positionOffsetPixels);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPageSelected(int position) &#123;</span><br><span class="line">        // 页面选中时调用</span><br><span class="line">        Log.d(&quot;ViewPager&quot;, &quot;onPagerSelected————&gt;    position：&quot; +position);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPageScrollStateChanged(int state) &#123;</span><br><span class="line">        // 页面的滚动状态变化时调用</span><br><span class="line">        Log.d(&quot;ViewPager&quot;, &quot;onPageScrollStateChanged————&gt;    state：&quot; + state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>在onPageScrolled方法中：<br>position：在滑动过程中，有可能是你当前页面位置，也有可能是你要滑动到的下一个页面位置；<br>positionOffset：页面位置的偏移量，值为0到1之间。页面从右向左滑出时，值从0逐渐变为1并且在趋近1的时候突变为0。页面从左向右滑出时，值从1逐渐变为0；<br>positionOffsetPixels：页面滑动的像素值，从右向左滑动时，该值逐渐变大，从左向右滑动时，逐渐变小。</p>
+<p>从第0页滑动到第1页onPageScrolled调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-4bc957ef07fbf473.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled0-1.png"><br>从第1页滑动到第2页onPageScrolled调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-c885bb1563eee506.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled1-2.png"><br>从第2页滑动回到第1页onPageScrolled调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-e0656589ae779581.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled2-1.png"><br>从第1页滑动回到第0页onPageScrolled调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-6db76b746e818385.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled1-0.png"><br>通常情况下，这个监听器中的三个回调方法已经完全能够满足我们的业务需要。<br>但是因为第一个参数position在滑动过程中不是很明确的表示是当前页面位置还是下一个页面的位置，我们还需要通过positionOffset或者positionOffsetPixels来判断。<br>        因此我们通过OnPageChangedListener来封装一个自定义的滚动监听器，使用这个自定义的滚动监听器，在页面滑动时，可以很明确的回调进入的页面，离开的页面，以及滑动百分比、状态和最后选中的页面。</p>
+<p>1.定义滚动监听接口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * ViewPage的页面滚动监听器</span><br><span class="line"> */</span><br><span class="line">public interface OnPageScrollListener &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 页面滚动时调用</span><br><span class="line">     *</span><br><span class="line">     * @param enterPosition 进入页面的位置</span><br><span class="line">     * @param leavePosition 离开的页面的位置</span><br><span class="line">     * @param percent       滑动百分比</span><br><span class="line">     */</span><br><span class="line">    void onPageScroll(int enterPosition, int leavePosition, float percent);</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 页面选中时调用</span><br><span class="line">     *</span><br><span class="line">     * @param position 选中页面的位置</span><br><span class="line">     */</span><br><span class="line">    void onPageSelected(int position);</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 页面滚动状态变化时调用</span><br><span class="line">     *</span><br><span class="line">     * @param state 页面的滚动状态</span><br><span class="line">     */</span><br><span class="line">    void onPageScrollStateChanged(int state);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>2.在ViewPagerHelper中来实现滑动时页面位置、百分比的回调<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * ViewPager辅助类</span><br><span class="line"> */</span><br><span class="line">public class ViewPagerHelper &#123;</span><br><span class="line"></span><br><span class="line">    private double mLastPositionOffsetSum;  // 上一次滑动总的偏移量</span><br><span class="line">    private OnPageScrollListener mOnPageScrollListener;</span><br><span class="line"></span><br><span class="line">    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) &#123;</span><br><span class="line">        // 当前总的偏移量</span><br><span class="line">        float currentPositionOffsetSum = position + positionOffset;</span><br><span class="line">        // 上次滑动的总偏移量大于此次滑动的总偏移量，页面从右向左进入(手指从右向左滑动)</span><br><span class="line">        boolean rightToLeft = mLastPositionOffsetSum &lt;= currentPositionOffsetSum;</span><br><span class="line">        if (currentPositionOffsetSum == mLastPositionOffsetSum) return;</span><br><span class="line">        int enterPosition;</span><br><span class="line">        int leavePosition;</span><br><span class="line">        float percent;</span><br><span class="line">        if (rightToLeft) &#123;  // 从右向左滑</span><br><span class="line">            enterPosition = (positionOffset == 0.0f) ? position : position + 1;</span><br><span class="line">            leavePosition = enterPosition - 1;</span><br><span class="line">            percent = (positionOffset == 0.0f) ? 1.0f : positionOffset;</span><br><span class="line">        &#125; else &#123;            // 从左向右滑</span><br><span class="line">            enterPosition = position;</span><br><span class="line">            leavePosition = position + 1;</span><br><span class="line">            percent = 1 - positionOffset;</span><br><span class="line">        &#125;</span><br><span class="line">        if (mOnPageScrollListener != null) &#123;</span><br><span class="line">            mOnPageScrollListener.onPageScroll(enterPosition, leavePosition, percent);</span><br><span class="line">        &#125;</span><br><span class="line">        mLastPositionOffsetSum = currentPositionOffsetSum;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void onPageSelected(int position) &#123;</span><br><span class="line">        if (mOnPageScrollListener != null) &#123;</span><br><span class="line">            mOnPageScrollListener.onPageSelected(position);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @param state 当前滑动状态</span><br><span class="line">     *              ViewPager.SCROLL_STATE_IDLE     页面处于闲置、稳定状态，即没被拖动也没惯性滑动</span><br><span class="line">     *              ViewPager.SCROLL_STATE_DRAGGING 页面正在被用户拖动，即手指正在拖动状态</span><br><span class="line">     *              Viewpager.SCROLL_STATE_SETTLING 页面处于即将到达最终状态的过程，即手指松开后惯性滑动状态</span><br><span class="line">     */</span><br><span class="line">    public void onPageScrollStateChanged(int state) &#123;</span><br><span class="line">        if (mOnPageScrollListener != null) &#123;</span><br><span class="line">            mOnPageScrollListener.onPageScrollStateChanged(state);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setOnPageScrollListener(OnPageScrollListener onPageScrollListener) &#123;</span><br><span class="line">        mOnPageScrollListener = onPageScrollListener;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>3.采用工具类ViewPagerUtil来绑定ViewPager和OnPageScrollListener<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * ViewPager工具类</span><br><span class="line"> */</span><br><span class="line">public class ViewPagerUtil &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 给ViewPager绑定自定义的滚动监听</span><br><span class="line">     *</span><br><span class="line">     * @param viewPager</span><br><span class="line">     * @param onPageScrollListener</span><br><span class="line">     */</span><br><span class="line">    public static void bind(@NonNull ViewPager viewPager, @NonNull OnPageScrollListener onPageScrollListener) &#123;</span><br><span class="line">        final ViewPagerHelper helper = new ViewPagerHelper();</span><br><span class="line">        // 给helper设置滚动监听</span><br><span class="line">        helper.setOnPageScrollListener(onPageScrollListener);</span><br><span class="line">        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) &#123;</span><br><span class="line">                helper.onPageScrolled(position, positionOffset, positionOffsetPixels);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            @Override</span><br><span class="line">            public void onPageSelected(int position) &#123;</span><br><span class="line">                helper.onPageSelected(position);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            @Override</span><br><span class="line">            public void onPageScrollStateChanged(int state) &#123;</span><br><span class="line">                helper.onPageScrollStateChanged(state);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>4.调用工具类方法实现绑定<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">ViewPagerUtil.bind(mViewPager, new OnPageScrollListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onPageScroll(int enterPosition, int leavePosition, float percent) &#123;</span><br><span class="line">        Log.d(&quot;ViewPager&quot;, &quot;onPageScrolled————&gt;&quot;</span><br><span class="line">              + &quot;    进入页面：&quot; + enterPosition</span><br><span class="line">              + &quot;    离开页面：&quot; + leavePosition</span><br><span class="line">              + &quot;    滑动百分比：&quot; + percent);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPageSelected(int position) &#123;</span><br><span class="line">        Log.d(&quot;ViewPager&quot;, &quot;onPageSelected————&gt;    position：&quot; + position);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPageScrollStateChanged(int state) &#123;</span><br><span class="line">        Log.d(&quot;ViewPager&quot;, &quot;onPageScrollStateChanged————&gt;    state：&quot; + state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>运行结果：<br>从第0页滑动到第1页onPageScroll调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-55bc5d8be7f8199e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled0-1.png"><br>从第1页滑动到第2页onPageScroll调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-24737869f913e660.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled1-2.png"><br>从第2页滑动到第1页onPageScroll调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-bb4b8d3d1fea999f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled2-1.png"><br>从第1页滑动到第0页onPageScroll调用：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-0374d08ece707375.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="onPageScrolled1-0.png"></p>
+<p>通过封装过后的OnPageScrollListener，可以很方便的定义各种样式的ViewPager指示器。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/自定义View/" rel="tag"># 自定义View</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/13/自定义ViewPager轮播图指示器/" rel="prev" title="自定义ViewPager轮播图指示器">
+                自定义ViewPager轮播图指示器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

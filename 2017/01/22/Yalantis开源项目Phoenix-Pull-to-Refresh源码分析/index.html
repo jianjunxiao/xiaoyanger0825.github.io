@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="源码分析," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="GitHub上有个非常漂亮的Android下拉刷新框架，是由Yalantis开源的，看如下效果图：在我自己做的项目中也用到了这样的下拉刷新样式，今天就来分析下它的源码。项目地址：https://github.com/Yalantis/Phoenix  看下这个项目的library结构：除了一个工具包，真正涉及到下拉刷新UI逻辑的就只有3个类：PullToRefreshView，BaseRefres">
+<meta name="keywords" content="源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Yalantis开源项目Phoenix-Pull-to-Refresh源码分析">
+<meta property="og:url" content="http://yoursite.com/2017/01/22/Yalantis开源项目Phoenix-Pull-to-Refresh源码分析/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="GitHub上有个非常漂亮的Android下拉刷新框架，是由Yalantis开源的，看如下效果图：在我自己做的项目中也用到了这样的下拉刷新样式，今天就来分析下它的源码。项目地址：https://github.com/Yalantis/Phoenix  看下这个项目的library结构：除了一个工具包，真正涉及到下拉刷新UI逻辑的就只有3个类：PullToRefreshView，BaseRefres">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-dd22afa18d7e9444.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-b03f3c1649711a31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-12-08T06:30:51.786Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Yalantis开源项目Phoenix-Pull-to-Refresh源码分析">
+<meta name="twitter:description" content="GitHub上有个非常漂亮的Android下拉刷新框架，是由Yalantis开源的，看如下效果图：在我自己做的项目中也用到了这样的下拉刷新样式，今天就来分析下它的源码。项目地址：https://github.com/Yalantis/Phoenix  看下这个项目的library结构：除了一个工具包，真正涉及到下拉刷新UI逻辑的就只有3个类：PullToRefreshView，BaseRefres">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-dd22afa18d7e9444.gif?imageMogr2/auto-orient/strip">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/01/22/Yalantis开源项目Phoenix-Pull-to-Refresh源码分析/"/>
+
+
+
+
+
+  <title>Yalantis开源项目Phoenix-Pull-to-Refresh源码分析 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/22/Yalantis开源项目Phoenix-Pull-to-Refresh源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Yalantis开源项目Phoenix-Pull-to-Refresh源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-22T17:18:10+08:00">
+                2017-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>GitHub上有个非常漂亮的Android下拉刷新框架，是由Yalantis开源的，看如下效果图：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-dd22afa18d7e9444.gif?imageMogr2/auto-orient/strip" alt="Phoenix-Pull-to-Refresh"><br>在我自己做的项目中也用到了这样的下拉刷新样式，今天就来分析下它的源码。<br>项目地址：<a href="https://github.com/Yalantis/Phoenix" target="_blank" rel="noopener">https://github.com/Yalantis/Phoenix</a></p>
+<hr>
+<p>看下这个项目的library结构：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-b03f3c1649711a31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Phoenix-Pull-to-Refresh的Labrary结构"><br>除了一个工具包，真正涉及到下拉刷新UI逻辑的就只有3个类：<code>PullToRefreshView</code>，<code>BaseRefreshVeiw</code>，<code>SunRefreshView</code>。</p>
+<p>官方给出的使用demo：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;com.yalantis.phoenix.PullToRefreshView</span><br><span class="line">    android:id=&quot;@+id/pull_to_refresh&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;ListView</span><br><span class="line">        android:id=&quot;@+id/list_view&quot;</span><br><span class="line">        android:divider=&quot;@null&quot;</span><br><span class="line">        android:dividerHeight=&quot;0dp&quot;</span><br><span class="line">        android:layout_width=&quot;match_parent&quot;</span><br><span class="line">        android:layout_height=&quot;match_parent&quot; /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/com.yalantis.phoenix.PullToRefreshView&gt;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);</span><br><span class="line">mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onRefresh() &#123;</span><br><span class="line">        mPullToRefreshView.postDelayed(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                mPullToRefreshView.setRefreshing(false);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, REFRESH_DELAY);</span><br><span class="line">    &#125;</span><br><span class="line"> &#125;);</span><br></pre></td></tr></table></figure>
+<p>特别简单，是不是有种熟悉的感觉，基本上就和<code>SwipeRefreshLayout</code>的使用方式一样。</p>
+<hr>
+<h4 id="PullToRefreshView"><a href="#PullToRefreshView" class="headerlink" title="PullToRefreshView"></a>PullToRefreshView</h4><p><code>PullToRefreshView</code>继承自<code>ViewGroup</code>，那么我们就按照自定义<code>ViewGroup</code>的套路来进行分析。<br>构造函数中初始化一些属性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public PullToRefreshView(Context context, AttributeSet attrs) &#123;</span><br><span class="line">    super(context, attrs);</span><br><span class="line">    // 自定义属性（实际上这个属性没什么用处）</span><br><span class="line">    TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RefreshView);</span><br><span class="line">    final int type = a.getInteger(R.styleable.RefreshView_type, STYLE_SUN);</span><br><span class="line">    a.recycle();</span><br><span class="line">    // 动画插值器</span><br><span class="line">    mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);</span><br><span class="line">    // 滑动触发的临界距离</span><br><span class="line">    mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();</span><br><span class="line">    // 触发下拉刷新拖动的总距离</span><br><span class="line">    mTotalDragDistance = Utils.convertDpToPixel(context, DRAG_MAX_DISTANCE);</span><br><span class="line">    // 头部刷新的ImageView</span><br><span class="line">    mRefreshView = new ImageView(context);</span><br><span class="line">    // 根据type设置刷新样式</span><br><span class="line">    setRefreshStyle(type);</span><br><span class="line">    // 将头部刷新ImageVeiw添加到当前的PullToRefreshView</span><br><span class="line">    addView(mRefreshView);</span><br><span class="line"></span><br><span class="line">    setWillNotDraw(false);</span><br><span class="line">    ViewCompat.setChildrenDrawingOrderEnabled(this, true);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void setRefreshStyle(int type) &#123;</span><br><span class="line">    setRefreshing(false);</span><br><span class="line">    switch (type) &#123;</span><br><span class="line">        case STYLE_SUN:</span><br><span class="line">            // new一个刷新的Drawable</span><br><span class="line">            mBaseRefreshView = new SunRefreshView(getContext(), this);</span><br><span class="line">            break;</span><br><span class="line">        default:</span><br><span class="line">            throw new InvalidParameterException(&quot;Type does not exist&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    // 设置头部刷新的ImageView(mRefreshView)设自定义的Drawable(mBaseRefreshView)</span><br><span class="line">    mRefreshView.setImageDrawable(mBaseRefreshView);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>根据上文中<code>PullToRefreshView</code>的使用方式，同时在构造函数中向<code>PullToRefreshView</code>添加了一个<code>ImageView(mRefreshView)</code>，可以看出整个<code>PullToRefreshView</code>中就只有两个子控件：<code>mRefreshView</code>，<code>mTarget</code>。<br><code>mRefreshView</code>就是下拉及刷新过程头部用来展示动画的<code>ImageView</code>。<br><code>mTarget</code>就是需要刷新的目标<code>View</code>，比如<code>RecylerView</code>，<code>ListView</code>，<code>ScrollView</code>。</p>
+<h5 id="onMeasure"><a href="#onMeasure" class="headerlink" title="onMeasure"></a>onMeasure</h5><p>测量子控件（<code>mTarget</code>，<code>mRefreshView</code>）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) &#123;</span><br><span class="line">    super.onMeasure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">    // 确保需要刷新的子控件Target已经添加</span><br><span class="line">    ensureTarget();</span><br><span class="line">    if (mTarget == null) return;</span><br><span class="line">    // 测量mTarget和mRefreshView</span><br><span class="line">    widthMeasureSpec = MeasureSpec.makeMeasureSpec(getMeasuredWidth() - getPaddingRight() - getPaddingLeft(), MeasureSpec.EXACTLY);</span><br><span class="line">    heightMeasureSpec = MeasureSpec.makeMeasureSpec(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY);</span><br><span class="line">    mTarget.measure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">    mRefreshView.measure(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void ensureTarget() &#123;</span><br><span class="line">    if (mTarget != null) return;</span><br><span class="line">    if (getChildCount() &gt; 0) &#123;</span><br><span class="line">        // 遍历子View，找到mTarget</span><br><span class="line">        for (int i = 0; i &lt; getChildCount(); i++) &#123;</span><br><span class="line">            View child = getChildAt(i);</span><br><span class="line">            if (child != mRefreshView) &#123;</span><br><span class="line">                mTarget = child;</span><br><span class="line">                mTargetPaddingBottom = mTarget.getPaddingBottom();</span><br><span class="line">                mTargetPaddingLeft = mTarget.getPaddingLeft();</span><br><span class="line">                mTargetPaddingRight = mTarget.getPaddingRight();</span><br><span class="line">                mTargetPaddingTop = mTarget.getPaddingTop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="onLayout"><a href="#onLayout" class="headerlink" title="onLayout"></a>onLayout</h5><p>布局子控件（<code>mTarget</code>，<code>mRefreshView</code>）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onLayout(boolean changed, int l, int t, int r, int b) &#123;</span><br><span class="line">    ensureTarget();</span><br><span class="line">    if (mTarget == null) return;</span><br><span class="line">    // 获取PullToRefreshView的宽高以及padding值</span><br><span class="line">    int height = getMeasuredHeight();</span><br><span class="line">    int width = getMeasuredWidth();</span><br><span class="line">    int left = getPaddingLeft();</span><br><span class="line">    int top = getPaddingTop();</span><br><span class="line">    int right = getPaddingRight();</span><br><span class="line">    int bottom = getPaddingBottom();</span><br><span class="line">    // 根据PullToRefreshView的宽高和内边界来布局mTarget、mRefreshView</span><br><span class="line">    mTarget.layout(left, top + mCurrentOffsetTop, left + width - right, top + height - bottom + mCurrentOffsetTop);</span><br><span class="line">    mRefreshView.layout(left, top, left + width - right, top + height - bottom);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="onInterceptTouchEvent"><a href="#onInterceptTouchEvent" class="headerlink" title="onInterceptTouchEvent"></a>onInterceptTouchEvent</h5><p>重点来了，拦截<code>TouchEvent</code>。<code>mTarget</code>一般都是可以滚动的，要保证下拉刷新滚动和子控件<code>mTarget</code>内部的滑动不冲突，所以就需要重写拦截逻辑：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onInterceptTouchEvent(MotionEvent ev) &#123;</span><br><span class="line">    // enable 或者 mTarget能滑动 或者 正在刷新，此时不拦截，交给child来分发ev</span><br><span class="line">    if (!isEnabled() || canChildScrollUp() || mRefreshing) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    // 事件action</span><br><span class="line">    final int action = MotionEventCompat.getActionMasked(ev);</span><br><span class="line">    // 根据事件类型，处理拦截逻辑</span><br><span class="line">    switch (action) &#123;</span><br><span class="line">        case MotionEvent.ACTION_DOWN:</span><br><span class="line">            // 手指down时，设置mTarget的偏移量为0</span><br><span class="line">            // 相当于初始化mTarget的mCurrentOffsetTop以及头部刷新的Drawable（mBaseRefreshView）</span><br><span class="line">            setTargetOffsetTop(0, true);</span><br><span class="line">            // 活动手指ID（触发拖动的手指）</span><br><span class="line">            mActivePointerId = MotionEventCompat.getPointerId(ev, 0);</span><br><span class="line">            // 不是正在被拖动</span><br><span class="line">            mIsBeingDragged = false;</span><br><span class="line">            // 活动手指初始按下时的Y坐标</span><br><span class="line">            final float initialMotionY = getMotionEventY(ev, mActivePointerId);</span><br><span class="line">            if (initialMotionY == -1) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">            mInitialMotionY = initialMotionY;</span><br><span class="line">            break;</span><br><span class="line">        case MotionEvent.ACTION_MOVE:</span><br><span class="line">            if (mActivePointerId == INVALID_POINTER) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">            // 获取活动手指的Y坐标（当前可能有多个手指在屏幕上move，只需处理活动手指即可）</span><br><span class="line">            final float y = getMotionEventY(ev, mActivePointerId);</span><br><span class="line">            if (y == -1) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">            // 移动的距离yDiff大于临界值并且当前没有被拖动</span><br><span class="line">            // 改变拖动的状态值mIsBeingDragged为正在拖动</span><br><span class="line">            final float yDiff = y - mInitialMotionY;</span><br><span class="line">            if (yDiff &gt; mTouchSlop &amp;&amp; !mIsBeingDragged) &#123;</span><br><span class="line">                mIsBeingDragged = true;</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        case MotionEvent.ACTION_UP:</span><br><span class="line">        case MotionEvent.ACTION_CANCEL:</span><br><span class="line">            // 手指cancel或者up，拖动状态为false，活动手指invalid。</span><br><span class="line">            mIsBeingDragged = false;</span><br><span class="line">            mActivePointerId = INVALID_POINTER;</span><br><span class="line">            break;</span><br><span class="line">        case MotionEventCompat.ACTION_POINTER_UP:</span><br><span class="line">            // 多个手指在屏幕上，当第二个手指抬起时，需要更新活动手指</span><br><span class="line">            onSecondaryPointerUp(ev);</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">    // 只要当前处于拖动状态，就拦截事件，否则不拦截</span><br><span class="line">    return mIsBeingDragged;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 当有多个手指在屏幕上时，有一个手指抬起时，需要处理的逻辑</span><br><span class="line"> * 多点触控时，手指的down和up之间，只有通过ID才能识别手指，当有手指抬起时，需要更新活动手指。</span><br><span class="line"> * @param ev</span><br><span class="line"> */</span><br><span class="line">private void onSecondaryPointerUp(MotionEvent ev) &#123;</span><br><span class="line">    final int pointerIndex = MotionEventCompat.getActionIndex(ev);</span><br><span class="line">    final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);</span><br><span class="line">    if (pointerId == mActivePointerId) &#123;</span><br><span class="line">        final int newPointerIndex = pointerIndex == 0 ? 1 : 0;</span><br><span class="line">        mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>关于事件拦截机制和多点触控相关的解析可以参考大牛<strong>非著名程序员</strong>的博客：<a href="http://www.gcssloop.com/" target="_blank" rel="noopener">http://www.gcssloop.com/</a></p>
+<h5 id="onTouchEvent"><a href="#onTouchEvent" class="headerlink" title="onTouchEvent"></a>onTouchEvent</h5><p>拦截到的事件，要在<code>onTouchEvent</code>中来处理，实现<code>mTarget</code>拖动的UI逻辑。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onTouchEvent(@NonNull MotionEvent ev) &#123;</span><br><span class="line">    // 当前没有被拖动，不处理</span><br><span class="line">    if (!mIsBeingDragged) &#123;</span><br><span class="line">        return super.onTouchEvent(ev);</span><br><span class="line">    &#125;</span><br><span class="line">    // 根据事件action处理不同事件逻辑</span><br><span class="line">    final int action = MotionEventCompat.getActionMasked(ev);</span><br><span class="line">    switch (action) &#123;</span><br><span class="line">        case MotionEvent.ACTION_MOVE: &#123;</span><br><span class="line">            // 获取当前事件中活动手指的pointerIndex</span><br><span class="line">            final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);</span><br><span class="line">            if (pointerIndex &lt; 0) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">            // 根据活动手指pointerIndex获取Y坐标</span><br><span class="line">            // 计算出手指的移动距离yDiff</span><br><span class="line">            final float y = MotionEventCompat.getY(ev, pointerIndex);</span><br><span class="line">            final float yDiff = y - mInitialMotionY;</span><br><span class="line">            // mTarget需要滚动的距离scrollTop</span><br><span class="line">            final float scrollTop = yDiff * DRAG_RATE;</span><br><span class="line">            // 当前拖动百分比mCurrentDragPercent</span><br><span class="line">            mCurrentDragPercent = scrollTop / mTotalDragDistance;</span><br><span class="line">            if (mCurrentDragPercent &lt; 0) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">            // 以下逻辑都是根据当前拖动百分比和mTarget需要滚动的距离来计算出当前move事件中mTarget需要达到的目标Y坐标</span><br><span class="line">            // 即每一次移动都需要计算出即将要达到的位置的Y坐标，通过该即将到达的Y坐标以及当前的偏移量，</span><br><span class="line">            // 就能计算出这次手指移动时mTarget所需要的偏移量</span><br><span class="line">            // 做如此处理主要是让拖动距离超过触发刷新的距离时继续拖动有一个阻尼效果</span><br><span class="line">            float boundedDragPercent = Math.min(1f, Math.abs(mCurrentDragPercent));</span><br><span class="line">            float extraOS = Math.abs(scrollTop) - mTotalDragDistance;</span><br><span class="line">            float slingshotDist = mTotalDragDistance;</span><br><span class="line">            float tensionSlingshotPercent = Math.max(0,</span><br><span class="line">                    Math.min(extraOS, slingshotDist * 2) / slingshotDist);</span><br><span class="line">            float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(</span><br><span class="line">                    (tensionSlingshotPercent / 4), 2)) * 2f;</span><br><span class="line">            float extraMove = (slingshotDist) * tensionPercent / 2;</span><br><span class="line">            // targetY为此次手指移动mTarget即将达到的Y坐标</span><br><span class="line">            int targetY = (int) ((slingshotDist * boundedDragPercent) + extraMove);</span><br><span class="line">            // 设置mBaseRefreshView(头部刷新Drawable)的百分比，用以更新刷新动画</span><br><span class="line">            mBaseRefreshView.setPercent(mCurrentDragPercent, true);</span><br><span class="line">            // 设置mTarget偏移量，实现下拉</span><br><span class="line">            setTargetOffsetTop(targetY - mCurrentOffsetTop, true);</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">        case MotionEventCompat.ACTION_POINTER_DOWN:</span><br><span class="line">            // 新的手指按下时，更新触发拖动活动手指</span><br><span class="line">            final int index = MotionEventCompat.getActionIndex(ev);</span><br><span class="line">            mActivePointerId = MotionEventCompat.getPointerId(ev, index);</span><br><span class="line">            break;</span><br><span class="line">        case MotionEventCompat.ACTION_POINTER_UP:</span><br><span class="line">            // 多点触控，手指抬起时更新活动手指</span><br><span class="line">            onSecondaryPointerUp(ev);</span><br><span class="line">            break;</span><br><span class="line">        case MotionEvent.ACTION_UP:</span><br><span class="line">        case MotionEvent.ACTION_CANCEL: &#123;</span><br><span class="line">            if (mActivePointerId == INVALID_POINTER) &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">            // 手指up或cancel，根据活动手指计算出mTarget滚动的距离overScrollTop</span><br><span class="line">            final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);</span><br><span class="line">            final float y = MotionEventCompat.getY(ev, pointerIndex);</span><br><span class="line">            final float overScrollTop = (y - mInitialMotionY) * DRAG_RATE;</span><br><span class="line">            // 改变拖动状体</span><br><span class="line">            mIsBeingDragged = false;</span><br><span class="line">            if (overScrollTop &gt; mTotalDragDistance) &#123;</span><br><span class="line">                // mTarget被拖动的距离大于触发刷新的拖动距离时，设置当前刷新状态true</span><br><span class="line">                setRefreshing(true, true);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // 否则，当前刷新状态为false,并且通过动画让mTarget回到最初状态</span><br><span class="line">                mRefreshing = false;</span><br><span class="line">                animateOffsetToStartPosition();</span><br><span class="line">            &#125;</span><br><span class="line">            // 活动手指invelid</span><br><span class="line">            mActivePointerId = INVALID_POINTER;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // 消费掉当前Touch事件</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>手指在屏幕滑动时，<code>mTarget</code>的整个拖动逻辑都是在<code>onTouchEvent</code>中实现。<br>在<code>setRefershing</code>方法中，设置<code>PullToRefreshView</code>当前的刷新状态：<br>1.通过动画将<code>mTarget</code>偏移到正在刷新的位置<br>2.通过动画将<code>mTarget</code>偏移到初始位置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 设置PullToRefreshView的刷新状态</span><br><span class="line"> *</span><br><span class="line"> * @param refreshing 是否正在刷新</span><br><span class="line"> * @param notify     是否回调onRefresh</span><br><span class="line"> */</span><br><span class="line">private void setRefreshing(boolean refreshing, final boolean notify) &#123;</span><br><span class="line">    if (mRefreshing != refreshing) &#123;</span><br><span class="line">        mNotify = notify;</span><br><span class="line">        ensureTarget();</span><br><span class="line">        mRefreshing = refreshing;</span><br><span class="line">        if (mRefreshing) &#123;</span><br><span class="line">            // 正在刷新，设置刷新Drawable（mBaseRefreshView）的percent，用以更新刷新动画</span><br><span class="line">            mBaseRefreshView.setPercent(1f, true);</span><br><span class="line">            // 通过动画让mTarget偏移到正在刷新的位置。</span><br><span class="line">            animateOffsetToCorrectPosition();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // 不是正在刷新，通过动画使mTarget偏移到初始位置。</span><br><span class="line">            animateOffsetToStartPosition();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在通过动画来偏移<code>mTarget</code>的逻辑比较简单，同样也是通过动画的执行过程来不断调用<code>setTargetOffsetTop</code>方法来移动<code>mTarget</code>。<br>在<code>PullToRefresh</code>中，主要是处理拦截到的move事件，通过move事件计算出<code>mTarget</code>所需的偏移量来实现mTarget的拖动。同时在手指up时，通过当前拖动偏移量<code>mCurrentOffsetTop</code>、触发刷新的拖动距离<code>mTotalDragDistance</code>比较来决定是通过动画将<code>mTarget</code>偏移到正在刷新的位置和最初始的位置。<br>总之，<code>PullToRefershView</code>是通过<code>mTarget</code>的偏移来实现下拉拖动。<code>mTarget</code>偏移的同时，将当前拖动百分比<code>mCurrentDragPercent</code>设置到刷新的<code>Drawable（mBaseRefreshView）</code>中，更新刷新动画。</p>
+<hr>
+<h4 id="BaseRefreshVeiw"><a href="#BaseRefreshVeiw" class="headerlink" title="BaseRefreshVeiw"></a>BaseRefreshVeiw</h4><p>这个类是自定义刷新<code>Drawable</code>抽象类，继承自<code>Drawable</code>，并且实现了<code>Animable</code>接口。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">public abstract class BaseRefreshView extends Drawable implements Drawable.Callback, Animatable &#123;</span><br><span class="line"></span><br><span class="line">    private PullToRefreshLayout mRefreshLayout;</span><br><span class="line">    private boolean mEndOfRefreshing;</span><br><span class="line"></span><br><span class="line">    public BaseRefreshView(Context context, PullToRefreshLayout layout) &#123;</span><br><span class="line">        mRefreshLayout = layout;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Context getContext() &#123;</span><br><span class="line">        return mRefreshLayout != null ? mRefreshLayout.getContext() : null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public PullToRefreshLayout getRefreshLayout() &#123;</span><br><span class="line">        return mRefreshLayout;</span><br><span class="line">    &#125;</span><br><span class="line">    /**</span><br><span class="line">    * 设置拖动百分比，用以更新Drawable中的动画</span><br><span class="line">    */</span><br><span class="line">    public abstract void setPercent(float percent, boolean invalidate);</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">    * 设置偏移量，用以更新Drawable中的动画</span><br><span class="line">    */</span><br><span class="line">    public abstract void offsetTopAndBottom(int offset);</span><br><span class="line"></span><br><span class="line">    // ...去掉一些无用代码...</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public int getOpacity() &#123;</span><br><span class="line">        return PixelFormat.TRANSLUCENT;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void setAlpha(int alpha) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void setColorFilter(ColorFilter cf) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   // ...去掉一些无用代码...</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>BaseRefreshView</code>作为一个抽象类，我们可以继承它来实现不同样式的刷新动画。在<code>PullToRefershView</code>中根据拖动实时调用<code>setPercent(float percent, boolean invalidate)</code>，<code>offsetTopAndBottom(int offset)</code>这两个方法就可以实时更新动画。</p>
+<hr>
+<h4 id="SunRefreshView"><a href="#SunRefreshView" class="headerlink" title="SunRefreshView"></a>SunRefreshView</h4><p>具体实现就是<code>SunRefreshView</code>，继承自<code>BaseRefreshView</code>，具体的动画逻辑躲在<code>SunRefreshView</code>中实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void setPercent(float percent, boolean invalidate) &#123;</span><br><span class="line">    setPercent(percent);</span><br><span class="line">    if (invalidate) setRotate(percent);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void offsetTopAndBottom(int offset) &#123;</span><br><span class="line">    mTop += offset;</span><br><span class="line">    invalidateSelf();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void setPercent(float percent) &#123;</span><br><span class="line">    mPercent = percent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void setRotate(float rotate) &#123;</span><br><span class="line">    mRotate = rotate;</span><br><span class="line">    invalidateSelf();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实现抽象父类<code>BaseRefreshView</code>的两个方法，<code>offsetTopAndBottom(int offset)</code>方法改变<code>mTop</code>，<code>setPercent(float percent, boolean invalidate)</code>方法设置<code>mPercent</code>和<code>mRotate</code>，两个方法都会重绘自己。<br><code>PullToRefresh</code>在手指拖动过程中不断调用这两个方法，达到拖动时<code>Drawable</code>跟随变化的动效。<br>当手指松开时，<code>PullToRefreshView</code>自动回到正在刷新的状态或者初始状态，<code>SunRefreshView</code>的动效变化是通过调用<code>start()</code>和<code>stop()</code>方法，在<code>start()</code>和<code>stop()</code>中开始和结束<code>mAnimation</code>动画。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void start() &#123;</span><br><span class="line">    mAnimation.reset();</span><br><span class="line">    isRefreshing = true;</span><br><span class="line">    mParent.startAnimation(mAnimation);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void stop() &#123;</span><br><span class="line">    mParent.clearAnimation();</span><br><span class="line">    isRefreshing = false;</span><br><span class="line">    resetOriginals();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void setupAnimations() &#123;</span><br><span class="line">    mAnimation = new Animation() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void applyTransformation(float interpolatedTime, Transformation t) &#123;</span><br><span class="line">            // 根据动画时间来设置(sun)旋转，然后重绘</span><br><span class="line">            setRotate(interpolatedTime);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    mAnimation.setRepeatCount(Animation.INFINITE);</span><br><span class="line">    mAnimation.setRepeatMode(Animation.RESTART);</span><br><span class="line">    mAnimation.setInterpolator(LINEAR_INTERPOLATOR);</span><br><span class="line">    mAnimation.setDuration(ANIMATION_DURATION);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>不管<code>PullToRefreshView</code>调用<code>setPercent(float percent, boolean invalidate)</code>和<code>offsetTopAndBottom(int offset)</code>方法，还是手指松开时调用的<code>start()</code>和<code>stop()</code>方法，最终都是要改变这三个变量：<code>mPercent</code>、<code>mRotate</code>、<code>mTop</code>。<br>因为整个下拉刷新的头部动效都是通过<code>SunRefreshView</code>这个<code>Drawable</code>来不断重绘自己实现的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void draw(Canvas canvas) &#123;</span><br><span class="line">    if (mScreenWidth &lt;= 0) return;</span><br><span class="line">    // 保存当前画布状态，然后平移、裁剪画布</span><br><span class="line">    final int saveCount = canvas.save();</span><br><span class="line">    canvas.translate(0, mTop);</span><br><span class="line">    canvas.clipRect(0, -mTop, mScreenWidth, mParent.getTotalDragDistance());</span><br><span class="line">    // 绘制sky、sun、town</span><br><span class="line">    drawSky(canvas);</span><br><span class="line">    drawSun(canvas);</span><br><span class="line">    drawTown(canvas);</span><br><span class="line">    // 绘制完成后恢复画布状态</span><br><span class="line">    canvas.restoreToCount(saveCount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>绘制过程按照<code>mTop</code>画布会进行平移和裁剪。<br>绘制sky：<br>sky的动画过程中由缩放和平移两个动画组成。缩放是通过<code>mPrercent</code>计算出缩放比例<code>skyScale</code>，平移是通过缩放比例<code>skyScale</code>和 <code>PullToRefreshView</code>的拖动比例<code>mTotalDragDistance</code>计算出x和y方向的偏移量。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">private void drawSky(Canvas canvas) &#123;</span><br><span class="line">    Matrix matrix = mMatrix;</span><br><span class="line">    matrix.reset();</span><br><span class="line">    // 拖动比例</span><br><span class="line">    float dragPercent = Math.min(1f, Math.abs(mPercent));</span><br><span class="line">    float skyScale; // sky缩放比例</span><br><span class="line">    float scalePercentDelta = dragPercent - SCALE_START_PERCENT;</span><br><span class="line">    // SCALE_START_PERCENT = 0.5f，SKY_INITIAL_SCALE = 1.05f</span><br><span class="line">    // 拖动比例大于0.5时，sky缩放比例为SKY_INITIAL_SCALE - (SKY_INITIAL_SCALE - 1.0f) * scalePercent;</span><br><span class="line">    // 拖动比例小于0.5时，sky缩放比例就为SKY_INITIAL_SCALE</span><br><span class="line">    if (scalePercentDelta &gt; 0) &#123;</span><br><span class="line">        /** Change skyScale between &#123;@link #SKY_INITIAL_SCALE&#125; and 1.0f depending on &#123;@link #mPercent&#125; */</span><br><span class="line">        float scalePercent = scalePercentDelta / (1.0f - SCALE_START_PERCENT);</span><br><span class="line">        skyScale = SKY_INITIAL_SCALE - (SKY_INITIAL_SCALE - 1.0f) * scalePercent;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        skyScale = SKY_INITIAL_SCALE;</span><br><span class="line">    &#125;</span><br><span class="line">    // 根据缩放比例skyScale就算出offsetX和offsetY.</span><br><span class="line">    float offsetX = -(mScreenWidth * skyScale - mScreenWidth) / 2.0f;</span><br><span class="line">    float offsetY = (1.0f - dragPercent) * mParent.getTotalDragDistance() - mSkyTopOffset // Offset canvas moving</span><br><span class="line">            - mSkyHeight * (skyScale - 1.0f) / 2 // Offset sky scaling</span><br><span class="line">            + mSkyMoveOffset * dragPercent; // Give it a little move top -&gt; bottom</span><br><span class="line">    matrix.postScale(skyScale, skyScale);</span><br><span class="line">    matrix.postTranslate(offsetX, offsetY);</span><br><span class="line">    // 绘制sky</span><br><span class="line">    canvas.drawBitmap(mSky, matrix, null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>skyScale</code>、x方向偏移量<code>offsetX</code>，y方向偏移量<code>offsetY</code>不断变化来重绘sky，实现动画效果。<br>绘制sun：<br>sun在下拉刷新和释放时，有三个动画：上下平移、旋转、缩放。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">private void drawSun(Canvas canvas) &#123;</span><br><span class="line">    Matrix matrix = mMatrix;</span><br><span class="line">    matrix.reset();</span><br><span class="line">    float dragPercent = mPercent;</span><br><span class="line">    if (dragPercent &gt; 1.0f) &#123; // Slow down if pulling over set height</span><br><span class="line">        dragPercent = (dragPercent + 9.0f) / 10;</span><br><span class="line">    &#125;</span><br><span class="line">    float sunRadius = (float) mSunSize / 2.0f;</span><br><span class="line">    float sunRotateGrowth = SUN_INITIAL_ROTATE_GROWTH;</span><br><span class="line">    // 偏移量offsetX和offsetY决定sun的位置</span><br><span class="line">    // 在重绘的过程中根据mPercent和mTop实现上下平移</span><br><span class="line">    float offsetX = mSunLeftOffset;</span><br><span class="line">    float offsetY = mSunTopOffset</span><br><span class="line">            + (mParent.getTotalDragDistance() / 2) * (1.0f - dragPercent) // Move the sun up</span><br><span class="line">            - mTop; // Depending on Canvas position</span><br><span class="line">    // 根据拖动比例mPercent计算缩放比例</span><br><span class="line">    float scalePercentDelta = dragPercent - SCALE_START_PERCENT;</span><br><span class="line">    if (scalePercentDelta &gt; 0) &#123;</span><br><span class="line">        float scalePercent = scalePercentDelta / (1.0f - SCALE_START_PERCENT);</span><br><span class="line">        float sunScale = 1.0f - (1.0f - SUN_FINAL_SCALE) * scalePercent;</span><br><span class="line">        sunRotateGrowth += (SUN_FINAL_ROTATE_GROWTH - SUN_INITIAL_ROTATE_GROWTH) * scalePercent;</span><br><span class="line"></span><br><span class="line">        matrix.preTranslate(offsetX + (sunRadius - sunRadius * sunScale), offsetY * (2.0f - sunScale));</span><br><span class="line">        matrix.preScale(sunScale, sunScale);</span><br><span class="line">        // 缩放的同时要改变偏移量（保证缩放和上下平移时，sun的中心在竖直方向）</span><br><span class="line">        offsetX += sunRadius;</span><br><span class="line">        offsetY = offsetY * (2.0f - sunScale) + sunRadius * sunScale;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        matrix.postTranslate(offsetX, offsetY);</span><br><span class="line">        // 缩放的同时要改变偏移量（保证缩放和上下平移时，sun的中心在竖直方向）</span><br><span class="line">        offsetX += sunRadius;</span><br><span class="line">        offsetY += sunRadius;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 根据mRotate计算旋转的角度</span><br><span class="line">    // 拖动时旋转方向为顺时针，释放或正在刷新为逆时针方向。</span><br><span class="line">    // 拖动时或释放后旋转的角度按照拖动的幅度来旋转，正在刷新时每次绘制旋转1°</span><br><span class="line">    matrix.postRotate(</span><br><span class="line">            (isRefreshing ? -360 : 360) * mRotate * (isRefreshing ? 1 : sunRotateGrowth),</span><br><span class="line">            offsetX,</span><br><span class="line">            offsetY);</span><br><span class="line">    // 绘制sun</span><br><span class="line">    canvas.drawBitmap(mSun, matrix, null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>sun的动画相对来说要复杂些，主要逻辑就是根据<code>mPercent</code>来计算偏移量和缩放比例，根据<code>mRotate</code>和<code>sunRotateGrowth</code>来计算旋转角度。<br>绘制town：<br>town的绘制逻辑和sky一样，只涉及到平移和缩放。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">private void drawTown(Canvas canvas) &#123;</span><br><span class="line">    Matrix matrix = mMatrix;</span><br><span class="line">    matrix.reset();</span><br><span class="line">    float dragPercent = Math.min(1f, Math.abs(mPercent));</span><br><span class="line">    float townScale;</span><br><span class="line">    float townTopOffset;</span><br><span class="line">    float townMoveOffset;</span><br><span class="line">    // 计算缩放比例</span><br><span class="line">    float scalePercentDelta = dragPercent - SCALE_START_PERCENT;</span><br><span class="line">    if (scalePercentDelta &gt; 0) &#123;</span><br><span class="line">        /**</span><br><span class="line">         * Change townScale between &#123;@link #TOWN_INITIAL_SCALE&#125; and &#123;@link #TOWN_FINAL_SCALE&#125; depending on &#123;@link #mPercent&#125;</span><br><span class="line">         * Change townTopOffset between &#123;@link #mTownInitialTopOffset&#125; and &#123;@link #mTownFinalTopOffset&#125; depending on &#123;@link #mPercent&#125;</span><br><span class="line">         */</span><br><span class="line">        float scalePercent = scalePercentDelta / (1.0f - SCALE_START_PERCENT);</span><br><span class="line">        townScale = TOWN_INITIAL_SCALE + (TOWN_FINAL_SCALE - TOWN_INITIAL_SCALE) * scalePercent;</span><br><span class="line">        townTopOffset = mTownInitialTopOffset - (mTownFinalTopOffset - mTownInitialTopOffset) * scalePercent;</span><br><span class="line">        townMoveOffset = mTownMoveOffset * (1.0f - scalePercent);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        float scalePercent = dragPercent / SCALE_START_PERCENT;</span><br><span class="line">        townScale = TOWN_INITIAL_SCALE;</span><br><span class="line">        townTopOffset = mTownInitialTopOffset;</span><br><span class="line">        townMoveOffset = mTownMoveOffset * scalePercent;</span><br><span class="line">    &#125;</span><br><span class="line">    // 计算平移量</span><br><span class="line">    float offsetX = -(mScreenWidth * townScale - mScreenWidth) / 2.0f;</span><br><span class="line">    float offsetY = (1.0f - dragPercent) * mParent.getTotalDragDistance() // Offset canvas moving</span><br><span class="line">            + townTopOffset</span><br><span class="line">            - mTownHeight * (townScale - 1.0f) / 2 // Offset town scaling</span><br><span class="line">            + townMoveOffset; // Give it a little move</span><br><span class="line"></span><br><span class="line">    matrix.postScale(townScale, townScale);</span><br><span class="line">    matrix.postTranslate(offsetX, offsetY);</span><br><span class="line">    // 绘制town</span><br><span class="line">    canvas.drawBitmap(mTown, matrix, null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>将sky、sun、town绘制完成。在绘制过程中与平移量、缩放比例、旋转角度有关的<code>mTop</code>、<code>mPercent</code>、<code>mRotate</code>这三个变量都是在<code>PullToRefreshView</code>下拉刷新过程中不断改变的。sky、sun、town组合在一起伴随着下拉刷新的过程不断重绘，从而实现刷新动画。</p>
+<hr>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><code>PullToRefreshView</code>主要是实现<code>mTarget</code>的拖动并解决<code>mTarget</code>内部滑动时的冲突。<br><code>SunRefreshView</code>主要是在<code>PullToRefresh</code>有变化时不断重绘自己实现动画效果。</p>
+<p>Yalantis还有另外两个下拉刷新的开源项目<a href="https://github.com/Yalantis/Taurus" target="_blank" rel="noopener">Pull-to-Refresh.Tours</a>和<a href="https://github.com/Yalantis/pull-to-make-soup" target="_blank" rel="noopener">Pull-To-Make-Soup</a>，里面的<code>PullToRefreshView</code>都是和<code>Phoenix-Pull-to-Refresh</code>中的一样，只是自定义了不同<code>BaseRefreshView</code>，我们也可以根据这个框架的<code>PullToRefreshView</code>来自定义自己的下拉刷新<code>Drawable</code>，实现自己的下拉刷新样式。</p>
+<hr>
+<p>文中可能有理解有误或疏漏之处，欢迎大家指正，谢谢！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/17/利用logger打印完整的okhttp网络请求和响应日志/" rel="next" title="利用logger打印完整的okhttp网络请求和响应日志">
+                <i class="fa fa-chevron-left"></i> 利用logger打印完整的okhttp网络请求和响应日志
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/06/用Path动态绘制Drawable/" rel="prev" title="用Path动态绘制Drawable">
+                用Path动态绘制Drawable <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#PullToRefreshView"><span class="nav-number">1.</span> <span class="nav-text"><a href="#PullToRefreshView" class="headerlink" title="PullToRefreshView"></a>PullToRefreshView</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#onMeasure"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#onMeasure" class="headerlink" title="onMeasure"></a>onMeasure</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onLayout"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#onLayout" class="headerlink" title="onLayout"></a>onLayout</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onInterceptTouchEvent"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#onInterceptTouchEvent" class="headerlink" title="onInterceptTouchEvent"></a>onInterceptTouchEvent</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onTouchEvent"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#onTouchEvent" class="headerlink" title="onTouchEvent"></a>onTouchEvent</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BaseRefreshVeiw"><span class="nav-number">2.</span> <span class="nav-text"><a href="#BaseRefreshVeiw" class="headerlink" title="BaseRefreshVeiw"></a>BaseRefreshVeiw</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SunRefreshView"><span class="nav-number">3.</span> <span class="nav-text"><a href="#SunRefreshView" class="headerlink" title="SunRefreshView"></a>SunRefreshView</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

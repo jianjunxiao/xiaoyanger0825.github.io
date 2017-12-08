@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="日志," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我们公司在项目中使用的网络请求工具是Retrofit，底层封装的是OkHttp，通常调试网络接口时都会将网络请求和响应相关数据通过日志的形式打印出来。OkHttp也提供了一个网络拦截器okhttp-logging-interceptor，通过它能拦截okhttp网络请求和响应所有相关信息（请求行、请求头、请求体、响应行、响应行、响应头、响应体）。  使用okhttp网络日志拦截器：1compile">
+<meta name="keywords" content="日志">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用logger打印完整的okhttp网络请求和响应日志">
+<meta property="og:url" content="http://yoursite.com/2017/01/17/利用logger打印完整的okhttp网络请求和响应日志/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="我们公司在项目中使用的网络请求工具是Retrofit，底层封装的是OkHttp，通常调试网络接口时都会将网络请求和响应相关数据通过日志的形式打印出来。OkHttp也提供了一个网络拦截器okhttp-logging-interceptor，通过它能拦截okhttp网络请求和响应所有相关信息（请求行、请求头、请求体、响应行、响应行、响应头、响应体）。  使用okhttp网络日志拦截器：1compile">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-41ded5910b7e46ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-bce4e17d0e686984.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-e1671d6ab1f22349.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-12-08T06:36:33.295Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="利用logger打印完整的okhttp网络请求和响应日志">
+<meta name="twitter:description" content="我们公司在项目中使用的网络请求工具是Retrofit，底层封装的是OkHttp，通常调试网络接口时都会将网络请求和响应相关数据通过日志的形式打印出来。OkHttp也提供了一个网络拦截器okhttp-logging-interceptor，通过它能拦截okhttp网络请求和响应所有相关信息（请求行、请求头、请求体、响应行、响应行、响应头、响应体）。  使用okhttp网络日志拦截器：1compile">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-41ded5910b7e46ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/01/17/利用logger打印完整的okhttp网络请求和响应日志/"/>
+
+
+
+
+
+  <title>利用logger打印完整的okhttp网络请求和响应日志 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/17/利用logger打印完整的okhttp网络请求和响应日志/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">利用logger打印完整的okhttp网络请求和响应日志</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-17T00:31:02+08:00">
+                2017-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们公司在项目中使用的网络请求工具是Retrofit，底层封装的是OkHttp，通常调试网络接口时都会将网络请求和响应相关数据通过日志的形式打印出来。OkHttp也提供了一个网络拦截器okhttp-logging-interceptor，通过它能拦截okhttp网络请求和响应所有相关信息（请求行、请求头、请求体、响应行、响应行、响应头、响应体）。</p>
+<hr>
+<p>使用okhttp网络日志拦截器：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile &apos;com.squareup.okhttp3:logging-interceptor:3.5.0&apos;</span><br></pre></td></tr></table></figure></p>
+<p>定义拦截器中的网络日志工具<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class HttpLogger implements HttpLoggingInterceptor.Logger &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void log(String message) &#123;</span><br><span class="line">            Log.d(&quot;HttpLogInfo&quot;, message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>初始化OkHttpClient，并添加网络日志拦截器<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">* 初始化okhttpclient.</span><br><span class="line">*</span><br><span class="line">* @return okhttpClient</span><br><span class="line">*/</span><br><span class="line">private OkHttpClient okhttpclient() &#123;</span><br><span class="line">    if (mOkHttpClient == null) &#123;</span><br><span class="line">        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLogger());</span><br><span class="line">        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);</span><br><span class="line">        mOkHttpClient = new OkHttpClient.Builder()</span><br><span class="line">            .connectTimeout(15, TimeUnit.SECONDS)</span><br><span class="line">            .addNetworkInterceptor(logInterceptor)</span><br><span class="line">            .build();</span><br><span class="line">    &#125;</span><br><span class="line">    return mOkHttpClient;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>打印出来的日志</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-41ded5910b7e46ee.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="拦截的网络请求日志信息"><br><img src="http://upload-images.jianshu.io/upload_images/1801191-bce4e17d0e686984.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="拦截的网络请求日志信息-1"><br><img src="http://upload-images.jianshu.io/upload_images/1801191-e1671d6ab1f22349.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="拦截的网络请求日志信息-2.png"><br>在给OkhttpClient添加网络请求拦截器的时候需要注意，<strong>应该调用方法<code>addNetworkInterceptor</code>，而不是<code>addInterceptor</code></strong>。因为有时候可能会通过cookieJar在header里面去添加一些持久化的cookie或者session信息。这样就在请求头里面就不会打印出这些信息。<br>看一下OkHttpClient调用拦截器的源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Response getResponseWithInterceptorChain() throws IOException &#123;</span><br><span class="line">    // Build a full stack of interceptors.</span><br><span class="line">    List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;();</span><br><span class="line">    interceptors.addAll(client.interceptors());</span><br><span class="line">    interceptors.add(retryAndFollowUpInterceptor);</span><br><span class="line">    interceptors.add(new BridgeInterceptor(client.cookieJar()));</span><br><span class="line">    interceptors.add(new CacheInterceptor(client.internalCache()));</span><br><span class="line">    interceptors.add(new ConnectInterceptor(client));</span><br><span class="line">    if (!forWebSocket) &#123;</span><br><span class="line">      interceptors.addAll(client.networkInterceptors());</span><br><span class="line">    &#125;</span><br><span class="line">    interceptors.add(new CallServerInterceptor(forWebSocket));</span><br><span class="line">    Interceptor.Chain chain = new RealInterceptorChain(</span><br><span class="line">        interceptors, null, null, null, 0, originalRequest);</span><br><span class="line">    return chain.proceed(originalRequest);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>在okhttp执行网络请求时，会先构造拦截链，此时是将所有的拦截器都放入一个ArrayList中，看源码就知道添加拦截器的顺序是：<br><code>client.interceptors()</code>，<br><code>BridgeInterceptor</code>，<br><code>CacheInterceptor</code>，<br><code>ConnectInterceptor</code>，<br><code>networkInterceptors</code>，<br><code>CallServerInterceptor</code>。<br>在通过拦截链执行拦截逻辑是按先后顺序递归调用的。如果是我们调用<code>addInterceptor</code>方法来添加<code>HttpLoggingInterceptor</code>拦截器，那么网络日志拦截器就会被添加到<code>client.networkInterceptors()</code>里面，根据添加到ArrayList中的顺序，执行拦截时会先执行<code>HttpLoggingInterceptor</code>，并打印出日志。然后才会执行CookieJar包装的拦截器BridgeInterceptor。这就导致我们添加header中的cookie等信息不会打印出来。</p>
+<hr>
+<p>利用<code>HttpLoggingInterceptor</code>打印网络日志非常完整，但是看到响应的结果数据时，感觉有些混乱，平常在调试时希望一眼就能看清楚json数据的层次结构，所以需要将响应结果的json串进行格式化。</p>
+<p>我采用的是开源日志库looger来打印，这个库不但能很方便的帮开发者过滤掉系统日志，而且对打印出来的效果作了优化，更加简洁美观。</p>
+<p>关于looger的详细的API：<a href="https://github.com/orhanobut/logger" target="_blank" rel="noopener">传送门</a>。</p>
+<p>加入logger的依赖：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compile &apos;com.orhanobut:logger:1.15&apos;</span><br></pre></td></tr></table></figure></p>
+<p>在使用looger库的时候我通常都会先封装一层，作为一个工具类。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">public class LogUtil &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 初始化log工具，在app入口处调用</span><br><span class="line">     *</span><br><span class="line">     * @param isLogEnable 是否打印log</span><br><span class="line">     */</span><br><span class="line">    public static void init(boolean isLogEnable) &#123;</span><br><span class="line">        Logger.init(&quot;LogHttpInfo&quot;)</span><br><span class="line">                .hideThreadInfo()</span><br><span class="line">                .logLevel(isLogEnable ? LogLevel.FULL : LogLevel.NONE)</span><br><span class="line">                .methodOffset(2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void d(String message) &#123;</span><br><span class="line">        Logger.d(message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void i(String message) &#123;</span><br><span class="line">        Logger.i(message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void w(String message, Throwable e) &#123;</span><br><span class="line">        String info = e != null ? e.toString() : &quot;null&quot;;</span><br><span class="line">        Logger.w(message + &quot;：&quot; + info);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void e(String message, Throwable e) &#123;</span><br><span class="line">        Logger.e(e, message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void json(String json) &#123;</span><br><span class="line">        Logger.json(json);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在应用入口调用初始化方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public class App extends Application &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onCreate() &#123;</span><br><span class="line">        super.onCreate();</span><br><span class="line">        // 初始化Looger工具</span><br><span class="line">        LogUtil.init(BuildConfig.LOG_DEBUG);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果直接在<code>LoggerHttp</code>的log方法中调用<code>LogUtil.d(message)</code>，打印出来的日志是分散的，因为log方法是将一个网络请求的请求\响应行、header逐条打印的。但想要的效果是将同一个网络请求和响应的所有信息合并成一条日志，这样才方便调试时查看。<br>所以需要在LoggerHttp的log方法中做一些逻辑处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">private class HttpLogger implements HttpLoggingInterceptor.Logger &#123;</span><br><span class="line">    private StringBuilder mMessage = new StringBuilder();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void log(String message) &#123;</span><br><span class="line">        // 请求或者响应开始</span><br><span class="line">        if (message.startsWith(&quot;--&gt; POST&quot;)) &#123;</span><br><span class="line">            mMessage.setLength(0);</span><br><span class="line">        &#125;</span><br><span class="line">        // 以&#123;&#125;或者[]形式的说明是响应结果的json数据，需要进行格式化</span><br><span class="line">        if ((message.startsWith(&quot;&#123;&quot;) &amp;&amp; message.endsWith(&quot;&#125;&quot;))</span><br><span class="line">            || (message.startsWith(&quot;[&quot;) &amp;&amp; message.endsWith(&quot;]&quot;))) &#123;</span><br><span class="line">            message = JsonUtil.formatJson(JsonUtil.decodeUnicode(message));</span><br><span class="line">        &#125;</span><br><span class="line">        mMessage.append(message.concat(&quot;\n&quot;));</span><br><span class="line">        // 响应结束，打印整条日志</span><br><span class="line">        if (message.startsWith(&quot;&lt;-- END HTTP&quot;)) &#123;</span><br><span class="line">            LogUtil.d(mMessage.toString());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里之所以没有采用looger库的<code>Looger.json(String json)</code>方法去打印json数据，是因为这个方法调用也会打印成单独的一条日志，不能实现将请求的所有信息在一条日志中。<br>JsonUtil是单独封装的一个将json格式化的工具，通过<code>formatJson(String json)</code>将json串格式化出清晰的层次结构。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * 格式化json字符串</span><br><span class="line"> *</span><br><span class="line"> * @param jsonStr 需要格式化的json串</span><br><span class="line"> * @return 格式化后的json串</span><br><span class="line"> */</span><br><span class="line">public static String formatJson(String jsonStr) &#123;</span><br><span class="line">    if (null == jsonStr || &quot;&quot;.equals(jsonStr)) return &quot;&quot;;</span><br><span class="line">    StringBuilder sb = new StringBuilder();</span><br><span class="line">    char last = &apos;\0&apos;;</span><br><span class="line">    char current = &apos;\0&apos;;</span><br><span class="line">    int indent = 0;</span><br><span class="line">    for (int i = 0; i &lt; jsonStr.length(); i++) &#123;</span><br><span class="line">        last = current;</span><br><span class="line">        current = jsonStr.charAt(i);</span><br><span class="line">        //遇到&#123; [换行，且下一行缩进</span><br><span class="line">        switch (current) &#123;</span><br><span class="line">            case &apos;&#123;&apos;:</span><br><span class="line">            case &apos;[&apos;:</span><br><span class="line">                sb.append(current);</span><br><span class="line">                sb.append(&apos;\n&apos;);</span><br><span class="line">                indent++;</span><br><span class="line">                addIndentBlank(sb, indent);</span><br><span class="line">                break;</span><br><span class="line">            //遇到&#125; ]换行，当前行缩进</span><br><span class="line">            case &apos;&#125;&apos;:</span><br><span class="line">            case &apos;]&apos;:</span><br><span class="line">                sb.append(&apos;\n&apos;);</span><br><span class="line">                indent--;</span><br><span class="line">                addIndentBlank(sb, indent);</span><br><span class="line">                sb.append(current);</span><br><span class="line">                break;</span><br><span class="line">            //遇到,换行</span><br><span class="line">            case &apos;,&apos;:</span><br><span class="line">                sb.append(current);</span><br><span class="line">                if (last != &apos;\\&apos;) &#123;</span><br><span class="line">                    sb.append(&apos;\n&apos;);</span><br><span class="line">                    addIndentBlank(sb, indent);</span><br><span class="line">                &#125;</span><br><span class="line">                break;</span><br><span class="line">            default:</span><br><span class="line">                sb.append(current);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">return sb.toString();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 添加space</span><br><span class="line"> *</span><br><span class="line"> * @param sb</span><br><span class="line"> * @param indent</span><br><span class="line"> */</span><br><span class="line">private static void addIndentBlank(StringBuilder sb, int indent) &#123;</span><br><span class="line">    for (int i = 0; i &lt; indent; i++) &#123;</span><br><span class="line">        sb.append(&apos;\t&apos;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>decodeUnicode(String json)是将json中的Unicode编码转化为汉字编码（unicode编码的json中的汉字打印出来有可能是\u开头的字符串，所以需要处理）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * http 请求数据返回 json 中中文字符为 unicode 编码转汉字转码</span><br><span class="line"> *</span><br><span class="line"> * @param theString</span><br><span class="line"> * @return 转化后的结果.</span><br><span class="line"> */</span><br><span class="line">public static String decodeUnicode(String theString) &#123;</span><br><span class="line">    char aChar;</span><br><span class="line">    int len = theString.length();</span><br><span class="line">    StringBuffer outBuffer = new StringBuffer(len);</span><br><span class="line">    for (int x = 0; x &lt; len; ) &#123;</span><br><span class="line">        aChar = theString.charAt(x++);</span><br><span class="line">        if (aChar == &apos;\\&apos;) &#123;</span><br><span class="line">            aChar = theString.charAt(x++);</span><br><span class="line">            if (aChar == &apos;u&apos;) &#123;</span><br><span class="line">                int value = 0;</span><br><span class="line">                for (int i = 0; i &lt; 4; i++) &#123;</span><br><span class="line">                    aChar = theString.charAt(x++);</span><br><span class="line">                    switch (aChar) &#123;</span><br><span class="line">                        case &apos;0&apos;:</span><br><span class="line">                        case &apos;1&apos;:</span><br><span class="line">                        case &apos;2&apos;:</span><br><span class="line">                        case &apos;3&apos;:</span><br><span class="line">                        case &apos;4&apos;:</span><br><span class="line">                        case &apos;5&apos;:</span><br><span class="line">                        case &apos;6&apos;:</span><br><span class="line">                        case &apos;7&apos;:</span><br><span class="line">                        case &apos;8&apos;:</span><br><span class="line">                        case &apos;9&apos;:</span><br><span class="line">                            value = (value &lt;&lt; 4) + aChar - &apos;0&apos;;</span><br><span class="line">                            break;</span><br><span class="line">                        case &apos;a&apos;:</span><br><span class="line">                        case &apos;b&apos;:</span><br><span class="line">                        case &apos;c&apos;:</span><br><span class="line">                        case &apos;d&apos;:</span><br><span class="line">                        case &apos;e&apos;:</span><br><span class="line">                        case &apos;f&apos;:</span><br><span class="line">                            value = (value &lt;&lt; 4) + 10 + aChar - &apos;a&apos;;</span><br><span class="line">                            break;</span><br><span class="line">                        case &apos;A&apos;:</span><br><span class="line">                        case &apos;B&apos;:</span><br><span class="line">                        case &apos;C&apos;:</span><br><span class="line">                        case &apos;D&apos;:</span><br><span class="line">                        case &apos;E&apos;:</span><br><span class="line">                        case &apos;F&apos;:</span><br><span class="line">                            value = (value &lt;&lt; 4) + 10 + aChar - &apos;A&apos;;</span><br><span class="line">                            break;</span><br><span class="line">                        default:</span><br><span class="line">                            throw new IllegalArgumentException(</span><br><span class="line">                                    &quot;Malformed   \\uxxxx   encoding.&quot;);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">                outBuffer.append((char) value);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (aChar == &apos;t&apos;)</span><br><span class="line">                    aChar = &apos;\t&apos;;</span><br><span class="line">                else if (aChar == &apos;r&apos;)</span><br><span class="line">                    aChar = &apos;\r&apos;;</span><br><span class="line">                else if (aChar == &apos;n&apos;)</span><br><span class="line">                    aChar = &apos;\n&apos;;</span><br><span class="line">                else if (aChar == &apos;f&apos;)</span><br><span class="line">                    aChar = &apos;\f&apos;;</span><br><span class="line">                outBuffer.append(aChar);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else</span><br><span class="line">            outBuffer.append(aChar);</span><br><span class="line">    &#125;</span><br><span class="line">    return outBuffer.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最终效果（不能将图全部截出来，所以我就把日志贴成代码段了）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">D/LogHttpInfo: ╔════════════════════════════════════════════════════════════════════════════════════════</span><br><span class="line">D/LogHttpInfo: ║ RealInterceptorChain.proceed  (RealInterceptorChain.java:92)</span><br><span class="line">D/LogHttpInfo: ║    HttpLoggingInterceptor.intercept  (HttpLoggingInterceptor.java:266)</span><br><span class="line">D/LogHttpInfo: ╟────────────────────────────────────────────────────────────────────────────────────────</span><br><span class="line">D/LogHttpInfo: ║ --&gt; POST http://op.juhe.cn/onebox/movie/video http/1.1</span><br><span class="line">D/LogHttpInfo: ║ Content-Type: application/x-www-form-urlencoded</span><br><span class="line">D/LogHttpInfo: ║ Content-Length: 95</span><br><span class="line">D/LogHttpInfo: ║ Host: op.juhe.cn</span><br><span class="line">D/LogHttpInfo: ║ Connection: Keep-Alive</span><br><span class="line">D/LogHttpInfo: ║ Accept-Encoding: gzip</span><br><span class="line">D/LogHttpInfo: ║ User-Agent: okhttp/3.5.0</span><br><span class="line">D/LogHttpInfo: ║ </span><br><span class="line">D/LogHttpInfo: ║ key=a3d3a43fcc149b6ed8268b8fa41d27b7&amp;dtype=json&amp;q=%E9%81%97%E8%90%BD%E7%9A%84%E4%B8%96%E7%95%8C</span><br><span class="line">D/LogHttpInfo: ║ --&gt; END POST (95-byte body)</span><br><span class="line">D/LogHttpInfo: ║ &lt;-- 200 OK http://op.juhe.cn/onebox/movie/video (760ms)</span><br><span class="line">D/LogHttpInfo: ║ Server: nginx</span><br><span class="line">D/LogHttpInfo: ║ Date: Mon, 16 Jan 2017 09:36:35 GMT</span><br><span class="line">D/LogHttpInfo: ║ Content-Type: application/json;charset=utf-8</span><br><span class="line">D/LogHttpInfo: ║ Transfer-Encoding: chunked</span><br><span class="line">D/LogHttpInfo: ║ Connection: keep-alive</span><br><span class="line">D/LogHttpInfo: ║ X-Powered-By: PHP/5.6.23</span><br><span class="line">D/LogHttpInfo: ║ </span><br><span class="line">D/LogHttpInfo: ║ &#123;</span><br><span class="line">D/LogHttpInfo: ║ 	&quot;reason&quot;:&quot;查询成功&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 	&quot;result&quot;:&#123;</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;title&quot;:&quot;遗失的世界&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;tag&quot;:&quot;动作 \/ 科幻&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;act&quot;:&quot;詹妮弗·奥黛尔 威尔·斯诺 拉塞尔·布雷克利&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;year&quot;:&quot;1999&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;rating&quot;:null,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;area&quot;:&quot;美国&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;dir&quot;:&quot;理查德·富兰克林&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;desc&quot;:&quot;本剧取材于制造出福尔摩斯这个人物形象的英国著名作家亚瑟.柯南道尔的经典小说。故事讲述的是在一块未开发的土地上遭遇恐龙的危险经历。 一名孤独的探险家死去了，他那破旧的、包有皮边的笔记本便成为因时间而被淡忘了的史前高原探险活动的惟一的线索。 在伦敦，爱德华·查林杰教授召集了擅长不同领域的冒险家，组建了一支探险队，决心证实遗失的世界的存在，在地图上未标明的丛林中探险。 在亚马逊丛林一片被时间遗忘的高原土地上，科学探险队的几位成员在寻找离开高原的路径。他们必须防御来自原始部落猎人们的袭击。他们在野外的高原上遇阻，无法返回，而这里又是一个令人害怕的世界，时常出没一些史前的食肉动物、原始的猿人、奇特的植物和吸血的蝙蝠。为了生存，这群命运不济的人必须团结起来，拋弃个人之间的喜好和偏见，随时准备应付任何可能突发的情况。在野性丛林美女维罗尼卡的帮助下，手中只有几只猎枪的他们用智能一次又一次摆脱了死亡的威胁。&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;cover&quot;:&quot;http:\/\/p6.qhimg.com\/t0160a8a6f5b768034a.jpg&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;vdo_status&quot;:&quot;play&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;playlinks&quot;:&#123;</span><br><span class="line">D/LogHttpInfo: ║ 			&quot;tudou&quot;:&quot;http:\/\/www.tudou.com\/programs\/view\/KVeyWojke1M\/?tpa=dW5pb25faWQ9MTAyMjEzXzEwMDAwMV8wMV8wMQ&quot;</span><br><span class="line">D/LogHttpInfo: ║ 		&#125;,</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;video_rec&quot;:[</span><br><span class="line">D/LogHttpInfo: ║ 			&#123;</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;cover&quot;:&quot;http:\/\/p2.qhimg.com\/d\/dy_4dc349a3bf8c1b267d3236f3b74c8ea2.jpg&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;detail_url&quot;:&quot;http:\/\/www.360kan.com\/tv\/PrRoc3GoSzDpMn.html&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;title&quot;:&quot;阿尔法战士 第一季&quot;</span><br><span class="line">D/LogHttpInfo: ║ 			&#125;,</span><br><span class="line">D/LogHttpInfo: ║ 			&#123;</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;cover&quot;:&quot;http:\/\/p7.qhimg.com\/t01513514907831e055.jpg&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;detail_url&quot;:&quot;http:\/\/www.360kan.com\/tv\/Q4Frc3GoRmbuMX.html&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;title&quot;:&quot;浩劫余生 第一季&quot;</span><br><span class="line">D/LogHttpInfo: ║ 			&#125;</span><br><span class="line">D/LogHttpInfo: ║ 		],</span><br><span class="line">D/LogHttpInfo: ║ 		&quot;act_s&quot;:[</span><br><span class="line">D/LogHttpInfo: ║ 			&#123;</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;name&quot;:&quot;詹妮弗·奥黛尔&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;url&quot;:&quot;http:\/\/baike.so.com\/doc\/5907024-6119928.html&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;image&quot;:&quot;http:\/\/p2.qhmsg.com\/dmsmty\/120_110_100\/t0154caf60f6fa2dc56.jpg&quot;</span><br><span class="line">D/LogHttpInfo: ║ 			&#125;,</span><br><span class="line">D/LogHttpInfo: ║ 			&#123;</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;name&quot;:&quot;威尔·斯诺&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;url&quot;:&quot;http:\/\/baike.so.com\/doc\/204403-216173.html&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;image&quot;:&quot;http:\/\/p8.qhmsg.com\/dmsmty\/120_110_100\/t018d2ce8920050594f.jpg&quot;</span><br><span class="line">D/LogHttpInfo: ║ 			&#125;,</span><br><span class="line">D/LogHttpInfo: ║ 			&#123;</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;name&quot;:&quot;拉塞尔·布雷克利&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;url&quot;:&quot;http:\/\/baike.so.com\/doc\/1057636-1118829.html&quot;,</span><br><span class="line">D/LogHttpInfo: ║ 				&quot;image&quot;:&quot;http:\/\/p2.qhmsg.com\/dmsmty\/120_110_100\/t01aa727c49da3edc79.jpg&quot;</span><br><span class="line">D/LogHttpInfo: ║ 			&#125;</span><br><span class="line">D/LogHttpInfo: ║ 		]</span><br><span class="line">D/LogHttpInfo: ║ 	&#125;,</span><br><span class="line">D/LogHttpInfo: ║ 	&quot;error_code&quot;:0</span><br><span class="line">D/LogHttpInfo: ║ &#125;</span><br><span class="line">D/LogHttpInfo: ║ &lt;-- END HTTP (2994-byte body)</span><br><span class="line">D/LogHttpInfo: ╚════════════════════════════════════════════════════════════════════════════════════════</span><br></pre></td></tr></table></figure></p>
+<p>通过这样的方式打印出来的网络请求日志包含了所有的网络信息， 并且结构层次非常清晰。<br>源码：<a href="https://github.com/xiaoyanger0825/LogHttpInfo" target="_blank" rel="noopener">https://github.com/xiaoyanger0825/LogHttpInfo</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/日志/" rel="tag"># 日志</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/14/京东快报轮播公告的实现/" rel="next" title="京东快报轮播公告的实现">
+                <i class="fa fa-chevron-left"></i> 京东快报轮播公告的实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/22/Yalantis开源项目Phoenix-Pull-to-Refresh源码分析/" rel="prev" title="Yalantis开源项目Phoenix-Pull-to-Refresh源码分析">
+                Yalantis开源项目Phoenix-Pull-to-Refresh源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
