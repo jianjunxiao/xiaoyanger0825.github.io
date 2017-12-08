@@ -84,7 +84,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java集合框架 —— LinkedHashMap源码分析">
 <meta property="og:url" content="http://yoursite.com/2017/09/21/Java集合框架-——-LinkedHashMap源码分析/index.html">
-<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:site_name" content="小样儿">
 <meta property="og:description" content="前言我们知道HashMap底层是采用数组+单向线性链表/红黑树来实现的，HashMap在扩容或者链表与红黑树转换过程时可能会改变元素的位置和顺序。如果需要保存元素存入或访问的先后顺序，那就需要采用LinkedHashMap了。 LinkedHashMap结构LinkedHashMap继承自HashMap，它的所有操作和HashMap类似，底层结构也和HashMap一样，只不过为了维护元素的存入/访">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://i.imgur.com/7q4Qif4.png">
@@ -128,7 +128,7 @@
 
 
 
-  <title>Java集合框架 —— LinkedHashMap源码分析 | xiaoyanger0825</title>
+  <title>Java集合框架 —— LinkedHashMap源码分析 | 小样儿</title>
   
 
 
@@ -158,7 +158,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">xiaoyanger0825</span>
+        <span class="site-title">小样儿</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -193,22 +193,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/about/" rel="section">
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
+            归档
           </a>
         </li>
       
@@ -223,12 +213,22 @@
         </li>
       
         
-        <li class="menu-item menu-item-archives">
-          <a href="/archives/" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            归档
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -274,7 +274,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="name" content="小样儿">
     </span>
 
     

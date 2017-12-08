@@ -84,7 +84,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java集合框架 —— LinkedList源码分析">
 <meta property="og:url" content="http://yoursite.com/2017/09/14/Java集合框架-——-LinkedList源码分析/index.html">
-<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:site_name" content="小样儿">
 <meta property="og:description" content="在JDK1.7之前，LinkedList是采用双向环形链表来实现的，在1.7及之后，Oracle将LinkedList做了优化，将环形链表改成了线性链表。本文对于LinkedList的源码分析基于JDK1.8。 LinkedList既然是通过一个双向线性链表来实现，那么肯定就能够很轻易的找到链表的第一个节点和最后一个节点，在源码中可以看到有这两个字段：12transient Node&amp;lt;E&amp;g">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://i.imgur.com/SuHIva6.png">
@@ -131,7 +131,7 @@
 
 
 
-  <title>Java集合框架 —— LinkedList源码分析 | xiaoyanger0825</title>
+  <title>Java集合框架 —— LinkedList源码分析 | 小样儿</title>
   
 
 
@@ -161,7 +161,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">xiaoyanger0825</span>
+        <span class="site-title">小样儿</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -196,22 +196,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/about/" rel="section">
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            关于
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
+            归档
           </a>
         </li>
       
@@ -226,12 +216,22 @@
         </li>
       
         
-        <li class="menu-item menu-item-archives">
-          <a href="/archives/" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            归档
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
           </a>
         </li>
       
@@ -277,7 +277,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="name" content="小样儿">
     </span>
 
     
