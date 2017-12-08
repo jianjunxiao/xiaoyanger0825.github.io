@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="视频播放," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="项目已添加IjkPlayer支持，后续逐渐完善其他功能。地址：https://github.com/xiaoyanger0825/NiceVieoPlayer  为什么使用TextureView在Android总播放视频可以直接使用VideoView，VideoView是通过继承自SurfaceView来实现的。SurfaceView的大概原理就是在现有View的位置上创建一个新的Window，">
+<meta name="keywords" content="视频播放">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用MediaPlayer+TextureView封装一个完美实现全屏、小窗口的视频播放器">
+<meta property="og:url" content="http://yoursite.com/2017/05/22/用MediaPlayer-TextureView封装一个完美实现全屏、小窗口的视频播放器/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="项目已添加IjkPlayer支持，后续逐渐完善其他功能。地址：https://github.com/xiaoyanger0825/NiceVieoPlayer  为什么使用TextureView在Android总播放视频可以直接使用VideoView，VideoView是通过继承自SurfaceView来实现的。SurfaceView的大概原理就是在现有View的位置上创建一个新的Window，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-e1f128fb472e97b9?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-3feb4d2d27177c31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-6133b64915dbe2df.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-782821c245ca7d6e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-2445334e4f124bed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-12-08T03:06:07.521Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用MediaPlayer+TextureView封装一个完美实现全屏、小窗口的视频播放器">
+<meta name="twitter:description" content="项目已添加IjkPlayer支持，后续逐渐完善其他功能。地址：https://github.com/xiaoyanger0825/NiceVieoPlayer  为什么使用TextureView在Android总播放视频可以直接使用VideoView，VideoView是通过继承自SurfaceView来实现的。SurfaceView的大概原理就是在现有View的位置上创建一个新的Window，">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-e1f128fb472e97b9?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/05/22/用MediaPlayer-TextureView封装一个完美实现全屏、小窗口的视频播放器/"/>
+
+
+
+
+
+  <title>用MediaPlayer+TextureView封装一个完美实现全屏、小窗口的视频播放器 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/22/用MediaPlayer-TextureView封装一个完美实现全屏、小窗口的视频播放器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">用MediaPlayer+TextureView封装一个完美实现全屏、小窗口的视频播放器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-22T15:58:55+08:00">
+                2017-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>项目已添加IjkPlayer支持，后续逐渐完善其他功能。<br>地址：<a href="https://github.com/xiaoyanger0825/NiceVieoPlayer" target="_blank" rel="noopener">https://github.com/xiaoyanger0825/NiceVieoPlayer</a></p>
+</blockquote>
+<h3 id="为什么使用TextureView"><a href="#为什么使用TextureView" class="headerlink" title="为什么使用TextureView"></a>为什么使用TextureView</h3><p>在Android总播放视频可以直接使用<code>VideoView</code>，<code>VideoView</code>是通过继承自<code>SurfaceView</code>来实现的。<code>SurfaceView</code>的大概原理就是在现有<code>View</code>的位置上创建一个新的<code>Window</code>，内容的显示和渲染都在新的<code>Window</code>中。这使得<code>SurfaceView</code>的绘制和刷新可以在单独的线程中进行，从而大大提高效率。但是呢，由于<code>SurfaceView</code>的内容没有显示在<code>View</code>中而是显示在新建的<code>Window</code>中， 使得<code>SurfaceView</code>的显示不受<code>View</code>的属性控制，不能进行平移，缩放等变换，也不能放在其它<code>RecyclerView</code>或<code>ScrollView</code>中，一些<code>View</code>中的特性也无法使用。</p>
+<p><code>TextureView</code>是在4.0(API level 14)引入的，与<code>SurfaceView</code>相比，它不会创建新的窗口来显示内容。它是将内容流直接投放到<code>View</code>中，并且可以和其它普通<code>View</code>一样进行移动，旋转，缩放，动画等变化。<code>TextureView</code>必须在硬件加速的窗口中使用。</p>
+<p><code>TextureView</code>被创建后不能直接使用，必须要在它被它添加到<code>ViewGroup</code>后，待<code>SurfaceTexture</code>准备就绪才能起作用（看<code>TextureView</code>的源码，<code>TextureView</code>是在绘制的时候创建的内部<code>SurfaceTexture</code>）。通常需要给<code>TextureView</code>设置监听器<code>SurfaceTextuListener</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) &#123;</span><br><span class="line">        // SurfaceTexture准备就绪</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) &#123;</span><br><span class="line">        // SurfaceTexture缓冲大小变化</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) &#123;</span><br><span class="line">        // SurfaceTexture即将被销毁</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onSurfaceTextureUpdated(SurfaceTexture surface) &#123;</span><br><span class="line">        // SurfaceTexture通过updateImage更新</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><code>SurfaceTexture</code>的准备就绪、大小变化、销毁、更新等状态变化时都会回调相对应的方法。当<code>TextureView</code>内部创建好<code>SurfaceTexture</code>后，在监听器的<code>onSurfaceTextureAvailable</code>方法中，用<code>SurfaceTexture</code>来关联<code>MediaPlayer</code>，作为播放视频的图像数据来源。</p>
+<p><code>SurfaceTexture</code>作为数据通道，把从数据源（<code>MediaPlayer</code>）中获取到的图像帧数据转为GL外部纹理，交给<code>TextureVeiw</code>作为<code>View heirachy</code>中的一个硬件加速层来显示，从而实现视频播放功能。</p>
+<h3 id="MediaPlayer介绍"><a href="#MediaPlayer介绍" class="headerlink" title="MediaPlayer介绍"></a>MediaPlayer介绍</h3><p><code>MediaPlayer</code>是Android原生的多媒体播放器，可以用它来实现本地或者在线音视频的播放，同时它支持<a href="https://developer.android.google.cn/guide/topics/media/media-formats.html" target="_blank" rel="noopener">https和rtsp</a>。</p>
+<p><code>MediaPlayer</code>定义了各种状态，可以理解为是它的生命周期。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-e1f128fb472e97b9?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="MediaPlayer状态图（生命周期）"></p>
+<p>这个状态图描述了<code>MediaPlayer</code>的各种状态，以及主要方法调用后的状态变化。</p>
+<p>MediaPlayer的相关方法及监听接口：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>介绍</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setDataSource</td>
+<td>设置数据源</td>
+<td>Initialized</td>
+<td></td>
+</tr>
+<tr>
+<td>prepare</td>
+<td>准备播放，同步</td>
+<td>Preparing —&gt; Prepared</td>
+<td></td>
+</tr>
+<tr>
+<td>prepareAsync</td>
+<td>准备播放，异步</td>
+<td>Preparing —&gt; Prepared</td>
+<td></td>
+</tr>
+<tr>
+<td>start</td>
+<td>开始或恢复播放</td>
+<td>Started</td>
+<td></td>
+</tr>
+<tr>
+<td>pause</td>
+<td>暂停</td>
+<td>Paused</td>
+<td></td>
+</tr>
+<tr>
+<td>stop</td>
+<td>停止</td>
+<td>Stopped</td>
+<td></td>
+</tr>
+<tr>
+<td>seekTo</td>
+<td>到指定时间点位置</td>
+<td>PrePared/Started</td>
+<td></td>
+</tr>
+<tr>
+<td>reset</td>
+<td>重置播放器</td>
+<td>Idle</td>
+<td></td>
+</tr>
+<tr>
+<td>setAudioStreamType</td>
+<td>设置音频流类型</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>setDisplay</td>
+<td>设置播放视频的Surface</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>setVolume</td>
+<td>设置声音</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>getBufferPercentage</td>
+<td>获取缓冲半分比</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>getCurrentPosition</td>
+<td>获取当前播放位置</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>getDuration</td>
+<td>获取播放文件总时间</td>
+<td>–</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>内部回调接口</th>
+<th>介绍</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OnPreparedListener</td>
+<td>准备监听</td>
+<td>Preparing ——&gt;Prepared</td>
+<td></td>
+</tr>
+<tr>
+<td>OnVideoSizeChangedListener</td>
+<td>视频尺寸变化监听</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>OnInfoListener</td>
+<td>指示信息和警告信息监听</td>
+<td>–</td>
+<td></td>
+</tr>
+<tr>
+<td>OnCompletionListener</td>
+<td>播放完成监听</td>
+<td>PlaybackCompleted</td>
+<td></td>
+</tr>
+<tr>
+<td>OnErrorListener</td>
+<td>播放错误监听</td>
+<td>Error</td>
+<td></td>
+</tr>
+<tr>
+<td>OnBufferingUpdateListener</td>
+<td>缓冲更新监听</td>
+<td>–</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>MediaPlayer</code>在直接new出来之后就进入了Idle状态，此时可以调用多个重载的<code>setDataSource()</code>方法从idle状态进入Initialized状态（如果调用<code>setDataSource()</code>方法的时候，<code>MediaPlayer</code>对象不是出于Idle状态，会抛异常，可以调用<code>reset()</code>方法回到Idle状态）。</p>
+<p>调用<code>prepared()</code>方法和<code>preparedAsync()</code>方法进入Prepared状态，prepared()方法直接进入Parpared状态，preparedAsync()方法会先进入PreParing状态，播放引擎准备完毕后会通过<code>OnPreparedListener.onPrepared()</code>回调方法通知Prepared状态。</p>
+<p>在Prepared状态下就可以调用start()方法进行播放了，此时进入started()状态，如果播放的是网络资源，Started状态下也会自动调用客户端注册的<code>OnBufferingUpdateListener.OnBufferingUpdate()</code>回调方法，对流播放缓冲的状态进行追踪。</p>
+<p><code>pause()</code>方法和<code>start()</code>方法是对应的，调用<code>pause()</code>方法会进入Paused状态，调用<code>start()</code>方法重新进入Started状态，继续播放。</p>
+<p><code>stop()</code>方法会使<code>MdiaPlayer</code>从Started、Paused、Prepared、PlaybackCompleted等状态进入到Stoped状态，播放停止。</p>
+<p>当资源播放完毕时，如果调用了<code>setLooping(boolean)</code>方法，会自动进入Started状态重新播放，如果没有调用则会自动调用客户端播放器注册的<code>OnCompletionListener.OnCompletion()</code>方法，此时<code>MediaPlayer</code>进入PlaybackCompleted状态，在此状态里可以调用<code>start()</code>方法重新进入Started状态。</p>
+<h3 id="封装考虑"><a href="#封装考虑" class="headerlink" title="封装考虑"></a>封装考虑</h3><p><code>MediaPlayer</code>的方法和接口比较多，不同的状态调用各个方法后状态变化情况也比较复杂。播放相关的逻辑只与<code>MediaPlayer</code>的播放状态和调用方法相关，而界面展示和UI操作很多时候都需要根据自己项目来定制。参考原生的<code>VideoView</code>，为了解耦和方便定制，把<code>MediaPlayer</code>的播放逻辑和UI界面展示及操作相关的逻辑分离。我是把<code>MediaPlayer</code>直接封装到<code>NiceVideoPlayer</code>中，各种UI状态和操作反馈都封装到<code>NiceVideoPlayerController</code>里面。如果需要根据不同的项目需求来修改播放器的功能，就只重写<code>NiceVideoPlayerController</code>就可以了。</p>
+<h3 id="NiceVideoPlayer"><a href="#NiceVideoPlayer" class="headerlink" title="NiceVideoPlayer"></a>NiceVideoPlayer</h3><p>首先，需要一个<code>FrameLayout</code>容器<code>mContainer</code>，里面有两层内容，第一层就是展示播放视频内容的<code>TextureView</code>，第二层就是播放器控制器<code>mController</code>。那么自定义一个<code>NiceVideoPlayer</code>继承自<code>FrameLayout</code>,将<code>mContainer</code>添加到当前控件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class NiceVideoPlayer extends FrameLayout&#123;</span><br><span class="line"></span><br><span class="line">    private Context mContext;</span><br><span class="line">    private NiceVideoController mController;</span><br><span class="line">    private FrameLayout mContainer;</span><br><span class="line">    </span><br><span class="line">    public NiceVideoPlayer(Context context) &#123;</span><br><span class="line">        this(context, null);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public NiceVideoPlayer(Context context, AttributeSet attrs) &#123;</span><br><span class="line">        super(context, attrs);</span><br><span class="line">        mContext = context;</span><br><span class="line">        init();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void init() &#123;</span><br><span class="line">         mContainer = new FrameLayout(mContext);</span><br><span class="line">         mContainer.setBackgroundColor(Color.BLACK);</span><br><span class="line">         LayoutParams params = new LayoutParams(</span><br><span class="line">                ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">                ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">        this.addView(mContainer, params);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加<code>setUp</code>方法来配置播放的视频资源路径（本地/网络资源）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public void setUp(String url, Map&lt;String, String&gt; headers) &#123;</span><br><span class="line">        mUrl = url;</span><br><span class="line">        mHeaders = headers;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>用户要在<code>mController</code>中操作才能播放，因此需要在播放之前设置好<code>mController</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public void setController(NiceVideoPlayerController controller) &#123;</span><br><span class="line">    mController = controller;</span><br><span class="line">    mController.setNiceVideoPlayer(this);</span><br><span class="line">    LayoutParams params = new LayoutParams(</span><br><span class="line">            ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">            ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">    mContainer.addView(mController, params);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用户在自定义好自己的控制器后通过<code>setController</code>这个方法设置给播放器进行关联。</p>
+<p>触发播放时，<code>NiceVideoPlayer</code>将展示视频图像内容的<code>mTextureView</code>添加到<code>mContainer</code>中（在<code>mController</code>的下层），同时初始化<code>mMediaPlayer</code>，待<code>mTextureView</code>的数据通道<code>SurfaceTexture</code>准备就绪后就可以打开播放器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">public void start() &#123;</span><br><span class="line">    initMediaPlayer();  // 初始化播放器</span><br><span class="line">    initTextureView();  // 初始化展示视频内容的TextureView</span><br><span class="line">    addTextureView();   // 将TextureView添加到容器中</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void initTextureView() &#123;</span><br><span class="line">    if (mTextureView == null) &#123;</span><br><span class="line">        mTextureView = new TextureView(mContext);</span><br><span class="line">        mTextureView.setSurfaceTextureListener(this);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void addTextureView() &#123;</span><br><span class="line">    mContainer.removeView(mTextureView);</span><br><span class="line">    LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">            ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">    mContainer.addView(mTextureView, 0,  params);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void initMediaPlayer() &#123;</span><br><span class="line">    if (mMediaPlayer == null) &#123;</span><br><span class="line">        mMediaPlayer = new MediaPlayer();</span><br><span class="line"></span><br><span class="line">        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);</span><br><span class="line">        mMediaPlayer.setScreenOnWhilePlaying(true);</span><br><span class="line"></span><br><span class="line">        mMediaPlayer.setOnPreparedListener(mOnPreparedListener);</span><br><span class="line">        mMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);</span><br><span class="line">        mMediaPlayer.setOnCompletionListener(mOnCompletionListener);</span><br><span class="line">        mMediaPlayer.setOnErrorListener(mOnErrorListener);</span><br><span class="line">        mMediaPlayer.setOnInfoListener(mOnInfoListener);</span><br><span class="line">        mMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) &#123;</span><br><span class="line">    // surfaceTexture数据通道准备就绪，打开播放器</span><br><span class="line">    openMediaPlayer(surface);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void openMediaPlayer(SurfaceTexture surface) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        mMediaPlayer.setDataSource(mContext.getApplicationContext(), Uri.parse(mUrl), mHeaders);</span><br><span class="line">        mMediaPlayer.setSurface(new Surface(surface));</span><br><span class="line">        mMediaPlayer.prepareAsync();</span><br><span class="line">    &#125; catch (IOException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) &#123;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void onSurfaceTextureUpdated(SurfaceTexture surface) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打开播放器调用<code>prepareAsync()</code>方法后，<code>mMediaPlayer</code>进入准备状态，准备就绪后就可以开始：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private MediaPlayer.OnPreparedListener mOnPreparedListener</span><br><span class="line">        = new MediaPlayer.OnPreparedListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onPrepared(MediaPlayer mp) &#123;</span><br><span class="line">        mp.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>NiceVideoPlayer</code>的这些逻辑已经实现视频播放了，操作相关以及UI展示的逻辑需要在控制器<code>NiceVideoPlayerController</code>中来实现。但是呢，UI的展示和反馈都需要依据播放器当前的播放状态，所以需要给播放器定义一些常量来表示它的播放状态：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public static final int STATE_ERROR = -1;          // 播放错误</span><br><span class="line">public static final int STATE_IDLE = 0;            // 播放未开始</span><br><span class="line">public static final int STATE_PREPARING = 1;       // 播放准备中</span><br><span class="line">public static final int STATE_PREPARED = 2;        // 播放准备就绪</span><br><span class="line">public static final int STATE_PLAYING = 3;         // 正在播放</span><br><span class="line">public static final int STATE_PAUSED = 4;          // 暂停播放</span><br><span class="line">// 正在缓冲(播放器正在播放时，缓冲区数据不足，进行缓冲，缓冲区数据足够后恢复播放)</span><br><span class="line">public static final int STATE_BUFFERING_PLAYING = 5;</span><br><span class="line">// 正在缓冲(播放器正在播放时，缓冲区数据不足，进行缓冲，此时暂停播放器，继续缓冲，缓冲区数据足够后恢复暂停)</span><br><span class="line">public static final int STATE_BUFFERING_PAUSED = 6;</span><br><span class="line">public static final int STATE_COMPLETED = 7;       // 播放完成</span><br></pre></td></tr></table></figure>
+<p>播放视频时，<code>mMediaPlayer</code>准备就绪(<code>Prepared</code>)后没有马上进入播放状态，中间有一个时间延迟时间段，然后开始渲染图像。所以将Prepared——&gt;“开始渲染”中间这个时间段定义为<code>STATE_PREPARED</code>。</p>
+<p>如果是播放网络视频，在播放过程中，缓冲区数据不足时<code>mMediaPlayer</code>内部会停留在某一帧画面以进行缓冲。正在缓冲时，<code>mMediaPlayer</code>可能是在正在播放也可能是暂停状态，因为在缓冲时如果用户主动点击了暂停，就是处于<code>STATE_BUFFERING_PAUSED</code>，所以缓冲有<code>STATE_BUFFERING_PLAYING</code>和<code>STATE_BUFFERING_PAUSED</code>两种状态，缓冲结束后，恢复播放或暂停。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">private MediaPlayer.OnPreparedListener mOnPreparedListener</span><br><span class="line">        = new MediaPlayer.OnPreparedListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onPrepared(MediaPlayer mp) &#123;</span><br><span class="line">        mp.start();</span><br><span class="line">        mCurrentState = STATE_PREPARED;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;onPrepared ——&gt; STATE_PREPARED&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">private MediaPlayer.OnVideoSizeChangedListener mOnVideoSizeChangedListener</span><br><span class="line">        = new MediaPlayer.OnVideoSizeChangedListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) &#123;</span><br><span class="line">        LogUtil.d(&quot;onVideoSizeChanged ——&gt; width：&quot; + width + &quot;，height：&quot; + height);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">private MediaPlayer.OnCompletionListener mOnCompletionListener</span><br><span class="line">        = new MediaPlayer.OnCompletionListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onCompletion(MediaPlayer mp) &#123;</span><br><span class="line">        mCurrentState = STATE_COMPLETED;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;onCompletion ——&gt; STATE_COMPLETED&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">private MediaPlayer.OnErrorListener mOnErrorListener</span><br><span class="line">        = new MediaPlayer.OnErrorListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean onError(MediaPlayer mp, int what, int extra) &#123;</span><br><span class="line">        mCurrentState = STATE_ERROR;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;onError ——&gt; STATE_ERROR ———— what：&quot; + what);</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">private MediaPlayer.OnInfoListener mOnInfoListener</span><br><span class="line">        = new MediaPlayer.OnInfoListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean onInfo(MediaPlayer mp, int what, int extra) &#123;</span><br><span class="line">        if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) &#123;</span><br><span class="line">            // 播放器渲染第一帧</span><br><span class="line">            mCurrentState = STATE_PLAYING;</span><br><span class="line">            mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">            LogUtil.d(&quot;onInfo ——&gt; MEDIA_INFO_VIDEO_RENDERING_START：STATE_PLAYING&quot;);</span><br><span class="line">        &#125; else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) &#123;</span><br><span class="line">            // MediaPlayer暂时不播放，以缓冲更多的数据</span><br><span class="line">            if (mCurrentState == STATE_PAUSED || mCurrentState == STATE_BUFFERING_PAUSED) &#123;</span><br><span class="line">                mCurrentState = STATE_BUFFERING_PAUSED;</span><br><span class="line">                LogUtil.d(&quot;onInfo ——&gt; MEDIA_INFO_BUFFERING_START：STATE_BUFFERING_PAUSED&quot;);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                mCurrentState = STATE_BUFFERING_PLAYING;</span><br><span class="line">                LogUtil.d(&quot;onInfo ——&gt; MEDIA_INFO_BUFFERING_START：STATE_BUFFERING_PLAYING&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        &#125; else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) &#123;</span><br><span class="line">            // 填充缓冲区后，MediaPlayer恢复播放/暂停</span><br><span class="line">            if (mCurrentState == STATE_BUFFERING_PLAYING) &#123;</span><br><span class="line">                mCurrentState = STATE_PLAYING;</span><br><span class="line">                mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">                LogUtil.d(&quot;onInfo ——&gt; MEDIA_INFO_BUFFERING_END： STATE_PLAYING&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            if (mCurrentState == STATE_BUFFERING_PAUSED) &#123;</span><br><span class="line">                mCurrentState = STATE_PAUSED;</span><br><span class="line">                mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">                LogUtil.d(&quot;onInfo ——&gt; MEDIA_INFO_BUFFERING_END： STATE_PAUSED&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            LogUtil.d(&quot;onInfo ——&gt; what：&quot; + what);</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">private MediaPlayer.OnBufferingUpdateListener mOnBufferingUpdateListener</span><br><span class="line">        = new MediaPlayer.OnBufferingUpdateListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onBufferingUpdate(MediaPlayer mp, int percent) &#123;</span><br><span class="line">        mBufferPercentage = percent;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>mController.setControllerState(mPlayerState, mCurrentState)</code>，<code>mCurrentState</code>表示当前播放状态，<code>mPlayerState</code>表示播放器的全屏、小窗口，正常三种状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static final int PLAYER_NORMAL = 10;        // 普通播放器</span><br><span class="line">public static final int PLAYER_FULL_SCREEN = 11;   // 全屏播放器</span><br><span class="line">public static final int PLAYER_TINY_WINDOW = 12;   // 小窗口播放器</span><br></pre></td></tr></table></figure>
+<p>定义好播放状态后，开始暂停等操作逻辑也需要根据播放状态调整：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void start() &#123;</span><br><span class="line">    if (mCurrentState == STATE_IDLE</span><br><span class="line">            || mCurrentState == STATE_ERROR</span><br><span class="line">            || mCurrentState == STATE_COMPLETED) &#123;</span><br><span class="line">        initMediaPlayer();</span><br><span class="line">        initTextureView();</span><br><span class="line">        addTextureView();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void restart() &#123;</span><br><span class="line">    if (mCurrentState == STATE_PAUSED) &#123;</span><br><span class="line">        mMediaPlayer.start();</span><br><span class="line">        mCurrentState = STATE_PLAYING;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;STATE_PLAYING&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (mCurrentState == STATE_BUFFERING_PAUSED) &#123;</span><br><span class="line">        mMediaPlayer.start();</span><br><span class="line">        mCurrentState = STATE_BUFFERING_PLAYING;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;STATE_BUFFERING_PLAYING&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void pause() &#123;</span><br><span class="line">    if (mCurrentState == STATE_PLAYING) &#123;</span><br><span class="line">        mMediaPlayer.pause();</span><br><span class="line">        mCurrentState = STATE_PAUSED;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;STATE_PAUSED&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (mCurrentState == STATE_BUFFERING_PLAYING) &#123;</span><br><span class="line">        mMediaPlayer.pause();</span><br><span class="line">        mCurrentState = STATE_BUFFERING_PAUSED;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;STATE_BUFFERING_PAUSED&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>reStart()</code>方法是暂停时继续播放调用。</p>
+<h3 id="全屏、小窗口播放的实现"><a href="#全屏、小窗口播放的实现" class="headerlink" title="全屏、小窗口播放的实现"></a>全屏、小窗口播放的实现</h3><p>可能最能想到实现全屏的方式就是把当前播放器的宽高给放大到屏幕大小，同时隐藏除播放器以外的其他所有UI，并设置成横屏模式。但是这种方式有很多问题，比如在列表（<code>ListView或RecyclerView</code>）中，除了放大隐藏外，还需要去计算滑动多少距离才刚好让播放器与屏幕边缘重合，退出全屏的时候还需要滑动到之前的位置，这样实现逻辑不但繁琐，而且和外部UI偶合严重，后面改动维护起来非常困难（我曾经就用这种方式被坑了无数道）。</p>
+<p>分析能不能有其他更好的实现方式呢？</p>
+<p>整个播放器由<code>mMediaPalyer</code>+<code>mTexutureView</code>+<code>mController</code>组成，要实现全屏或小窗口播放，我们只需要挪动播放器的展示界面<code>mTexutureView</code>和控制界面<code>mController</code>即可。并且呢我们在上面定义播放器时，已经把<code>mTexutureView</code>和<code>mController</code>一起添加到<code>mContainer</code>中了，所以只需要将<code>mContainer</code>从当前视图中移除，并添加到全屏和小窗口的目标视图中即可。</p>
+<p>那么怎么确定全屏和小窗口的目标视图呢？</p>
+<p>我们知道每个<code>Activity</code>里面都有一个<code>android.R.content</code>，它是一个<code>FrameLayout</code>，里面包含了我们<code>setContentView</code>的所有控件。既然它是一个<code>FrameLayout</code>，我们就可以将它作为全屏和小窗口的目标视图。</p>
+<p>我们把从当前视图移除的<code>mContainer</code>重新添加到<code>android.R.content</code>中，并且设置成横屏。这个时候还需要注意<code>android.R.content</code>是不包括<code>ActionBar</code>和状态栏的，所以要将<code>Activity</code>设置成全屏模式，同时隐藏<code>ActionBar</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void enterFullScreen() &#123;</span><br><span class="line">    if (mPlayerState == PLAYER_FULL_SCREEN) return;</span><br><span class="line"></span><br><span class="line">    // 隐藏ActionBar、状态栏，并横屏</span><br><span class="line">    NiceUtil.hideActionBar(mContext);</span><br><span class="line">    NiceUtil.scanForActivity(mContext)</span><br><span class="line">            .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);</span><br><span class="line"></span><br><span class="line">    this.removeView(mContainer);</span><br><span class="line">    ViewGroup contentView = (ViewGroup) NiceUtil.scanForActivity(mContext)</span><br><span class="line">            .findViewById(android.R.id.content);</span><br><span class="line">    LayoutParams params = new LayoutParams(</span><br><span class="line">            ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">            ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">    contentView.addView(mContainer, params);</span><br><span class="line"></span><br><span class="line">    mPlayerState = PLAYER_FULL_SCREEN;</span><br><span class="line">    mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">    LogUtil.d(&quot;PLAYER_FULL_SCREEN&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>退出全屏也就很简单了，将<code>mContainer</code>从<code>android.R.content</code>中移除，重新添加到当前视图，并恢复<code>ActionBar</code>、清除全屏模式就行了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public boolean exitFullScreen() &#123;</span><br><span class="line">    if (mPlayerState == PLAYER_FULL_SCREEN) &#123;</span><br><span class="line">        NiceUtil.showActionBar(mContext);</span><br><span class="line">        NiceUtil.scanForActivity(mContext)</span><br><span class="line">                .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);</span><br><span class="line"></span><br><span class="line">        ViewGroup contentView = (ViewGroup) NiceUtil.scanForActivity(mContext)</span><br><span class="line">                .findViewById(android.R.id.content);</span><br><span class="line">        contentView.removeView(mContainer);</span><br><span class="line">        LayoutParams params = new LayoutParams(</span><br><span class="line">                ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">                ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">        this.addView(mContainer, params);</span><br><span class="line"></span><br><span class="line">        mPlayerState = PLAYER_NORMAL;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;PLAYER_NORMAL&quot;);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>切换横竖屏时为了避免<code>Activity</code>重新走生命周期，别忘了需要在<code>Manifest.xml</code>的<code>activity</code>标签下添加如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:configChanges=&quot;orientation|keyboardHidden|screenSize&quot;</span><br></pre></td></tr></table></figure>
+<p>进入小窗口播放和退出小窗口的实现原理就和全屏功能一样了，只需要修改它的宽高参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void enterTinyWindow() &#123;</span><br><span class="line">    if (mPlayerState == PLAYER_TINY_WINDOW) return;</span><br><span class="line"></span><br><span class="line">    this.removeView(mContainer);</span><br><span class="line"></span><br><span class="line">    ViewGroup contentView = (ViewGroup) NiceUtil.scanForActivity(mContext)</span><br><span class="line">            .findViewById(android.R.id.content);</span><br><span class="line">    // 小窗口的宽度为屏幕宽度的60%，长宽比默认为16:9，右边距、下边距为8dp。</span><br><span class="line">    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(</span><br><span class="line">            (int) (NiceUtil.getScreenWidth(mContext) * 0.6f),</span><br><span class="line">            (int) (NiceUtil.getScreenWidth(mContext) * 0.6f * 9f / 16f));</span><br><span class="line">    params.gravity = Gravity.BOTTOM | Gravity.END;</span><br><span class="line">    params.rightMargin = NiceUtil.dp2px(mContext, 8f);</span><br><span class="line">    params.bottomMargin = NiceUtil.dp2px(mContext, 8f);</span><br><span class="line"></span><br><span class="line">    contentView.addView(mContainer, params);</span><br><span class="line"></span><br><span class="line">    mPlayerState = PLAYER_TINY_WINDOW;</span><br><span class="line">    mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">    LogUtil.d(&quot;PLAYER_TINY_WINDOW&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public boolean exitTinyWindow() &#123;</span><br><span class="line">    if (mPlayerState == PLAYER_TINY_WINDOW) &#123;</span><br><span class="line">        ViewGroup contentView = (ViewGroup) NiceUtil.scanForActivity(mContext)</span><br><span class="line">                .findViewById(android.R.id.content);</span><br><span class="line">        contentView.removeView(mContainer);</span><br><span class="line">        LayoutParams params = new LayoutParams(</span><br><span class="line">                ViewGroup.LayoutParams.MATCH_PARENT,</span><br><span class="line">                ViewGroup.LayoutParams.MATCH_PARENT);</span><br><span class="line">        this.addView(mContainer, params);</span><br><span class="line"></span><br><span class="line">        mPlayerState = PLAYER_NORMAL;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;PLAYER_NORMAL&quot;);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有个特别需要注意的一点：</p>
+<p>当<code>mContainer</code>移除重新添加后，<code>mContainer</code>及其内部的<code>mTextureView</code>和<code>mController</code>都会重绘，<code>mTextureView</code>重绘后，会重新<code>new</code>一个<code>SurfaceTexture</code>，并重新回调<code>onSurfaceTextureAvailable</code>方法，这样<code>mTextureView</code>的数据通道<code>SurfaceTexture</code>发生了变化，但是<code>mMediaPlayer</code>还是持有原先的<code>mSurfaceTexut</code>，所以在切换全屏之前要保存之前的<code>mSufaceTexture</code>，当切换到全屏后重新调用<code>onSurfaceTextureAvailable</code>时，将之前的<code>mSufaceTexture</code>重新设置给<code>mTexutureView</code>。这样就保证了切换时视频播放的无缝衔接。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) &#123;</span><br><span class="line">    if (mSurfaceTexture == null) &#123;</span><br><span class="line">        mSurfaceTexture = surfaceTexture;</span><br><span class="line">        openMediaPlayer();</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        mTextureView.setSurfaceTexture(mSurfaceTexture);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="NiceVideoPlayerControl"><a href="#NiceVideoPlayerControl" class="headerlink" title="NiceVideoPlayerControl"></a>NiceVideoPlayerControl</h3><p>为了解除<code>NiceVideoPlayer</code>和<code>NiceVideoPlayerController</code>的耦合，把<code>NiceVideoPlayer</code>的一些功能性和判断性方法抽象到<code>NiceVideoPlayerControl</code>接口中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">public interface NiceVideoPlayerControl &#123;</span><br><span class="line"></span><br><span class="line">    void start();</span><br><span class="line">    void restart();</span><br><span class="line">    void pause();</span><br><span class="line">    void seekTo(int pos);</span><br><span class="line"></span><br><span class="line">    boolean isIdle();</span><br><span class="line">    boolean isPreparing();</span><br><span class="line">    boolean isPrepared();</span><br><span class="line">    boolean isBufferingPlaying();</span><br><span class="line">    boolean isBufferingPaused();</span><br><span class="line">    boolean isPlaying();</span><br><span class="line">    boolean isPaused();</span><br><span class="line">    boolean isError();</span><br><span class="line">    boolean isCompleted();</span><br><span class="line"></span><br><span class="line">    boolean isFullScreen();</span><br><span class="line">    boolean isTinyWindow();</span><br><span class="line">    boolean isNormal();</span><br><span class="line"></span><br><span class="line">    int getDuration();</span><br><span class="line">    int getCurrentPosition();</span><br><span class="line">    int getBufferPercentage();</span><br><span class="line"></span><br><span class="line">    void enterFullScreen();</span><br><span class="line">    boolean exitFullScreen();</span><br><span class="line">    void enterTinyWindow();</span><br><span class="line">    boolean exitTinyWindow();</span><br><span class="line"></span><br><span class="line">    void release();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>NiceVideoPlayer</code>实现这个接口即可。</p>
+<h3 id="NiceVideoPlayerManager"><a href="#NiceVideoPlayerManager" class="headerlink" title="NiceVideoPlayerManager"></a>NiceVideoPlayerManager</h3><p>同一界面上有多个视频，或者视频放在<code>ReclerView</code>或者<code>ListView</code>的容器中，要保证同一时刻只有一个视频在播放，其他的都是初始状态，所以需要一个<code>NiceVideoPlayerManager</code>来管理播放器，主要功能是保存当前已经开始了的播放器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">public class NiceVideoPlayerManager &#123;</span><br><span class="line"></span><br><span class="line">    private NiceVideoPlayer mVideoPlayer;</span><br><span class="line"></span><br><span class="line">    private NiceVideoPlayerManager() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static NiceVideoPlayerManager sInstance;</span><br><span class="line"></span><br><span class="line">    public static synchronized NiceVideoPlayerManager instance() &#123;</span><br><span class="line">        if (sInstance == null) &#123;</span><br><span class="line">            sInstance = new NiceVideoPlayerManager();</span><br><span class="line">        &#125;</span><br><span class="line">        return sInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setCurrentNiceVideoPlayer(NiceVideoPlayer videoPlayer) &#123;</span><br><span class="line">        mVideoPlayer = videoPlayer;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void releaseNiceVideoPlayer() &#123;</span><br><span class="line">        if (mVideoPlayer != null) &#123;</span><br><span class="line">            mVideoPlayer.release();</span><br><span class="line">            mVideoPlayer = null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public boolean onBackPressd() &#123;</span><br><span class="line">        if (mVideoPlayer != null) &#123;</span><br><span class="line">            if (mVideoPlayer.isFullScreen()) &#123;</span><br><span class="line">                return mVideoPlayer.exitFullScreen();</span><br><span class="line">            &#125; else if (mVideoPlayer.isTinyWindow()) &#123;</span><br><span class="line">                return mVideoPlayer.exitTinyWindow();</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                mVideoPlayer.release();</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>采用单例，同时，<code>onBackPressed</code>供<code>Activity</code>中用户按返回键时调用。<br><code>NiceVideoPlayer</code>的<code>start</code>方法以及<code>onCompleted</code>需要修改一下，保证开始播放一个视频时要先释放掉之前的播放器；同时自己播放完毕，要将<code>NiceVideoPlayerManager</code>中的<code>mNiceVideoPlayer</code>实例置空，避免内存泄露。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// NiceVideoPlayer的start()方法。</span><br><span class="line">@Override</span><br><span class="line">public void start() &#123;</span><br><span class="line">    NiceVideoPlayerManager.instance().releaseNiceVideoPlayer();</span><br><span class="line">    NiceVideoPlayerManager.instance().setCurrentNiceVideoPlayer(this);</span><br><span class="line">    if (mCurrentState == STATE_IDLE</span><br><span class="line">            || mCurrentState == STATE_ERROR</span><br><span class="line">            || mCurrentState == STATE_COMPLETED) &#123;</span><br><span class="line">        initMediaPlayer();</span><br><span class="line">        initTextureView();</span><br><span class="line">        addTextureView();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// NiceVideoPlayer中的onCompleted监听。</span><br><span class="line">private MediaPlayer.OnCompletionListener mOnCompletionListener</span><br><span class="line">        = new MediaPlayer.OnCompletionListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onCompletion(MediaPlayer mp) &#123;</span><br><span class="line">        mCurrentState = STATE_COMPLETED;</span><br><span class="line">        mController.setControllerState(mPlayerState, mCurrentState);</span><br><span class="line">        LogUtil.d(&quot;onCompletion ——&gt; STATE_COMPLETED&quot;);</span><br><span class="line">        NiceVideoPlayerManager.instance().setCurrentNiceVideoPlayer(null);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="NiceVideoPlayerController"><a href="#NiceVideoPlayerController" class="headerlink" title="NiceVideoPlayerController"></a>NiceVideoPlayerController</h3><p>播放控制界面上，播放、暂停、播放进度、缓冲动画、全屏/小屏等触发都是直接调用播放器对应的操作的。需要注意的就是调用之前要判断当前的播放状态，因为有些状态下调用播放器的操作可能引起错误（比如播放器还没准备就绪，就去获取当前的播放位置）。</p>
+<p>播放器在触发相应功能的时候都会调用<code>NiceVideoPlayerController</code>的<code>setControllerState(int playerState, int playState)</code>这个方法来让用户修改UI。</p>
+<p>不同项目都可能定制不同的控制器（播放操作界面），这里我就不详细分析实现逻辑了，大致功能就类似腾讯视频的热点列表中的播放器。其中横向滑动改变播放进度、左侧上下滑动改变亮度，右侧上下滑动改变亮度等功能在代码中都有实现。代码有点长，就不贴了，需要的直接<a href="https://github.com/xiaoyanger0825/NiceVieoPlayer" target="_blank" rel="noopener">下载源码</a>。</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mNiceVideoPlayer.setUp(url, null);</span><br><span class="line">NiceVideoPlayerController controller = new NiceVideoPlayerController(this);</span><br><span class="line">controller.setTitle(title);</span><br><span class="line">controller.setImage(imageUrl);</span><br><span class="line">mNiceVideoPlayer.setController(controller);</span><br></pre></td></tr></table></figure>
+<p>在<code>RecyclerView</code>或者<code>ListView</code>中使用时，需要监听<code>itemView</code>的<code>detached</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onChildViewAttachedToWindow(View view) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onChildViewDetachedFromWindow(View view) &#123;</span><br><span class="line">        NiceVideoPlayer niceVideoPlayer = (NiceVideoPlayer) view.findViewById(R.id.nice_video_player);</span><br><span class="line">        if (niceVideoPlayer != null) &#123;</span><br><span class="line">            niceVideoPlayer.release();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在<code>ItemView</code>detach窗口时，需要释放掉<code>itemView</code>内部的播放器。</p>
+<h3 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h3><p><img src="http://upload-images.jianshu.io/upload_images/1801191-3feb4d2d27177c31.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-6133b64915dbe2df.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-782821c245ca7d6e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-2445334e4f124bed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><p>整个功能有参考<a href="https://github.com/lipangit/JieCaoVideoPlayer" target="_blank" rel="noopener">节操播放器</a>，但是自己这样封装和节操播放器还是有很大差异：一是分离了播放功能和控制界面，定制只需修改控制器即可。二是全屏/小窗口没有新建一个播放器，只是挪动了播放界面和控制器，不用每个视频都需要新建两个播放器，也不用同步状态。</p>
+<hr>
+<p><code>MediaPlayer</code>有很多格式不支持，项目已添加<code>IjkPlayer</code>的扩展支持，可以切换<code>IjkPlayer</code>和原生<code>MediaPlayer</code>，后续还会考虑添加<code>ExoPlayer</code>，同时也会扩展更多功能。</p>
+<p>如果有错误和更好的建议都请提出，源码已上传<a href="https://github.com/xiaoyanger0825/NiceVieoPlayer" target="_blank" rel="noopener">GitHub</a>，欢迎Star，谢谢！。</p>
+<p>源码：<a href="https://github.com/xiaoyanger0825/NiceVieoPlayer" target="_blank" rel="noopener">https://github.com/xiaoyanger0825/NiceVieoPlayer</a></p>
+<hr>
+<p>参考：<br><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2014/1213/2153.html" target="_blank" rel="noopener">Android TextureView简易教程</a><br><a href="http://www.tuicool.com/articles/AVnaeam" target="_blank" rel="noopener">视频画面帧的展示控件SurfaceView及TextureView对比</a><br><a href="http://blog.csdn.net/jinzhuojun/article/details/44062175" target="_blank" rel="noopener">Android 5.0(Lollipop)中的SurfaceTexture，TextureView, SurfaceView和GLSurfaceView</a><br><a href="http://blog.csdn.net/junwang19891012/article/details/8444743" target="_blank" rel="noopener">Android MediaPlayer生命周期详解</a><br><a href="https://github.com/lipangit/JieCaoVideoPlayer" target="_blank" rel="noopener">节操播放器 https://github.com/lipangit/JieCaoVideoPlayer</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/视频播放/" rel="tag"># 视频播放</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/11/EventBus封装/" rel="next" title="EventBus封装">
+                <i class="fa fa-chevron-left"></i> EventBus封装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/18/自定义实现MIUI的拖动视差效果（阻尼效果）/" rel="prev" title="自定义实现MIUI的拖动视差效果（阻尼效果）">
+                自定义实现MIUI的拖动视差效果（阻尼效果） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么使用TextureView"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x4E3A;&#x4EC0;&#x4E48;&#x4F7F;&#x7528;TextureView" class="headerlink" title="&#x4E3A;&#x4EC0;&#x4E48;&#x4F7F;&#x7528;TextureView"></a>&#x4E3A;&#x4EC0;&#x4E48;&#x4F7F;&#x7528;TextureView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MediaPlayer介绍"><span class="nav-number">2.</span> <span class="nav-text"><a href="#MediaPlayer&#x4ECB;&#x7ECD;" class="headerlink" title="MediaPlayer&#x4ECB;&#x7ECD;"></a>MediaPlayer&#x4ECB;&#x7ECD;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#封装考虑"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x5C01;&#x88C5;&#x8003;&#x8651;" class="headerlink" title="&#x5C01;&#x88C5;&#x8003;&#x8651;"></a>&#x5C01;&#x88C5;&#x8003;&#x8651;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NiceVideoPlayer"><span class="nav-number">4.</span> <span class="nav-text"><a href="#NiceVideoPlayer" class="headerlink" title="NiceVideoPlayer"></a>NiceVideoPlayer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全屏、小窗口播放的实现"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x5168;&#x5C4F;&#x3001;&#x5C0F;&#x7A97;&#x53E3;&#x64AD;&#x653E;&#x7684;&#x5B9E;&#x73B0;" class="headerlink" title="&#x5168;&#x5C4F;&#x3001;&#x5C0F;&#x7A97;&#x53E3;&#x64AD;&#x653E;&#x7684;&#x5B9E;&#x73B0;"></a>&#x5168;&#x5C4F;&#x3001;&#x5C0F;&#x7A97;&#x53E3;&#x64AD;&#x653E;&#x7684;&#x5B9E;&#x73B0;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NiceVideoPlayerControl"><span class="nav-number">6.</span> <span class="nav-text"><a href="#NiceVideoPlayerControl" class="headerlink" title="NiceVideoPlayerControl"></a>NiceVideoPlayerControl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NiceVideoPlayerManager"><span class="nav-number">7.</span> <span class="nav-text"><a href="#NiceVideoPlayerManager" class="headerlink" title="NiceVideoPlayerManager"></a>NiceVideoPlayerManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NiceVideoPlayerController"><span class="nav-number">8.</span> <span class="nav-text"><a href="#NiceVideoPlayerController" class="headerlink" title="NiceVideoPlayerController"></a>NiceVideoPlayerController</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">9.</span> <span class="nav-text"><a href="#&#x4F7F;&#x7528;" class="headerlink" title="&#x4F7F;&#x7528;"></a>&#x4F7F;&#x7528;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#效果图"><span class="nav-number">10.</span> <span class="nav-text"><a href="#&#x6548;&#x679C;&#x56FE;" class="headerlink" title="&#x6548;&#x679C;&#x56FE;"></a>&#x6548;&#x679C;&#x56FE;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最后"><span class="nav-number">11.</span> <span class="nav-text"><a href="#&#x6700;&#x540E;" class="headerlink" title="&#x6700;&#x540E;"></a>&#x6700;&#x540E;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

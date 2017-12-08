@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="内存泄露," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="如果一个无用对象（不需要再使用的对象）仍然被其他对象持有引用，造成该对象无法被系统回收，以致该对象在堆中所占用的内存单元无法被释放而造成内存空间浪费，这中情况就是内存泄露。 在Android开发中，一些不好的编程习惯会导致我们的开发的app存在内存泄露的情况。下面介绍一些在Android开发中常见的内存泄露场景及优化方案。 单例导致内存泄露单例模式在Android开发中会经常用到，但是如果使用不当">
+<meta name="keywords" content="内存泄露">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android内存优化——常见内存泄露及优化方案">
+<meta property="og:url" content="http://yoursite.com/2017/04/13/Android内存优化——常见内存泄露及优化方案/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="如果一个无用对象（不需要再使用的对象）仍然被其他对象持有引用，造成该对象无法被系统回收，以致该对象在堆中所占用的内存单元无法被释放而造成内存空间浪费，这中情况就是内存泄露。 在Android开发中，一些不好的编程习惯会导致我们的开发的app存在内存泄露的情况。下面介绍一些在Android开发中常见的内存泄露场景及优化方案。 单例导致内存泄露单例模式在Android开发中会经常用到，但是如果使用不当">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-08T03:17:13.939Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android内存优化——常见内存泄露及优化方案">
+<meta name="twitter:description" content="如果一个无用对象（不需要再使用的对象）仍然被其他对象持有引用，造成该对象无法被系统回收，以致该对象在堆中所占用的内存单元无法被释放而造成内存空间浪费，这中情况就是内存泄露。 在Android开发中，一些不好的编程习惯会导致我们的开发的app存在内存泄露的情况。下面介绍一些在Android开发中常见的内存泄露场景及优化方案。 单例导致内存泄露单例模式在Android开发中会经常用到，但是如果使用不当">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/13/Android内存优化——常见内存泄露及优化方案/"/>
+
+
+
+
+
+  <title>Android内存优化——常见内存泄露及优化方案 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/13/Android内存优化——常见内存泄露及优化方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android内存优化——常见内存泄露及优化方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-13T15:59:55+08:00">
+                2017-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>如果一个无用对象（不需要再使用的对象）仍然被其他对象持有引用，造成该对象无法被系统回收，以致该对象在堆中所占用的内存单元无法被释放而造成内存空间浪费，这中情况就是内存泄露。</p>
+<p>在Android开发中，一些不好的编程习惯会导致我们的开发的app存在内存泄露的情况。下面介绍一些在Android开发中常见的内存泄露场景及优化方案。</p>
+<h6 id="单例导致内存泄露"><a href="#单例导致内存泄露" class="headerlink" title="单例导致内存泄露"></a>单例导致内存泄露</h6><p>单例模式在Android开发中会经常用到，但是如果使用不当就会导致内存泄露。因为单例的静态特性使得它的生命周期同应用的生命周期一样长，如果一个对象已经没有用处了，但是单例还持有它的引用，那么在整个应用程序的生命周期它都不能正常被回收，从而导致内存泄露。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class AppSettings &#123;</span><br><span class="line"></span><br><span class="line">    private static AppSettings sInstance;</span><br><span class="line">    private Context mContext;</span><br><span class="line"></span><br><span class="line">    private AppSettings(Context context) &#123;</span><br><span class="line">        this.mContext = context;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static AppSettings getInstance(Context context) &#123;</span><br><span class="line">        if (sInstance == null) &#123;</span><br><span class="line">            sInstance = new AppSettings(context);</span><br><span class="line">        &#125;</span><br><span class="line">        return sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>像上面代码中这样的单例，如果我们在调用<code>getInstance(Context context)</code>方法的时候传入的<code>context</code>参数是<code>Activity</code>、<code>Service</code>等上下文，就会导致内存泄露。</p>
+<p>以<code>Activity</code>为例，当我们启动一个<code>Activity</code>，并调用<code>getInstance(Context context)</code>方法去获取<code>AppSettings</code>的单例，传入<code>Activity.this</code>作为<code>context</code>，这样<code>AppSettings</code>类的单例<code>sInstance</code>就持有了<code>Activity</code>的引用，当我们退出<code>Activity</code>时，该<code>Activity</code>就没有用了，但是因为<code>sIntance</code>作为静态单例（在应用程序的整个生命周期中存在）会继续持有这个<code>Activity</code>的引用，导致这个<code>Activity</code>对象无法被回收释放，这就造成了内存泄露。</p>
+<p>为了避免这样单例导致内存泄露，我们可以将<code>context</code>参数改为全局的上下文：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">private AppSettings(Context context) &#123;</span><br><span class="line">    this.mContext = context.getApplicationContext();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>全局的上下文<code>Application Context</code>就是应用程序的上下文，和单例的生命周期一样长，这样就避免了内存泄漏。</p>
+<p>单例模式对应应用程序的生命周期，所以我们在构造单例的时候尽量避免使用<code>Activity</code>的上下文，而是使用<code>Application</code>的上下文。</p>
+<h6 id="静态变量导致内存泄露"><a href="#静态变量导致内存泄露" class="headerlink" title="静态变量导致内存泄露"></a>静态变量导致内存泄露</h6><p>静态变量存储在方法区，它的生命周期从类加载开始，到整个进程结束。一旦静态变量初始化后，它所持有的引用只有等到进程结束才会释放。</p>
+<p>比如下面这样的情况，在<code>Activity</code>中为了避免重复的创建<code>info</code>，将<code>sInfo</code>作为静态变量：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    private static Info sInfo;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        if (sInfo != null) &#123;</span><br><span class="line">            sInfo = new Info(this);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Info &#123;</span><br><span class="line">    public Info(Activity activity) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>Info</code>作为<code>Activity</code>的静态成员，并且持有<code>Activity</code>的引用，但是<code>sInfo</code>作为静态变量，生命周期肯定比<code>Activity</code>长。所以当<code>Activity</code>退出后，<code>sInfo</code>仍然引用了<code>Activity</code>，<code>Activity</code>不能被回收，这就导致了内存泄露。</p>
+<p>在Android开发中，静态持有很多时候都有可能因为其使用的生命周期不一致而导致内存泄露，所以我们在新建静态持有的变量的时候需要多考虑一下各个成员之间的引用关系，并且尽量少地使用静态持有的变量，以避免发生内存泄露。当然，我们也可以在适当的时候讲静态量重置为null，使其不再持有引用，这样也可以避免内存泄露。</p>
+<h6 id="非静态内部类导致内存泄露"><a href="#非静态内部类导致内存泄露" class="headerlink" title="非静态内部类导致内存泄露"></a>非静态内部类导致内存泄露</h6><p>非静态内部类（包括匿名内部类）默认就会持有外部类的引用，当非静态内部类对象的生命周期比外部类对象的生命周期长时，就会导致内存泄露。</p>
+<p>非静态内部类导致的内存泄露在Android开发中有一种典型的场景就是使用<code>Handler</code>，很多开发者在使用<code>Handler</code>是这样写的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line">    </span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void start() &#123;</span><br><span class="line">        Message msg = Message.obtain();</span><br><span class="line">        msg.what = 1;</span><br><span class="line">        mHandler.sendMessage(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private Handler mHandler = new Handler() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void handleMessage(Message msg) &#123;</span><br><span class="line">            if (msg.what == 1) &#123;</span><br><span class="line">                // 做相应逻辑</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>也许有人会说，<code>mHandler</code>并未作为静态变量持有<code>Activity</code>引用，生命周期可能不会比<code>Activity</code>长，应该不一定会导致内存泄露呢，显然不是这样的！</p>
+<p>熟悉<code>Handler</code>消息机制的都知道，<code>mHandler</code>会作为成员变量保存在发送的消息<code>msg</code>中，即<code>msg</code>持有<code>mHandler</code>的引用，而<code>mHandler</code>是<code>Activity</code>的非静态内部类实例，即<code>mHandler</code>持有<code>Activity</code>的引用，那么我们就可以理解为<code>msg</code>间接持有<code>Activity</code>的引用。<code>msg</code>被发送后先放到消息队列<code>MessageQueue</code>中，然后等待<code>Looper</code>的轮询处理（<code>MessageQueue</code>和<code>Looper</code>都是与线程相关联的，<code>MessageQueue</code>是<code>Looper</code>引用的成员变量，而<code>Looper</code>是保存在<code>ThreadLocal</code>中的）。那么当<code>Activity</code>退出后，<code>msg</code>可能仍然存在于消息对列<code>MessageQueue</code>中未处理或者正在处理，那么这样就会导致<code>Activity</code>无法被回收，以致发生<code>Activity</code>的内存泄露。</p>
+<p>通常在Android开发中如果要使用内部类，但又要规避内存泄露，一般都会采用<em>静态内部类+弱引用</em>的方式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    private Handler mHandler;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        mHandler = new MyHandler(this);</span><br><span class="line">        start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void start() &#123;</span><br><span class="line">        Message msg = Message.obtain();</span><br><span class="line">        msg.what = 1;</span><br><span class="line">        mHandler.sendMessage(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static class MyHandler extends Handler &#123;</span><br><span class="line"></span><br><span class="line">        private WeakReference&lt;MainActivity&gt; activityWeakReference;</span><br><span class="line"></span><br><span class="line">        public MyHandler(MainActivity activity) &#123;</span><br><span class="line">            activityWeakReference = new WeakReference&lt;&gt;(activity);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void handleMessage(Message msg) &#123;</span><br><span class="line">            MainActivity activity = activityWeakReference.get();</span><br><span class="line">            if (activity != null) &#123;</span><br><span class="line">                if (msg.what == 1) &#123;</span><br><span class="line">                    // 做相应逻辑</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>mHandler</code>通过弱引用的方式持有<code>Activity</code>，当GC执行垃圾回收时，遇到<code>Activity</code>就会回收并释放所占据的内存单元。这样就不会发生内存泄露了。</p>
+<p>上面的做法确实避免了<code>Activity</code>导致的内存泄露，发送的<code>msg</code>不再已经没有持有<code>Activity</code>的引用了，但是<code>msg</code>还是有可能存在消息队列<code>MessageQueue</code>中，所以更好的是在<code>Activity</code>销毁时就将<code>mHandler</code>的回调和发送的消息给移除掉。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onDestroy() &#123;</span><br><span class="line">    super.onDestroy();</span><br><span class="line">    mHandler.removeCallbacksAndMessages(null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>非静态内部类造成内存泄露还有一种情况就是使用<code>Thread</code>或者<code>AsyncTask</code>。</p>
+<p>比如在Activity中直接<code>new</code>一个子线程<code>Thread</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                // 模拟相应耗时逻辑</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(2000);</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>或者直接新建<code>AsyncTask</code>异步任务：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        new AsyncTask&lt;Void, Void, Void&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            protected Void doInBackground(Void... params) &#123;</span><br><span class="line">                // 模拟相应耗时逻辑</span><br><span class="line">                try &#123;</span><br><span class="line">                    Thread.sleep(2000);</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                return null;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;.execute();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> 很多初学者都会像上面这样新建线程和异步任务，殊不知这样的写法非常地不友好，这种方式新建的子线程<code>Thread</code>和<code>AsyncTask</code>都是匿名内部类对象，默认就隐式的持有外部<code>Activity</code>的引用，导致<code>Activity</code>内存泄露。要避免内存泄露的话还是需要像上面<code>Handler</code>一样使用<em>静态内部类+弱应用</em>的方式（代码就不列了，参考上面<code>Hanlder</code>的正确写法）。</p>
+<h6 id="未取消注册或回调导致内存泄露"><a href="#未取消注册或回调导致内存泄露" class="headerlink" title="未取消注册或回调导致内存泄露"></a>未取消注册或回调导致内存泄露</h6><p>比如我们在<code>Activity</code>中注册广播，如果在<code>Activity</code>销毁后不取消注册，那么这个刚播会一直存在系统中，同上面所说的非静态内部类一样持有<code>Activity</code>引用，导致内存泄露。因此注册广播后在<code>Activity</code>销毁后一定要取消注册。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        this.registerReceiver(mReceiver, new IntentFilter());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private BroadcastReceiver mReceiver = new BroadcastReceiver() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void onReceive(Context context, Intent intent) &#123;</span><br><span class="line">            // 接收到广播需要做的逻辑</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onDestroy() &#123;</span><br><span class="line">        super.onDestroy();</span><br><span class="line">        this.unregisterReceiver(mReceiver);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在注册观察则模式的时候，如果不及时取消也会造成内存泄露。比如使用<code>Retrofit+RxJava</code>注册网络请求的观察者回调，同样作为匿名内部类持有外部引用，所以需要记得在不用或者销毁的时候取消注册。</p>
+<h6 id="Timer和TimerTask导致内存泄露"><a href="#Timer和TimerTask导致内存泄露" class="headerlink" title="Timer和TimerTask导致内存泄露"></a>Timer和TimerTask导致内存泄露</h6><p><code>Timer</code>和<code>TimerTask</code>在Android中通常会被用来做一些计时或循环任务，比如实现无限轮播的<code>ViewPager</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    private ViewPager mViewPager;</span><br><span class="line">    private PagerAdapter mAdapter;</span><br><span class="line">    private Timer mTimer;</span><br><span class="line">    private TimerTask mTimerTask;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        init();</span><br><span class="line">        mTimer.schedule(mTimerTask, 3000, 3000);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void init() &#123;</span><br><span class="line">        mViewPager = (ViewPager) findViewById(R.id.view_pager);</span><br><span class="line">        mAdapter = new ViewPagerAdapter();</span><br><span class="line">        mViewPager.setAdapter(mAdapter);</span><br><span class="line"></span><br><span class="line">        mTimer = new Timer();</span><br><span class="line">        mTimerTask = new TimerTask() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                MainActivity.this.runOnUiThread(new Runnable() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    public void run() &#123;</span><br><span class="line">                        loopViewpager();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void loopViewpager() &#123;</span><br><span class="line">        if (mAdapter.getCount() &gt; 0) &#123;</span><br><span class="line">            int curPos = mViewPager.getCurrentItem();</span><br><span class="line">            curPos = (++curPos) % mAdapter.getCount();</span><br><span class="line">            mViewPager.setCurrentItem(curPos);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void stopLoopViewPager() &#123;</span><br><span class="line">        if (mTimer != null) &#123;</span><br><span class="line">            mTimer.cancel();</span><br><span class="line">            mTimer.purge();</span><br><span class="line">            mTimer = null;</span><br><span class="line">        &#125;</span><br><span class="line">        if (mTimerTask != null) &#123;</span><br><span class="line">            mTimerTask.cancel();</span><br><span class="line">            mTimerTask = null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onDestroy() &#123;</span><br><span class="line">        super.onDestroy();</span><br><span class="line">        stopLoopViewPager();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当我们<code>Activity</code>销毁的时，有可能<code>Timer</code>还在继续等待执行<code>TimerTask</code>，它持有Activity的引用不能被回收，因此当我们Activity销毁的时候要立即<code>cancel</code>掉<code>Timer</code>和<code>TimerTask</code>，以避免发生内存泄漏。</p>
+<h6 id="集合中的对象未清理造成内存泄露"><a href="#集合中的对象未清理造成内存泄露" class="headerlink" title="集合中的对象未清理造成内存泄露"></a>集合中的对象未清理造成内存泄露</h6><p>这个比较好理解，如果一个对象放入到<code>ArrayList</code>、<code>HashMap</code>等集合中，这个集合就会持有该对象的引用。当我们不再需要这个对象时，也并没有将它从集合中移除，这样只要集合还在使用（而此对象已经无用了），这个对象就造成了内存泄露。并且如果集合被静态引用的话，集合里面那些没有用的对象更会造成内存泄露了。所以在使用集合时要及时将不用的对象从集合<code>remove</code>，或者<code>clear</code>集合，以避免内存泄漏。</p>
+<h6 id="资源未关闭或释放导致内存泄露"><a href="#资源未关闭或释放导致内存泄露" class="headerlink" title="资源未关闭或释放导致内存泄露"></a>资源未关闭或释放导致内存泄露</h6><p>在使用<code>IO</code>、<code>File</code>流或者<code>Sqlite</code>、<code>Cursor</code>等资源时要及时关闭。这些资源在进行读写操作时通常都使用了缓冲，如果及时不关闭，这些缓冲对象就会一直被占用而得不到释放，以致发生内存泄露。因此我们在不需要使用它们的时候就及时关闭，以便缓冲能及时得到释放，从而避免内存泄露。</p>
+<h6 id="属性动画造成内存泄露"><a href="#属性动画造成内存泄露" class="headerlink" title="属性动画造成内存泄露"></a>属性动画造成内存泄露</h6><p>动画同样是一个耗时任务，比如在<code>Activity</code>中启动了属性动画（<code>ObjectAnimator</code>），但是在销毁的时候，没有调用<code>cancle</code>方法，虽然我们看不到动画了，但是这个动画依然会不断地播放下去，动画引用所在的控件，所在的控件引用<code>Activity</code>，这就造成<code>Activity</code>无法正常释放。因此同样要在<code>Activity</code>销毁的时候<code>cancel</code>掉属性动画，避免发生内存泄漏。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onDestroy() &#123;</span><br><span class="line">    super.onDestroy();</span><br><span class="line">    mAnimator.cancel();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h6 id="WebView造成内存泄露"><a href="#WebView造成内存泄露" class="headerlink" title="WebView造成内存泄露"></a>WebView造成内存泄露</h6><p>关于WebView的内存泄露，因为WebView在加载网页后会长期占用内存而不能被释放，因此我们在Activity销毁后要调用它的<code>destory()</code>方法来销毁它以释放内存。</p>
+<p>另外在查阅<code>WebView</code>内存泄露相关资料时看到这种情况：</p>
+<blockquote>
+<p><code>Webview</code>下面的<code>Callback</code>持有<code>Activity</code>引用，造成<code>Webview</code>内存无法释放，即使是调用了<code>Webview.destory()</code>等方法都无法解决问题（Android5.1之后）。</p>
+</blockquote>
+<p>最终的解决方案是：在销毁<code>WebView</code>之前需要先将<code>WebView从</code>父容器中移除，然后在销毁<code>WebView</code>。详细分析过程请参考这篇文章：<a href="http://blog.csdn.net/xygy8860/article/details/53334476?utm_source=itdadao&amp;utm_medium=referral" target="_blank" rel="noopener"><a href="http://blog.csdn.net/xygy8860/article/details/53334476" target="_blank" rel="noopener">WebView内存泄漏解决方法</a></a>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onDestroy() &#123;</span><br><span class="line">    super.onDestroy();</span><br><span class="line">    // 先从父控件中移除WebView</span><br><span class="line">    mWebViewContainer.removeView(mWebView);</span><br><span class="line">    mWebView.stopLoading();</span><br><span class="line">    mWebView.getSettings().setJavaScriptEnabled(false);</span><br><span class="line">    mWebView.clearHistory();</span><br><span class="line">    mWebView.removeAllViews();</span><br><span class="line">    mWebView.destroy();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h6 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h6><p>内存泄露在Android内存优化是一个比较重要的一个方面，很多时候程序中发生了内存泄露我们不一定就能注意到，所有在编码的过程要养成良好的习惯。总结下来只要做到以下这几点就能避免大多数情况的内存泄漏：</p>
+<p>构造单例的时候尽量别用<code>Activity</code>的引用；<br>静态引用时注意应用对象的置空或者少用静态引用；<br>使用静态内部类+软引用代替非静态内部类；<br>及时取消广播或者观察者注册；<br>耗时任务、属性动画在<code>Activity</code>销毁时记得<code>cancel</code>；<br>文件流、<code>Cursor</code>等资源及时关闭；<br><code>Activity</code>销毁时<code>WebView</code>的移除和销毁。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/内存泄露/" rel="tag"># 内存泄露</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/11/Android内存优化——概述/" rel="next" title="Android内存优化——概述">
+                <i class="fa fa-chevron-left"></i> Android内存优化——概述
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/25/Android内存优化——内存泄露检测分析方法/" rel="prev" title="Android内存优化——内存泄露检测分析方法">
+                Android内存优化——内存泄露检测分析方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#单例导致内存泄露"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5355;&#x4F8B;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x5355;&#x4F8B;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x5355;&#x4F8B;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#静态变量导致内存泄露"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x9759;&#x6001;&#x53D8;&#x91CF;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x9759;&#x6001;&#x53D8;&#x91CF;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x9759;&#x6001;&#x53D8;&#x91CF;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#非静态内部类导致内存泄露"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x975E;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x975E;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x975E;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#未取消注册或回调导致内存泄露"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x672A;&#x53D6;&#x6D88;&#x6CE8;&#x518C;&#x6216;&#x56DE;&#x8C03;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x672A;&#x53D6;&#x6D88;&#x6CE8;&#x518C;&#x6216;&#x56DE;&#x8C03;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x672A;&#x53D6;&#x6D88;&#x6CE8;&#x518C;&#x6216;&#x56DE;&#x8C03;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Timer和TimerTask导致内存泄露"><span class="nav-number">5.</span> <span class="nav-text"><a href="#Timer&#x548C;TimerTask&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="Timer&#x548C;TimerTask&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>Timer&#x548C;TimerTask&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#集合中的对象未清理造成内存泄露"><span class="nav-number">6.</span> <span class="nav-text"><a href="#&#x96C6;&#x5408;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x672A;&#x6E05;&#x7406;&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x96C6;&#x5408;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x672A;&#x6E05;&#x7406;&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x96C6;&#x5408;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x672A;&#x6E05;&#x7406;&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#资源未关闭或释放导致内存泄露"><span class="nav-number">7.</span> <span class="nav-text"><a href="#&#x8D44;&#x6E90;&#x672A;&#x5173;&#x95ED;&#x6216;&#x91CA;&#x653E;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x8D44;&#x6E90;&#x672A;&#x5173;&#x95ED;&#x6216;&#x91CA;&#x653E;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x8D44;&#x6E90;&#x672A;&#x5173;&#x95ED;&#x6216;&#x91CA;&#x653E;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#属性动画造成内存泄露"><span class="nav-number">8.</span> <span class="nav-text"><a href="#&#x5C5E;&#x6027;&#x52A8;&#x753B;&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="&#x5C5E;&#x6027;&#x52A8;&#x753B;&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>&#x5C5E;&#x6027;&#x52A8;&#x753B;&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#WebView造成内存泄露"><span class="nav-number">9.</span> <span class="nav-text"><a href="#WebView&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;" class="headerlink" title="WebView&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;"></a>WebView&#x9020;&#x6210;&#x5185;&#x5B58;&#x6CC4;&#x9732;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

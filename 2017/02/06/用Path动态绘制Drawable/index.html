@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="自定义Drawable," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="今日头条的下拉刷新动画在下拉过程中有一个动态绘制刷新图的效果： 基本思路按照最终呈现的图构造出完整的Path路径，根据传入的进度percent，动态截取新的Path，并且每次截取都重绘新的Path，从而实现动态绘制效果。 具体实现将效果图自定义为一个Drawable：PullDrawable。 1.初始化画笔1234567891011121314private void iniPaint() &amp;#">
+<meta name="keywords" content="自定义Drawable">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用Path动态绘制Drawable">
+<meta property="og:url" content="http://yoursite.com/2017/02/06/用Path动态绘制Drawable/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="今日头条的下拉刷新动画在下拉过程中有一个动态绘制刷新图的效果： 基本思路按照最终呈现的图构造出完整的Path路径，根据传入的进度percent，动态截取新的Path，并且每次截取都重绘新的Path，从而实现动态绘制效果。 具体实现将效果图自定义为一个Drawable：PullDrawable。 1.初始化画笔1234567891011121314private void iniPaint() &amp;#">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-e7a63e7f02af81fc.gif?imageMogr2/auto-orient/strip">
+<meta property="og:updated_time" content="2017-12-08T03:46:34.826Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用Path动态绘制Drawable">
+<meta name="twitter:description" content="今日头条的下拉刷新动画在下拉过程中有一个动态绘制刷新图的效果： 基本思路按照最终呈现的图构造出完整的Path路径，根据传入的进度percent，动态截取新的Path，并且每次截取都重绘新的Path，从而实现动态绘制效果。 具体实现将效果图自定义为一个Drawable：PullDrawable。 1.初始化画笔1234567891011121314private void iniPaint() &amp;#">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-e7a63e7f02af81fc.gif?imageMogr2/auto-orient/strip">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/06/用Path动态绘制Drawable/"/>
+
+
+
+
+
+  <title>用Path动态绘制Drawable | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/06/用Path动态绘制Drawable/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">用Path动态绘制Drawable</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-06T15:57:23+08:00">
+                2017-02-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今日头条的下拉刷新动画在下拉过程中有一个动态绘制刷新图的效果：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-e7a63e7f02af81fc.gif?imageMogr2/auto-orient/strip" alt="动态绘制过程.gif"></p>
+<h5 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h5><p>按照最终呈现的图构造出完整的<code>Path</code>路径，根据传入的进度<code>percent</code>，动态截取新的<code>Path</code>，并且每次截取都重绘新的<code>Path</code>，从而实现动态绘制效果。</p>
+<h5 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h5><p>将效果图自定义为一个<code>Drawable</code>：<code>PullDrawable</code>。</p>
+<p>1.初始化画笔<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">private void iniPaint() &#123;</span><br><span class="line">    // 外部边框画笔</span><br><span class="line">    mPaint = new Paint();</span><br><span class="line">    mPaint.setAntiAlias(true);</span><br><span class="line">    mPaint.setStyle(Paint.Style.STROKE);</span><br><span class="line">    mPaint.setColor(0xffcccccc);</span><br><span class="line">    mPaint.setStrokeWidth(4f);</span><br><span class="line">    // 内部矩形和线条画笔</span><br><span class="line">    mInnerPaint = new Paint();</span><br><span class="line">    mInnerPaint.setAntiAlias(true);</span><br><span class="line">    mInnerPaint.setStyle(Paint.Style.STROKE);</span><br><span class="line">    mInnerPaint.setColor(0xffcccccc);</span><br><span class="line">    mInnerPaint.setStrokeWidth(6f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>2.初始化Path<br>根据<code>Drawable</code>的宽<code>w</code>和高<code>h</code>设置合适的外边框圆角半径<code>r</code>和内边距<code>p</code>，然后根据<code>w</code>、<code>h</code>、<code>r</code>、<code>p</code>构造出最终图的完整路径：<code>mBorderPath</code>、<code>mRectPath</code>、<code>mLine1Path</code>、<code>mLine2Path</code>、<code>mLine3Path</code>、<code>mLine4Path</code>、<code>mLine5Path</code>、<code>mLine6Path</code>。<br><code>mBorderPathMeasure</code> 、<code>mRectPathMeasure</code>、<code>mLine1PathMeasure</code> 、<code>mLine2PathMeasure</code> 、<code>mLine3PathMeasure</code>、<code>mLine4PathMeasure</code>、<code>mLine5PathMeasure</code> 、<code>mLine6PathMeasure</code>为路径测量类，用于测量完整路径的长度和切取制定长度的路径。<br><code>mBorderDstPath</code> 、<code>mRectDstPath</code> 、<code>mLine1DstPath</code> 、<code>mLine2DstPath</code>、<code>mLine3DstPath</code> 、<code>mLine4DstPath</code> 、<code>mLine5DstPath</code>、<code>mLine6DstPath</code>  为从完整路径中截取后的路径，用于重绘。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onBoundsChange(Rect bounds) &#123;</span><br><span class="line">    super.onBoundsChange(bounds);</span><br><span class="line">    initPath(bounds);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void initPath(Rect bounds) &#123;</span><br><span class="line">    int w = bounds.width();</span><br><span class="line">    int h = bounds.height();</span><br><span class="line">    int r = (int) (w * 2 / 15f); // 圆角半径</span><br><span class="line">    int p = (int) (r / 3f);      // 内边距</span><br><span class="line"></span><br><span class="line">    // 外边框(圆角矩形)</span><br><span class="line">    mBorderPath = new Path();</span><br><span class="line">    mBorderDstPath = new Path();</span><br><span class="line"></span><br><span class="line">    mBorderPath.moveTo(w - p, p + r);</span><br><span class="line">    RectF rectFRightTop = new RectF(w - p - 2 * r, p, w - p, 2 * r + p);</span><br><span class="line">    mBorderPath.arcTo(rectFRightTop, 0, -90);</span><br><span class="line">    mBorderPath.lineTo(p + r, p);</span><br><span class="line">    RectF rectFLeftTop = new RectF(p, p, p + 2 * r, p + 2 * r);</span><br><span class="line">    mBorderPath.arcTo(rectFLeftTop, -90, -90);</span><br><span class="line">    mBorderPath.lineTo(p, h - p - r);</span><br><span class="line">    RectF rectFLeftBottom = new RectF(p, h - p - 2 * r, p + 2 * r, h - p);</span><br><span class="line">    mBorderPath.arcTo(rectFLeftBottom, -180, -90);</span><br><span class="line">    mBorderPath.lineTo(w - p - r, h - p);</span><br><span class="line">    RectF rectFRightBottom = new RectF(w - p - 2 * r, h - p - 2 * r, w - p, h - p);</span><br><span class="line">    mBorderPath.arcTo(rectFRightBottom, -270, -90);</span><br><span class="line">    mBorderPath.lineTo(w - p, p + r);</span><br><span class="line">    mBorderPathMeasure = new PathMeasure(mBorderPath, true);</span><br><span class="line">    ////////////////////////////////////////////////////////////////////////////////////////////</span><br><span class="line">    float d = p;            // 内部矩形与水平方向上的三条横线的距离</span><br><span class="line">    float xp = 0.8f * r;    // 水平方向相对于外边框的边距</span><br><span class="line">    float yp = 1.2f * r;    // 竖直方向相对于外边框的边距</span><br><span class="line"></span><br><span class="line">    // 内部矩形</span><br><span class="line">    mRectPath = new Path();</span><br><span class="line">    mRectDstPath = new Path();</span><br><span class="line">    mRectPath.moveTo(w / 2f - d / 2f, p + yp);</span><br><span class="line">    mRectPath.lineTo(p + xp, p + yp);</span><br><span class="line">    mRectPath.lineTo(p + xp, (h - 2 * p - 2 * yp) * 0.4f + yp + p);</span><br><span class="line">    mRectPath.lineTo(w / 2f - d / 2f, (h - 2 * p - 2 * yp) * 0.4f + yp + p);</span><br><span class="line">    mRectPath.lineTo(w / 2f - d / 2f, p + yp);</span><br><span class="line">    mRectPathMeasure = new PathMeasure(mRectPath, true);</span><br><span class="line"></span><br><span class="line">    // 第1根线条</span><br><span class="line">    mLine1Path = new Path();</span><br><span class="line">    mLine1DstPath = new Path();</span><br><span class="line">    mLine1Path.moveTo(w / 2f + d / 2f, p + yp);</span><br><span class="line">    mLine1Path.lineTo(w - p - xp, p + yp);</span><br><span class="line">    mLine1PathMeasure = new PathMeasure(mLine1Path, false);</span><br><span class="line">    // 第2根线条</span><br><span class="line">    mLine2Path = new Path();</span><br><span class="line">    mLine2DstPath = new Path();</span><br><span class="line">    mLine2Path.moveTo(w / 2f + d / 2f, (h - 2 * p - 2 * yp) * 0.2f + yp + p);</span><br><span class="line">    mLine2Path.lineTo(w - p - xp, (h - 2 * p - 2 * yp) * 0.2f + yp + p);</span><br><span class="line">    mLine2PathMeasure = new PathMeasure(mLine2Path, false);</span><br><span class="line">    // 第3根线条</span><br><span class="line">    mLine3Path = new Path();</span><br><span class="line">    mLine3DstPath = new Path();</span><br><span class="line">    mLine3Path.moveTo(w / 2f + d / 2f, (h - 2 * p - 2 * yp) * 0.4f + yp + p);</span><br><span class="line">    mLine3Path.lineTo(w - p - xp, (h - 2 * p - 2 * yp) * 0.4f + yp + p);</span><br><span class="line">    mLine3PathMeasure = new PathMeasure(mLine3Path, false);</span><br><span class="line">    // 第4根线条</span><br><span class="line">    mLine4Path = new Path();</span><br><span class="line">    mLine4DstPath = new Path();</span><br><span class="line">    mLine4Path.moveTo(p + xp, (h - 2 * p - 2 * yp) * 0.6f + yp + p);</span><br><span class="line">    mLine4Path.lineTo(w - p - xp, (h - 2 * p - 2 * yp) * 0.6f + yp + p);</span><br><span class="line">    mLine4PathMeasure = new PathMeasure(mLine4Path, false);</span><br><span class="line">    // 第5根线条</span><br><span class="line">    mLine5Path = new Path();</span><br><span class="line">    mLine5DstPath = new Path();</span><br><span class="line">    mLine5Path.moveTo(p + xp, (h - 2 * p - 2 * yp) * 0.8f + yp + p);</span><br><span class="line">    mLine5Path.lineTo(w - p - xp, (h - 2 * p - 2 * yp) * 0.8f + yp + p);</span><br><span class="line">    mLine5PathMeasure = new PathMeasure(mLine5Path, false);</span><br><span class="line">    // 第6根线条</span><br><span class="line">    mLine6Path = new Path();</span><br><span class="line">    mLine6DstPath = new Path();</span><br><span class="line">    mLine6Path.moveTo(p + xp, (h - 2 * p - 2 * yp) * 1f + yp + p);</span><br><span class="line">    mLine6Path.lineTo(w - p - xp, (h - 2 * p - 2 * yp) * 1f + yp + p);</span><br><span class="line">    mLine6PathMeasure = new PathMeasure(mLine6Path, false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>3.根据进度百分比截取路径<br>由于外部边框和内部内容是同时绘制，外部边框在<code>percent</code>从0到1过程中不断截取，而内部内容则是分阶段(内部矩形和6条线分为7个阶段)进行的截取，我们只需要计算出阶段的临界点(<code>pRect</code>、<code>pLine1</code>、<code>pLine2</code>、<code>pLine3</code>、<code>pLine4</code>、<code>pLine5</code>、<code>pLine6</code>)，然后就可以根据百分比和临界点来计算需要截取的长度进行截取。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">public void update(float percent) &#123;</span><br><span class="line"></span><br><span class="line">    // 每次更新前重置</span><br><span class="line">    mBorderDstPath.reset();</span><br><span class="line">    // 截取制定百分比percent长度的路径，截取后的路径保存到mBorderDstPath中</span><br><span class="line">    mBorderPathMeasure.getSegment(0, mBorderPathMeasure.getLength() * percent, mBorderDstPath, true);</span><br><span class="line"></span><br><span class="line">    // 完整路径长度</span><br><span class="line">    float rectLength = mRectPathMeasure.getLength();</span><br><span class="line">    float line1Length = mLine1PathMeasure.getLength();</span><br><span class="line">    float line2Length = mLine2PathMeasure.getLength();</span><br><span class="line">    float line3Length = mLine3PathMeasure.getLength();</span><br><span class="line">    float line4Length = mLine4PathMeasure.getLength();</span><br><span class="line">    float line5Length = mLine5PathMeasure.getLength();</span><br><span class="line">    float line6Length = mLine6PathMeasure.getLength();</span><br><span class="line">    float totalLength = rectLength</span><br><span class="line">            + line1Length</span><br><span class="line">            + line2Length</span><br><span class="line">            + line3Length</span><br><span class="line">            + line4Length</span><br><span class="line">            + line5Length</span><br><span class="line">            + line6Length;</span><br><span class="line">    // 百分比临界点</span><br><span class="line">    float pRect = rectLength / totalLength;</span><br><span class="line">    float pLine1 = line1Length / totalLength + pRect;</span><br><span class="line">    float pLine2 = line2Length / totalLength + pLine1;</span><br><span class="line">    float pLine3 = line3Length / totalLength + pLine2;</span><br><span class="line">    float pLine4 = line4Length / totalLength + pLine3;</span><br><span class="line">    float pLine5 = line5Length / totalLength + pLine4;</span><br><span class="line">    float pLine6 = line6Length / totalLength + pLine5;</span><br><span class="line">    // 根据指定的百分比以及临界点切取路径</span><br><span class="line">    mRectDstPath.reset();</span><br><span class="line">    mRectPathMeasure.getSegment(0, rectLength * (percent / pRect), mRectDstPath, true);</span><br><span class="line">    mLine1DstPath.reset();</span><br><span class="line">    mLine1PathMeasure.getSegment(0, line1Length * ((percent - pRect) / (pLine1 - pRect)), mLine1DstPath, true);</span><br><span class="line">    mLine2DstPath.reset();</span><br><span class="line">    mLine2PathMeasure.getSegment(0, line2Length * ((percent - pLine1) / (pLine2 - pLine1)), mLine2DstPath, true);</span><br><span class="line">    mLine3DstPath.reset();</span><br><span class="line">    mLine3PathMeasure.getSegment(0, line3Length * ((percent - pLine2) / (pLine3 - pLine2)), mLine3DstPath, true);</span><br><span class="line">    mLine4DstPath.reset();</span><br><span class="line">    mLine4PathMeasure.getSegment(0, line4Length * ((percent - pLine3) / (pLine4 - pLine3)), mLine4DstPath, true);</span><br><span class="line">    mLine5DstPath.reset();</span><br><span class="line">    mLine5PathMeasure.getSegment(0, line5Length * ((percent - pLine4) / (pLine5 - pLine4)), mLine5DstPath, true);</span><br><span class="line">    mLine6DstPath.reset();</span><br><span class="line">    mLine6PathMeasure.getSegment(0, line6Length * ((percent - pLine5) / (pLine6 - pLine5)), mLine6DstPath, true);</span><br><span class="line">    // 重绘</span><br><span class="line">    invalidateSelf();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>4.重绘截取后的路径<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void draw(Canvas canvas) &#123;</span><br><span class="line">    canvas.drawPath(mBorderDstPath, mPaint);</span><br><span class="line">    canvas.drawPath(mRectDstPath, mInnerPaint);</span><br><span class="line">    canvas.drawPath(mLine1DstPath, mInnerPaint);</span><br><span class="line">    canvas.drawPath(mLine2DstPath, mInnerPaint);</span><br><span class="line">    canvas.drawPath(mLine3DstPath, mInnerPaint);</span><br><span class="line">    canvas.drawPath(mLine4DstPath, mInnerPaint);</span><br><span class="line">    canvas.drawPath(mLine5DstPath, mInnerPaint);</span><br><span class="line">    canvas.drawPath(mLine6DstPath, mInnerPaint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>5.添加一个清除图像的方法<br>外部调用该方法，可以清除掉当前画面。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void clear() &#123;</span><br><span class="line">    mBorderDstPath.reset();</span><br><span class="line">    mRectDstPath.reset();</span><br><span class="line">    mLine1DstPath.reset();</span><br><span class="line">    mLine2DstPath.reset();</span><br><span class="line">    mLine3DstPath.reset();</span><br><span class="line">    mLine4DstPath.reset();</span><br><span class="line">    mLine5DstPath.reset();</span><br><span class="line">    mLine6DstPath.reset();</span><br><span class="line">    invalidateSelf();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="在Activity中调用"><a href="#在Activity中调用" class="headerlink" title="在Activity中调用"></a>在Activity中调用</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mImageView = (ImageView) findViewById(R.id.image_view);</span><br><span class="line">mPullDrawable = new PullDrawable();</span><br><span class="line">mImageView.setImageDrawable(mPullDrawable);</span><br></pre></td></tr></table></figure>
+<p>1.通过动画不断从0到1改变<code>percent</code>实现动态绘制<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">private void startPullAnim() &#123;</span><br><span class="line">    if (mPullValueAnimator == null) &#123;</span><br><span class="line">        mPullValueAnimator = ValueAnimator.ofFloat(0, 1);</span><br><span class="line">        mPullValueAnimator.setInterpolator(new LinearInterpolator());</span><br><span class="line">        mPullValueAnimator.setDuration(4000);</span><br><span class="line">        mPullValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onAnimationUpdate(ValueAnimator animation) &#123;</span><br><span class="line">                float value = (float) animation.getAnimatedValue();</span><br><span class="line">                mPullDrawable.update(value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        clear();</span><br><span class="line">    &#125;</span><br><span class="line">    mPullValueAnimator.start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void clear() &#123;</span><br><span class="line">    if (mPullValueAnimator != null &amp;&amp; mPullValueAnimator.isRunning()) &#123;</span><br><span class="line">        mPullValueAnimator.cancel();</span><br><span class="line">    &#125;</span><br><span class="line">    mPullDrawable.clear();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>2.通过SeekBar拖动进度来重绘<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) &#123;</span><br><span class="line">    mPullDrawable.update(progress / 100f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h5><p>绘制逻辑比较简单，只是计算比例和截取长度稍显繁琐。主要的运用到的知识点就是<code>Path</code>的构建和<code>PathMeasure</code>截取。另外，<code>PathMeasure</code>还可以通过<code>getPosTan(float distance, float pos[], float tan[])</code>获取指定距离的Path的位置和正切值，通过这个位置和正切值可以实现很多跟随指定路径运动的动画效果，可以参考这篇文章的详细介绍<a href="http://www.jianshu.com/p/3efa5341abcc" target="_blank" rel="noopener">PathMeasure之迷径追踪</a>。</p>
+<p>源码：<a href="https://github.com/xiaoyanger0825/HeadLinesPull" target="_blank" rel="noopener">https://github.com/xiaoyanger0825/HeadLinesPull</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/自定义Drawable/" rel="tag"># 自定义Drawable</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/14/自己动手绘制一个折线图控件ChartView/" rel="prev" title="自己动手绘制一个折线图控件ChartView">
+                自己动手绘制一个折线图控件ChartView <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#基本思路"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x672C;&#x601D;&#x8DEF;" class="headerlink" title="&#x57FA;&#x672C;&#x601D;&#x8DEF;"></a>&#x57FA;&#x672C;&#x601D;&#x8DEF;</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#具体实现"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x5177;&#x4F53;&#x5B9E;&#x73B0;" class="headerlink" title="&#x5177;&#x4F53;&#x5B9E;&#x73B0;"></a>&#x5177;&#x4F53;&#x5B9E;&#x73B0;</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在Activity中调用"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x5728;Activity&#x4E2D;&#x8C03;&#x7528;" class="headerlink" title="&#x5728;Activity&#x4E2D;&#x8C03;&#x7528;"></a>&#x5728;Activity&#x4E2D;&#x8C03;&#x7528;</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#最后"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x6700;&#x540E;" class="headerlink" title="&#x6700;&#x540E;"></a>&#x6700;&#x540E;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

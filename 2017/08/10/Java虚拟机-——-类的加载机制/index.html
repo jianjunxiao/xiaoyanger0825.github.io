@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java虚拟机," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我们知道class文件中存储了类的描述信息和各种细节的数据，在运行Java程序时，虚拟机需要先将类的这些数据加载到内存中，并经过校验、转换、解析和初始化过后，最终形成可以直接使用的Java类型。 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载、验证、准备、解析、初始化、使用和卸载7个阶段。其中验证、准备、解析3个部分统称为连接。 类的加载机制实际上就是类的生命周期中加载">
+<meta name="keywords" content="Java虚拟机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java虚拟机 —— 类的加载机制">
+<meta property="og:url" content="http://yoursite.com/2017/08/10/Java虚拟机-——-类的加载机制/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="我们知道class文件中存储了类的描述信息和各种细节的数据，在运行Java程序时，虚拟机需要先将类的这些数据加载到内存中，并经过校验、转换、解析和初始化过后，最终形成可以直接使用的Java类型。 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载、验证、准备、解析、初始化、使用和卸载7个阶段。其中验证、准备、解析3个部分统称为连接。 类的加载机制实际上就是类的生命周期中加载">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://i.imgur.com/2uatooQ.png">
+<meta property="og:image" content="http://i.imgur.com/9bEPBkZ.png">
+<meta property="og:image" content="http://i.imgur.com/NCkfOLT.png">
+<meta property="og:updated_time" content="2017-12-08T02:29:32.879Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java虚拟机 —— 类的加载机制">
+<meta name="twitter:description" content="我们知道class文件中存储了类的描述信息和各种细节的数据，在运行Java程序时，虚拟机需要先将类的这些数据加载到内存中，并经过校验、转换、解析和初始化过后，最终形成可以直接使用的Java类型。 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载、验证、准备、解析、初始化、使用和卸载7个阶段。其中验证、准备、解析3个部分统称为连接。 类的加载机制实际上就是类的生命周期中加载">
+<meta name="twitter:image" content="http://i.imgur.com/2uatooQ.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/10/Java虚拟机-——-类的加载机制/"/>
+
+
+
+
+
+  <title>Java虚拟机 —— 类的加载机制 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/10/Java虚拟机-——-类的加载机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java虚拟机 —— 类的加载机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-10T17:43:48+08:00">
+                2017-08-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们知道class文件中存储了类的描述信息和各种细节的数据，在运行Java程序时，虚拟机需要先将类的这些数据加载到内存中，并经过校验、转换、解析和初始化过后，最终形成可以直接使用的Java类型。</p>
+<p>类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载、验证、准备、解析、初始化、使用和卸载7个阶段。其中验证、准备、解析3个部分统称为连接。<br><img src="http://i.imgur.com/2uatooQ.png" alt="类的生命周期"></p>
+<p>类的加载机制实际上就是类的生命周期中加载、验证、准备、解析、初始化5个过程。</p>
+<h3 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h3><p>加载是类的加载过程的第一个阶段，在加载阶段，虚拟机需要完成以下3件事情：</p>
+<ol>
+<li>通过一个类的全限定名来获取定义此类的二进制字节流；</li>
+<li>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构；</li>
+<li>在内存中生成一个代表这个类的<code>java.lang.Class</code>对象，作为方法区这个类的各种数据的访问入口。</li>
+</ol>
+<p>通过全限定名来获取二进制流可以有很多种方式，比如从JAR、EAR、WAR文件包中读取，从网络获取，也可以由其他文件来生成（jsp文件生成对应的Servlet类），甚至还可以通过运行时动态生成（Java动态代理）。</p>
+<p>相比类加载过程的其他阶段，加载阶段是可控性最强的。因为开发者既可以利用系统提供的启动类加载器来完成，也可以通过自定义类加载去完成（重写<code>loadClass</code>方法，控制字节流的获取方式）。</p>
+<p>关于类加载器的详细介绍将放在文章最后。</p>
+<p>加载阶段完成后，虚拟机外部的二进制字节流就按照虚拟机所需的格式存储在方法区之中。然后在内存中实例化一个<code>java.lang.Class</code>类的对象，这样就可以通过这个对象来访问方法区中的这些数据。</p>
+<h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>验证是连接阶段的第一步，这一阶段的目的是为了确保class文件的字节流中包含的信息符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。验证阶段大致上会完成下面4个阶段的检验动作：文件格式验证、元数据验证、字节码验证、符号引用验证。</p>
+<ul>
+<li>文件格式验证： 验证字节流是否符合Class文件格式的规范，并且能被当前版本的虚拟机处理。该验证阶段的主要目的是保证输入的字节流能正确地解析并存储于方法区之内，格式上符合描述一个Java类型信息的要求。通过了这个阶段的验证后，字节流才会进入内存的方法区中进行存储，后面的<br>3个验证阶段全部是基于方法区的存储结构进行的，不会再直接操作字节流。</li>
+<li>元数据验证： 对字节码描述的信息进行语义分析，以保证其描述的信息符合Java语言规范的要求。这个主要目的是对类的元数据信息进行语义校验，保证不存在不符合Java语言规范的元数据信息。</li>
+<li>字节码验证： 对类的方法体进行校验分析，保证被校验类的方法在运行时不会做出危害虚拟机安全的事件。</li>
+<li>符号验证： 对类自身以外（常量池中的各种符号引用）的信息进行匹配性校验，这个阶段发生在将符号引用转化为直接引用的时候（解析阶段中发生），目的是确保解析动作能正常执行。</li>
+</ul>
+<h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><p>准备阶段是正式为类变量（静态变量）分配内存并设置初始值的阶段，这些类变量所使用的内存都将在方法区中进行分配。</p>
+<p>这里有两点需要注意：</p>
+<ol>
+<li>成员变量不是在这里分配内存的，成员变量是在类实例化对象的时候在堆中分配的。</li>
+<li>这里设置初始值是指类型的零值（比如0，null，false等），而不是代码中被显示的赋予的值。</li>
+</ol>
+<p>比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">	public int number = 111;</span><br><span class="line">    public static int sNumber = 111; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>成员变量<code>number</code>在这个阶段就不会进行内存分配和初始化。而类变量<code>sNunber</code>会在方法区中分配内存，并<strong>设置为int类型的零0而不是111</strong>，赋值为111是在初始化阶段才会执行。<br><img src="http://i.imgur.com/9bEPBkZ.png" alt="Java基本数据类型和引用数据类型零值"><br>但是呢，如果类变量如果是被final修饰，为静态常量，那么在准备阶段也会在方法区中分配内存，并且将其值设置为显示赋予的值。</p>
+<p>比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    public static final int NUMBER = 111; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>此时，就会在准备阶段将<code>NUMBER</code>的值设置为111。</p>
+<h3 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h3><p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程。</p>
+<ul>
+<li>符号引用： 符号引用以一组符号来描述所引用的目标，符号可以是任何形式的字面量，只要使用时能无歧义地定位到目标即可。</li>
+<li>直接引用： 直接引用可以是直接指向目标的指针、相对偏移量或是一个能间接定位到目标的句柄。</li>
+</ul>
+<p>解析动作主要就是在常量池中寻找类或接口、字段、类方法、接口方法、方法类型、方法句柄、调用点限定符等7类符号引用，把这些符号引用替换为直接引用。下面主要介绍下类或接口、字段、类方法、接口方法的解析：</p>
+<ol>
+<li>类或接口解析： 假设当前的类<code>A</code>通过符号X引用了类<code>B</code>，虚拟机会把代表类<code>B</code>的全限定名传递给<code>A</code>的类加载器去加载<code>B</code>，<code>B</code>经过加载、验证、准备过程，在解析过程又可能会触发<code>B</code>引用的其他的类的加载过程，相当于一个类引用链的递归加载过程，整个过程只要不出现异常，<code>B</code>的就是一个加载成功的类或接口了，也就是可以获取到代表<code>B</code>的<code>java.lang.Class</code>对象。在验证了<code>A</code>具备对<code>B</code>的访问权限后，就将符号引用X替换为<code>B</code>的直接引用。</li>
+<li>字段解析： 解析未被解析过的字段，要先解析字段所属的类或接口的符号引用。如果类本身就包含了简单的名称和字段描述与目标字段相匹配，就直接返回这个字段引用；如果实现了接口，将会按照继承关系从下往上递归搜索各个接口和它的父接口，如果接口中包含了简单名称和字段描述符都与目标相匹配的字段，则返回这个字段；如果是继承自其他类的话，将会按照继承关系从下往上递归搜索其父类，如果在父类中包含了简单名称和字段描述符都与目标相匹配的字段，则返回这个字段的直接引用。</li>
+<li>类方法解析：类方法解析和字段解析的方式类似，也是依据继承和实现关系从小到上搜索，只不过是先搜索类，后搜索接口。如果有简单名称和字段描述符都与目标相匹配的字段，就返回字段引用。</li>
+<li>接口的方法解析： 与类方法解析类似，从小到上搜索接口（接口没有父类，只可能有父接口）。如果存在简单名称和字段描述符都与目标相匹配的字段，就返回字段引用。</li>
+</ol>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>类的初始化类加载过程的最后一步，在前面的过中，除了在加载阶段开发者可以自定义加载器之外，其余的动作都是完全有虚拟机主导和控制完成。到了初始化阶段，才真正开始执行类中定义的Java代码。</p>
+<p>在准备阶段，类变量已经设置了系统要求的零值，而在初始化阶段，则根据程序员通过程序制定的主观计划去初始化类变量和其他资源，或者可以从另外一个角度来表达：初始化阶段是执行类构造器<code>＜clinit＞()</code>方法的过程。</p>
+<p><code>＜clinit＞()</code>方法是由编译器自动收集类中所有的类变量（<code>static</code>变量）和静态代码块（<code>static{}</code>块）中的语句合并生成的。编译器收集的顺序是由语句在源文件中出现的顺序所决定的，静态代码块中只能访问到定义在静态代码块之前的变量，定义在它之后的变量，在前面的静态代码块可以赋值，但是不能访问。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    static &#123;</span><br><span class="line">        number = 111;               // 可以赋值</span><br><span class="line">        System.out.println(number); // 不能读取，编辑器或报错Illegal forward reference</span><br><span class="line">    &#125;</span><br><span class="line">    static int number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>＜clinit＞()</code>方法与类的构造函数（或者说实例构造器<code>＜init＞()</code>方法）不同，它不需要显式地调用父类的<code>＜clinit＞()</code>方法，虚拟机会保证在子类的<code>＜clinit＞()</code>方法执行之前，父类的<code>＜clinit＞()</code>方法已经执行完毕。所以，父类定义的静态代码块要先与子类的赋值操作。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class Parent &#123;</span><br><span class="line">    public static int A = 1;</span><br><span class="line">    static &#123;</span><br><span class="line">        A = 2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Sub extends Parent &#123;</span><br><span class="line">    public static int B = A;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(Sub.B);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>＜clinit＞()</code>方法对于类或接口来说并不是必需的，如果一个类中没有静态语句块，也没有对变量的赋值操作，那么编译器可以不为这个类生成<code>＜clinit＞()</code>方法。</p>
+<p>接口中不能使用静态语句块，但仍然有变量初始化的赋值操作，因此接口与类一样都会生成<code>＜clinit＞()</code>方法。但接口与类不同的是，执行接口的<code>＜clinit＞()</code>方法不需要先执行父接口的<code>＜clinit＞()</code>方法。只有当父接口中定义的变量使用时，父接口才会初始化。另外，接口的实现类在初始化时也一样不会执行接口的<code>＜clinit＞()</code>方法。</p>
+<p>虚拟机会保证一个类的<code>＜clinit＞()</code>方法在多线程环境中被正确地加锁、同步，如果多个线程同时去初始化一个类，那么只会有一个线程去执行这个类的<code>＜clinit＞()</code>方法，其他线程都需要阻塞等待，直到活动线程执行<code>＜clinit＞()</code>方法完毕。如果在一个类的<code>＜clinit＞()</code>方法中有耗时很长的操作，就可能造成多个进程阻塞。</p>
+<h3 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h3><p>在之前的加载过程中，提到了类加载器通过一个类的全限定名来获取描述此类的二进制字节流，这个过程可以让开发中自定义类加载器来决定如何获取需要的字节流。那么，什么是类加载器呢？</p>
+<p>对于任意一个Java类，都必须通过类加载器加载到方法区，并生成<code>java.lang.Class</code>对象才能使用类的各个功能，所以我们可以把类加载器理解为一个将<code>class</code>类文件转换为<code>java.lang.Class</code>对象的工具。</p>
+<p>对于任意一个类，都需要由加载它的类加载器和这个类本身一同确立其在Java虚拟机中的唯一性，每一个类加载器，都拥有一个独立的类名称空间。也就是说，如果两个类“相等”，那么这两个类必须是被同一个虚拟机中的同一个类加载器加载，并且来自同一个<code>class</code>文件。</p>
+<p>在Java当中，已经有3个预制的类加载器，分别是<code>BootStrapClassLoader</code>、<code>ExtClassLoader、AppClassLoader</code>。</p>
+<ul>
+<li>BootStrapClassLoader： 启动类加载器，它是由C++来实现的，在Java程序中不能显氏的获取到。它负责加载存放在JDK\jre\lib(JDK代表JDK的安装目录，下同)下的类。</li>
+<li>ExtClassLoader： 扩展类加载器，它是由sun.misc.Launcher$ExtClassLoader实现，负责加载JDK\jre\lib\ext目录中，或者由java.ext.dirs系统变量指定的路径中的所有类库。开发者可以直接使用它。</li>
+<li>AppClassLoader： 应用程序类加载器，由sun.misc.Launcher$AppClassLoader来实现，它负责加载用户类路径（ClassPath）所指定的类，开发者可以直接使用该类加载器。一般来说，开发者自定义的类就是由应用程序类加载器加载的。</li>
+</ul>
+<p><code>ExtClassLoader</code>作为类加载器，但它也是一个Java类，是由<code>BootStrapClassLoader</code>来加载的，所以，<code>ExtClassLoader</code>的parent是<code>BootStrapClassLoader</code>。但是由于<code>BootStrapClassLoader</code>是<code>c++</code>实现的，我们通过<code>ExtClassLoader.getParent</code>获取到的是<code>null</code>。同样地，<code>AppClassLoader</code>是由<code>ExtClassLoader</code>加载，<code>AppClassLoader</code>的parent是<code>ExtClassLoader</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ClassLoader cl = Test.class.getClassLoader();</span><br><span class="line">        while (cl != null) &#123;</span><br><span class="line">            System.out.println(cl);</span><br><span class="line">            cl = cl.getParent();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>打印结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sun.misc.Launcher$AppClassLoader@232204a1</span><br><span class="line">sun.misc.Launcher$ExtClassLoader@74a14482</span><br></pre></td></tr></table></figure></p>
+<p>同时我们可以定义自己的类加载器<code>CustomClassLoader</code>，那么它的parent肯定就是<code>AppClassLoader</code>了。类加载器的这种层次关系称为双亲委派模型。<br><img src="http://i.imgur.com/NCkfOLT.png" alt="类加载器"></p>
+<h4 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h4><p>双亲委派模型要求除了顶层的启动类加载器外，其余的类加载器都应当有自己的父类加载器。这里类加载器之间的父子关系不是以继承的关系来实现，而是都使用递归的方式来调用父加载器的代码。</p>
+<p>双亲委派模型的工作过程是：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成，每一个层次的类加载器都是如此，因此所有的加载请求最终都应该传送到顶层的启动类加载器中，只有当父加载器反馈自己无法完成这个加载请求（它的搜索范围中没有找到所需的类）时，子加载器才会尝试自己去加载。</p>
+<p>ClassLoader的源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">protected Class&lt;?&gt; loadClass(String name, boolean resolve) throws ClassNotFoundException &#123;</span><br><span class="line">    synchronized (getClassLoadingLock(name)) &#123;</span><br><span class="line">        // First, check if the class has already been loaded</span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        if (c == null) &#123;</span><br><span class="line">            long t0 = System.nanoTime();</span><br><span class="line">            try &#123;</span><br><span class="line">                if (parent != null) &#123;</span><br><span class="line">                    c = parent.loadClass(name, false);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    c = findBootstrapClassOrNull(name);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (ClassNotFoundException e) &#123;</span><br><span class="line">                // ClassNotFoundException thrown if class not found</span><br><span class="line">                // from the non-null parent class loader</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (c == null) &#123;</span><br><span class="line">                // If still not found, then invoke findClass in order</span><br><span class="line">                // to find the class.</span><br><span class="line">                long t1 = System.nanoTime();</span><br><span class="line">                c = findClass(name);</span><br><span class="line"></span><br><span class="line">                // this is the defining class loader; record the stats</span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (resolve) &#123;</span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        return c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>先检查是否已经被加载过，若没有加载则调用父类加载器的<code>loadClass()</code>方法，依次向上递归。若父类加载器为空则说明递归到启动类加载器了。如果从父类加载器到启动类加载器的上层次的所有加载器都加载失败，则调用自己的<code>findClass()</code>方法进行加载。</p>
+<p>使用双亲委派模型能使Java类随着加载器一起具备一种优先级的层次关系，保证同一个类只加载一次，避免了重复加载，同时也能阻止有人恶意替换加载系统类。</p>
+<h4 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h4><p>一般地，在<code>ClassLoader</code>方法的<code>loadClass</code>方法中已经给开发者实现了双亲委派模型，在自定义类加载器的时候，只需要复写<code>findClass</code>方法即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">public class CustomClassLoader extends ClassLoader &#123;</span><br><span class="line"></span><br><span class="line">    private String root;</span><br><span class="line"></span><br><span class="line">    public CustomClassLoader(String root) &#123;</span><br><span class="line">        this.root = root;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException &#123;</span><br><span class="line">        byte[] classData = loadClassData(name);</span><br><span class="line">        if (classData == null) &#123;</span><br><span class="line">            throw new ClassNotFoundException();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            return defineClass(name, classData, 0, classData.length);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private byte[] loadClassData(String name) &#123;</span><br><span class="line">        String fileName = root + File.separatorChar</span><br><span class="line">                + name.replace(&apos;.&apos;, File.separatorChar)</span><br><span class="line">                + &quot;.class&quot;;</span><br><span class="line">        try &#123;</span><br><span class="line">            InputStream ins = new FileInputStream(fileName);</span><br><span class="line">            ByteArrayOutputStream baos = new ByteArrayOutputStream();</span><br><span class="line">            int bufferSize = 1024;</span><br><span class="line">            byte[] buffer = new byte[bufferSize];</span><br><span class="line">            int length;</span><br><span class="line">            while ((length = ins.read(buffer)) != -1) &#123;</span><br><span class="line">                baos.write(buffer, 0, length);</span><br><span class="line">            &#125;</span><br><span class="line">            return baos.toByteArray();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>新建一个类<code>com.xiao.U</code>，编译成class文件，放到桌面，来测试一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        CustomClassLoader customClassLoader = new CustomClassLoader(&quot;C:\\Users\\PC\\Desktop&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">            Class clazz = customClassLoader.loadClass(&quot;com.xiao.U&quot;);</span><br><span class="line">            Object o = clazz.newInstance();</span><br><span class="line">            System.out.println(o.getClass().getClassLoader());</span><br><span class="line">        &#125; catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>打印结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CustomClassLoader@1540e19d</span><br></pre></td></tr></table></figure></p>
+<p>自定义类加载器在可以实现服务端的热部署，在移动端比如android也可以实现热更新。</p>
+<hr>
+<p>参考：</p>
+<ol>
+<li><a href="https://book.douban.com/subject/24722612/" target="_blank" rel="noopener">深入理解Java虚拟机（第二版）</a></li>
+<li><a href="http://www.jianshu.com/p/808a36134da5" target="_blank" rel="noopener">Java 类加载机制详解</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java虚拟机/" rel="tag"># Java虚拟机</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/08/Java虚拟机-——-垃圾回收机制/" rel="next" title="Java虚拟机 —— 垃圾回收机制">
+                <i class="fa fa-chevron-left"></i> Java虚拟机 —— 垃圾回收机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/13/Java集合框架-——-ArrayList源码分析/" rel="prev" title="Java集合框架 —— ArrayList源码分析">
+                Java集合框架 —— ArrayList源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#加载"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x52A0;&#x8F7D;" class="headerlink" title="&#x52A0;&#x8F7D;"></a>&#x52A0;&#x8F7D;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x9A8C;&#x8BC1;" class="headerlink" title="&#x9A8C;&#x8BC1;"></a>&#x9A8C;&#x8BC1;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x51C6;&#x5907;" class="headerlink" title="&#x51C6;&#x5907;"></a>&#x51C6;&#x5907;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解析"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x89E3;&#x6790;" class="headerlink" title="&#x89E3;&#x6790;"></a>&#x89E3;&#x6790;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x521D;&#x59CB;&#x5316;" class="headerlink" title="&#x521D;&#x59CB;&#x5316;"></a>&#x521D;&#x59CB;&#x5316;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载器"><span class="nav-number">6.</span> <span class="nav-text"><a href="#&#x7C7B;&#x52A0;&#x8F7D;&#x5668;" class="headerlink" title="&#x7C7B;&#x52A0;&#x8F7D;&#x5668;"></a>&#x7C7B;&#x52A0;&#x8F7D;&#x5668;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#双亲委派模型"><span class="nav-number">6.1.</span> <span class="nav-text"><a href="#&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x6A21;&#x578B;" class="headerlink" title="&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x6A21;&#x578B;"></a>&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x6A21;&#x578B;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义类加载器"><span class="nav-number">6.2.</span> <span class="nav-text"><a href="#&#x81EA;&#x5B9A;&#x4E49;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;" class="headerlink" title="&#x81EA;&#x5B9A;&#x4E49;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;"></a>&#x81EA;&#x5B9A;&#x4E49;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

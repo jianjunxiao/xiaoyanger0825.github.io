@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="自定义View," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在MIUI上有一些界面在拖动的时候有一个视差效果：在可以滚动的视图中，内容滚动到顶部时继续下拉，整个视图就有一个竖直方向拉伸的视差效果。滚动到底部继续上拉，也有同样的效果。 滚动视图可能是ScrollView、RecyclerView，要实现这样的效果，需要自定义并拦截Touch事件，重新处理事件逻辑。 以RecyclerView为例，我们自定义一个ParallaxRecyclerView，复写o">
+<meta name="keywords" content="自定义View">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自定义实现MIUI的拖动视差效果（阻尼效果）">
+<meta property="og:url" content="http://yoursite.com/2017/06/18/自定义实现MIUI的拖动视差效果（阻尼效果）/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="在MIUI上有一些界面在拖动的时候有一个视差效果：在可以滚动的视图中，内容滚动到顶部时继续下拉，整个视图就有一个竖直方向拉伸的视差效果。滚动到底部继续上拉，也有同样的效果。 滚动视图可能是ScrollView、RecyclerView，要实现这样的效果，需要自定义并拦截Touch事件，重新处理事件逻辑。 以RecyclerView为例，我们自定义一个ParallaxRecyclerView，复写o">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-5dc31f5d2ba3e20e.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-b8a855ebdae2b7b2.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-0e390f65f8100c43.gif?imageMogr2/auto-orient/strip">
+<meta property="og:updated_time" content="2017-12-08T03:02:32.544Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自定义实现MIUI的拖动视差效果（阻尼效果）">
+<meta name="twitter:description" content="在MIUI上有一些界面在拖动的时候有一个视差效果：在可以滚动的视图中，内容滚动到顶部时继续下拉，整个视图就有一个竖直方向拉伸的视差效果。滚动到底部继续上拉，也有同样的效果。 滚动视图可能是ScrollView、RecyclerView，要实现这样的效果，需要自定义并拦截Touch事件，重新处理事件逻辑。 以RecyclerView为例，我们自定义一个ParallaxRecyclerView，复写o">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-5dc31f5d2ba3e20e.gif?imageMogr2/auto-orient/strip">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/18/自定义实现MIUI的拖动视差效果（阻尼效果）/"/>
+
+
+
+
+
+  <title>自定义实现MIUI的拖动视差效果（阻尼效果） | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/18/自定义实现MIUI的拖动视差效果（阻尼效果）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">自定义实现MIUI的拖动视差效果（阻尼效果）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-18T15:09:42+08:00">
+                2017-06-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在MIUI上有一些界面在拖动的时候有一个视差效果：<br><img src="http://upload-images.jianshu.io/upload_images/1801191-5dc31f5d2ba3e20e.gif?imageMogr2/auto-orient/strip" alt=""><br>在可以滚动的视图中，内容滚动到顶部时继续下拉，整个视图就有一个竖直方向拉伸的视差效果。滚动到底部继续上拉，也有同样的效果。</p>
+<p>滚动视图可能是<code>ScrollView</code>、<code>RecyclerView</code>，要实现这样的效果，需要自定义并拦截<code>Touch</code>事件，重新处理事件逻辑。</p>
+<p>以<code>RecyclerView</code>为例，我们自定义一个<code>ParallaxRecyclerView</code>，复写<code>onInterceptTouchEvent</code>方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onInterceptTouchEvent(MotionEvent event) &#123;</span><br><span class="line">    int action = MotionEventCompat.getActionMasked(event);</span><br><span class="line">    if (isRestoring &amp;&amp; action == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">        isRestoring = false;</span><br><span class="line">    &#125;</span><br><span class="line">    if (!isEnabled() || isRestoring || (!isScrollToTop() &amp;&amp; !isScrollToBottom())) &#123;</span><br><span class="line">        return super.onInterceptTouchEvent(event);</span><br><span class="line">    &#125;</span><br><span class="line">    switch (action) &#123;</span><br><span class="line">        case MotionEvent.ACTION_DOWN: &#123;</span><br><span class="line">            mActivePointerId = event.getPointerId(0);</span><br><span class="line">            isBeingDragged = false;</span><br><span class="line">            float initialMotionY = getMotionEventY(event);</span><br><span class="line">            if (initialMotionY == -1) &#123;</span><br><span class="line">                return super.onInterceptTouchEvent(event);</span><br><span class="line">            &#125;</span><br><span class="line">            mInitialMotionY = initialMotionY;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">        case MotionEvent.ACTION_MOVE: &#123;</span><br><span class="line">            if (mActivePointerId == MotionEvent.INVALID_POINTER_ID) &#123;</span><br><span class="line">                return super.onInterceptTouchEvent(event);</span><br><span class="line">            &#125;</span><br><span class="line">            final float y = getMotionEventY(event);</span><br><span class="line">            if (y == -1f) &#123;</span><br><span class="line">                return super.onInterceptTouchEvent(event);</span><br><span class="line">            &#125;</span><br><span class="line">            if (isScrollToTop() &amp;&amp; !isScrollToBottom()) &#123;</span><br><span class="line">                // 在顶部不在底部</span><br><span class="line">                float yDiff = y - mInitialMotionY;</span><br><span class="line">                if (yDiff &gt; mTouchSlop &amp;&amp; !isBeingDragged) &#123;</span><br><span class="line">                    isBeingDragged = true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else if (!isScrollToTop() &amp;&amp; isScrollToBottom()) &#123;</span><br><span class="line">                // 在底部不在顶部</span><br><span class="line">                float yDiff = mInitialMotionY - y;</span><br><span class="line">                if (yDiff &gt; mTouchSlop &amp;&amp; !isBeingDragged) &#123;</span><br><span class="line">                    isBeingDragged = true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else if (isScrollToTop() &amp;&amp; isScrollToBottom()) &#123;</span><br><span class="line">                // 在底部也在顶部</span><br><span class="line">                float yDiff = y - mInitialMotionY;</span><br><span class="line">                if (Math.abs(yDiff) &gt; mTouchSlop &amp;&amp; !isBeingDragged) &#123;</span><br><span class="line">                    isBeingDragged = true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // 不在底部也不在顶部</span><br><span class="line">                return super.onInterceptTouchEvent(event);</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">        case MotionEventCompat.ACTION_POINTER_UP:</span><br><span class="line">            onSecondaryPointerUp(event);</span><br><span class="line">            break;</span><br><span class="line">        case MotionEvent.ACTION_UP:</span><br><span class="line">        case MotionEvent.ACTION_CANCEL:</span><br><span class="line">            mActivePointerId = MotionEvent.INVALID_POINTER_ID;</span><br><span class="line">            isBeingDragged = false;</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">    return isBeingDragged || super.onInterceptTouchEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>滚动RecyclerView到达顶部或者底部继续拖动时，需要拦截Touch事件。所以在<code>MotionEvent.ACTION_MOVE</code>时需要判断当前RecyclerView是否在顶部或者底部。需要注意的是，当RecyclerView中的item没有填充满整视图时，RecyclerView的状态既是在顶部也是在底部。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private boolean isScrollToTop() &#123;</span><br><span class="line">    return !ViewCompat.canScrollVertically(this, -1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private boolean isScrollToBottom() &#123;</span><br><span class="line">    return !ViewCompat.canScrollVertically(this, 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>mActivePointerId</code>表示在多点触控是当前活动手指的id，<code>mInitialMotionY</code>为手指按下时的Y坐标。</p>
+<p>当达到顶部或底部继续拖动时，根据当前的位置（<code>isScrollToTop()</code>、<code>isScrollToBottom()</code>）和<code>ACTION_MOVE</code>时的移动距离<code>yDiff</code>来判断是否需要拦截：在顶部时向上拖动并且<code>yDiff&gt;mTouchSlop</code>就需要拦截，底部时向下拖动同样<code>yDiff&gt;mTouchSlop</code>也需要拦截，同时在顶部和底部时满足<code>Math.abs(yDiff)&gt;mTouchSlop</code>也需要拦截。需要拦截都是在没有被拖动（<code>!isBeingDragged</code>）的情况下。</p>
+<p><code>RecyclerViev</code>既没有在顶部也没有在底部时，说明item滚动到中间，可以上下继续滚动，不需要拦截，交给<code>super.onInterceptTouchEvent(event)</code>来处理。同时其它不需要拦截的情况也都交给<code>super</code>来处理。</p>
+<p><code>onSecondaryPointerUp(event)</code>为当第二个手指离开屏幕是需要重新设置<code>mActivePointerId</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">private void onSecondaryPointerUp(MotionEvent event) &#123;</span><br><span class="line">    final int pointerIndex = MotionEventCompat.getActionIndex(event);</span><br><span class="line">    final int pointerId = event.getPointerId(pointerIndex);</span><br><span class="line">    if (pointerId == mActivePointerId) &#123;</span><br><span class="line">        int newPointerIndex = pointerIndex == 0 ? 1 : 0;</span><br><span class="line">        mActivePointerId = event.getPointerId(newPointerIndex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>拦截到TouchEvent，在onTouchEven中处理，实现拖动视差效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onTouchEvent(MotionEvent event) &#123;</span><br><span class="line">    switch (MotionEventCompat.getActionMasked(event)) &#123;</span><br><span class="line">        case MotionEvent.ACTION_DOWN:</span><br><span class="line">            mActivePointerId = event.getPointerId(0);</span><br><span class="line">            isBeingDragged = false;</span><br><span class="line">            break;</span><br><span class="line">        case MotionEvent.ACTION_MOVE: &#123; </span><br><span class="line">            float y = getMotionEventY(event);</span><br><span class="line">            if (isScrollToTop() &amp;&amp; !isScrollToBottom()) &#123;</span><br><span class="line">                // 在顶部不在底部</span><br><span class="line">                mDistance = y - mInitialMotionY;</span><br><span class="line">                if (mDistance &lt; 0) &#123;</span><br><span class="line">                    return super.onTouchEvent(event);</span><br><span class="line">                &#125;</span><br><span class="line">                mScale = calculateRate(mDistance);</span><br><span class="line">                pull(mScale);</span><br><span class="line">                return true;</span><br><span class="line">            &#125; else if (!isScrollToTop() &amp;&amp; isScrollToBottom()) &#123;</span><br><span class="line">                // 在底部不在顶部</span><br><span class="line">                mDistance = mInitialMotionY - y;</span><br><span class="line">                if (mDistance &lt; 0) &#123;</span><br><span class="line">                    return super.onTouchEvent(event);</span><br><span class="line">                &#125;</span><br><span class="line">                mScale = calculateRate(mDistance);</span><br><span class="line">                push(mScale);</span><br><span class="line">                return true;</span><br><span class="line">            &#125; else if (isScrollToTop() &amp;&amp; isScrollToBottom()) &#123;</span><br><span class="line">                // 在底部也在顶部</span><br><span class="line">                mDistance = y - mInitialMotionY;</span><br><span class="line">                if (mDistance &gt; 0) &#123;</span><br><span class="line">                    mScale = calculateRate(mDistance);</span><br><span class="line">                    pull(mScale);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    mScale = calculateRate(-mDistance);</span><br><span class="line">                    push(mScale);</span><br><span class="line">                &#125;</span><br><span class="line">                return true;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // 不在底部也不在顶部</span><br><span class="line">                return super.onTouchEvent(event);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        case MotionEventCompat.ACTION_POINTER_DOWN:</span><br><span class="line">            mActivePointerId = event.getPointerId(MotionEventCompat.getActionIndex(event));</span><br><span class="line">            break;</span><br><span class="line">        case MotionEventCompat.ACTION_POINTER_UP:</span><br><span class="line">            onSecondaryPointerUp(event);</span><br><span class="line">            break;</span><br><span class="line">        case MotionEvent.ACTION_UP: </span><br><span class="line">        case MotionEvent.ACTION_CANCEL: &#123;</span><br><span class="line">            if (isScrollToTop() &amp;&amp; !isScrollToBottom()) &#123;</span><br><span class="line">                animateRestore(true);</span><br><span class="line">            &#125; else if (!isScrollToTop() &amp;&amp; isScrollToBottom()) &#123;</span><br><span class="line">                animateRestore(false);</span><br><span class="line">            &#125; else if (isScrollToTop() &amp;&amp; isScrollToBottom()) &#123;</span><br><span class="line">                if (mDistance &gt; 0) &#123;</span><br><span class="line">                    animateRestore(true);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    animateRestore(false);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                return super.onTouchEvent(event);</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return super.onTouchEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码虽然有点长，但是逻辑很简单，在拦截到<code>ACTION_MOVE</code>事件后，同样根据顶部或底部位置以及滚动的距离<code>mDistance</code>来确定是否消费掉该事件。不需要消费的直接给<code>`super.onTouchEvent(event)</code>来处理，需要消费的话根据<code>mDistance</code>来计算出缩放的比例<code>mScale</code>，再通过<code>pull(mScale)</code>和<code>push(mScale)</code>来缩放。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private float calculateRate(float distance) &#123;</span><br><span class="line">    int screenHeight = getResources().getDisplayMetrics().heightPixels;</span><br><span class="line">    float originalDragPercent = distance / screenHeight;</span><br><span class="line">    float dragPercent = Math.min(1f, originalDragPercent);</span><br><span class="line">    float rate = 2f * dragPercent - (float) Math.pow(dragPercent, 2f);</span><br><span class="line">    return 1 + rate / 5f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>mScale</code>的计算是一个二次函数，当拖动距离越大时，<code>mScale</code>的变化程度越小，这样使得拖动时有一个张力效果。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private void pull(float scale) &#123;</span><br><span class="line">    this.setPivotY(0);</span><br><span class="line">    this.setScaleY(scale);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void push(float scale) &#123;</span><br><span class="line">    this.setPivotY(this.getHeight());</span><br><span class="line">    this.setScaleY(scale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>ACTION_UP</code>时，需要将缩放的视图通过动画还原到初始状态。这里也需要判断位置，因为不同位置的的缩放中心点不一样。同时即在顶部也在底部时是根<code>mDistance</code>的正负值来判断拖动的方向。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">private void animateRestore(final boolean isPullRestore) &#123;</span><br><span class="line">    ValueAnimator animator = ValueAnimator.ofFloat(mScale, 1f);</span><br><span class="line">    animator.setDuration(300);</span><br><span class="line">    animator.setInterpolator(new DecelerateInterpolator(2f));</span><br><span class="line">    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void onAnimationUpdate(ValueAnimator animation) &#123;</span><br><span class="line">            float value = (float) animation.getAnimatedValue();</span><br><span class="line">            if (isPullRestore) &#123;</span><br><span class="line">                pull(value);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                push(value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    animator.addListener(new Animator.AnimatorListener() &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void onAnimationStart(Animator animation) &#123;</span><br><span class="line">            isRestoring = true;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void onAnimationEnd(Animator animation) &#123;</span><br><span class="line">            isRestoring = false;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void onAnimationCancel(Animator animation) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void onAnimationRepeat(Animator animation) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    animator.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就OK了，如果需要实现<code>ScrollView</code>、<code>ListView</code>、<code>GridView</code>也是一样的逻辑，<a href="https://github.com/xiaoyanger0825/Parallax" target="_blank" rel="noopener">源码</a>中已经有了<code>ParallaxScrollView</code>的实现，看下最终效果图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-b8a855ebdae2b7b2.gif?imageMogr2/auto-orient/strip" alt="ParallaxRecyclerView"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-0e390f65f8100c43.gif?imageMogr2/auto-orient/strip" alt="ParallaxScrollView"></p>
+<p>源码：<a href="https://github.com/xiaoyanger0825/Parallax" target="_blank" rel="noopener">https://github.com/xiaoyanger0825/Parallax</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/自定义View/" rel="tag"># 自定义View</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/22/用MediaPlayer-TextureView封装一个完美实现全屏、小窗口的视频播放器/" rel="next" title="用MediaPlayer+TextureView封装一个完美实现全屏、小窗口的视频播放器">
+                <i class="fa fa-chevron-left"></i> 用MediaPlayer+TextureView封装一个完美实现全屏、小窗口的视频播放器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/01/React-Native-——-搭建开发环境、创建Hello-World/" rel="prev" title="React Native —— 搭建开发环境、创建Hello World">
+                React Native —— 搭建开发环境、创建Hello World <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

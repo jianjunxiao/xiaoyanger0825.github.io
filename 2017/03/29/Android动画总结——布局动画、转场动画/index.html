@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="动画," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="之前一篇文章总结了View动画、属性动画、帧动画，这篇文章继续总结布局动画、转场动画。  布局动画布局动画的作用于ViewGroup，执行动画效果的是内部的子View。布局动画在android中可以通过LayoutAnimation或LayoutTransition来实现。 LayoutAnimationLayoutAnimation实际上是一个View动画，用来控制子View显示时的动画效果。可">
+<meta name="keywords" content="动画">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android动画总结——布局动画、转场动画">
+<meta property="og:url" content="http://yoursite.com/2017/03/29/Android动画总结——布局动画、转场动画/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="之前一篇文章总结了View动画、属性动画、帧动画，这篇文章继续总结布局动画、转场动画。  布局动画布局动画的作用于ViewGroup，执行动画效果的是内部的子View。布局动画在android中可以通过LayoutAnimation或LayoutTransition来实现。 LayoutAnimationLayoutAnimation实际上是一个View动画，用来控制子View显示时的动画效果。可">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-d0d77f6e9c72efb6.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-60af20516bcae8fb.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-eeafc5d795f256d8.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-b1d765a1c5381600.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-9377a27bf8457a40.gif">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-30545fbee6c38a0e.gif?imageMogr2/auto-orient/strip">
+<meta property="og:updated_time" content="2017-12-08T03:27:56.089Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android动画总结——布局动画、转场动画">
+<meta name="twitter:description" content="之前一篇文章总结了View动画、属性动画、帧动画，这篇文章继续总结布局动画、转场动画。  布局动画布局动画的作用于ViewGroup，执行动画效果的是内部的子View。布局动画在android中可以通过LayoutAnimation或LayoutTransition来实现。 LayoutAnimationLayoutAnimation实际上是一个View动画，用来控制子View显示时的动画效果。可">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-d0d77f6e9c72efb6.gif?imageMogr2/auto-orient/strip">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/03/29/Android动画总结——布局动画、转场动画/"/>
+
+
+
+
+
+  <title>Android动画总结——布局动画、转场动画 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/29/Android动画总结——布局动画、转场动画/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android动画总结——布局动画、转场动画</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-29T11:37:42+08:00">
+                2017-03-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前一篇文章总结了<a href="http://www.jianshu.com/p/afc7b3a2e3e9" target="_blank" rel="noopener">View动画、属性动画、帧动画</a>，这篇文章继续总结布局动画、转场动画。</p>
+<hr>
+<h4 id="布局动画"><a href="#布局动画" class="headerlink" title="布局动画"></a>布局动画</h4><p>布局动画的作用于<code>ViewGroup</code>，执行动画效果的是内部的子View。布局动画在android中可以通过<code>LayoutAnimation</code>或<code>LayoutTransition</code>来实现。</p>
+<h5 id="LayoutAnimation"><a href="#LayoutAnimation" class="headerlink" title="LayoutAnimation"></a>LayoutAnimation</h5><p><code>LayoutAnimation</code>实际上是一个View动画，用来控制子View显示时的动画效果。可以通过Java代码或者Xml文件来定义<code>LayoutAnimation</code>动画。</p>
+<h6 id="通过Java代码来定义LayoutAnimation"><a href="#通过Java代码来定义LayoutAnimation" class="headerlink" title="通过Java代码来定义LayoutAnimation"></a>通过Java代码来定义LayoutAnimation</h6><p>定义子View的显示动画<code>layout_item_anim_set.xml</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br><span class="line">&lt;set xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">     android:duration=&quot;300&quot;</span><br><span class="line">     android:interpolator=&quot;@android:anim/accelerate_interpolator&quot;</span><br><span class="line">     android:shareInterpolator=&quot;true&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;alpha</span><br><span class="line">        android:fromAlpha=&quot;0.0&quot;</span><br><span class="line">        android:toAlpha=&quot;1.0&quot;/&gt;</span><br><span class="line">    &lt;translate</span><br><span class="line">        android:fromXDelta=&quot;500&quot;</span><br><span class="line">        android:toXDelta=&quot;0&quot;/&gt;</span><br><span class="line">&lt;/set&gt;</span><br></pre></td></tr></table></figure></p>
+<p>以<code>ListView</code>为例，给<code>ListView</code>设置item的显示动画：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private void setLayoutAnimation() &#123;</span><br><span class="line">    Animation animation = AnimationUtils.loadAnimation(this, R.anim.layout_item_anim_set);</span><br><span class="line">    LayoutAnimationController controller = new LayoutAnimationController(animation);</span><br><span class="line">    controller.setDelay(0.5f);</span><br><span class="line">    controller.setOrder(LayoutAnimationController.ORDER_NORMAL);</span><br><span class="line">    mListView.setLayoutAnimation(controller);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h6 id="通过Xml代码来定义LayoutAnimation："><a href="#通过Xml代码来定义LayoutAnimation：" class="headerlink" title="通过Xml代码来定义LayoutAnimation："></a>通过Xml代码来定义LayoutAnimation：</h6><p><code>layout_anim.xml</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br><span class="line">&lt;layoutAnimation</span><br><span class="line">    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:animation=&quot;@anim/layout_item_anim_set&quot;</span><br><span class="line">    android:animationOrder=&quot;normal&quot;</span><br><span class="line">    android:delay=&quot;0.5&quot;&gt;</span><br><span class="line">&lt;/layoutAnimation&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在<code>ListView</code>所在布局中调用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;ListView</span><br><span class="line">    android:id=&quot;@+id/list_view&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:divider=&quot;#f1f1f1&quot;</span><br><span class="line">    android:dividerHeight=&quot;1dp&quot;</span><br><span class="line">    android:layoutAnimation=&quot;@anim/layout_anim&quot;</span><br><span class="line">    android:listSelector=&quot;?android:attr/selectableItemBackground&quot;/&gt;</span><br></pre></td></tr></table></figure></p>
+<p><code>setDelay()</code>方法以及<code>android:delay</code>属性表示子View动画显示的延迟时间比例。比如动画执行时间是300ms，延迟比例是0.5，那么延迟时间就是150ms，在Listview中，第一个item在延迟150ms开始动画后，第二个在300ms后开始动画，第三个在450ms后开始，以此类推。<br><code>setOder()</code>方法以及<code>android:animationOrder</code>表示动画执行的顺序类型，共有三种：<code>normal</code>表示子View按顺序显示，<code>reverse</code>表示子View按逆序显示，<code>random</code>表示子View随机先后显示。<br><img src="http://upload-images.jianshu.io/upload_images/1801191-d0d77f6e9c72efb6.gif?imageMogr2/auto-orient/strip" alt="LayoutAnimation效果图"></p>
+<h5 id="LayoutTransition"><a href="#LayoutTransition" class="headerlink" title="LayoutTransition"></a>LayoutTransition</h5><p><code>LayoutTransition</code>用于在<code>ViewGroup</code>中有子View添加、删除、隐藏、显示时所有子View动画效果。<code>LayoutTransition</code>有5中动画变化形式</p>
+<blockquote>
+<p><code>LayoutTransition.APPEARING</code>：子View添加到容器中时的动画效果<code>LayoutTransition.CHANGE_APPEARING</code>：子View添加到容器中时，其他子View位置改变的动画效果<br><code>LayoutTransition.DISAPPEARING</code>：子View被移除时的动画效果<br><code>LayoutTransition.CHANGE_DISAPPEARING</code>：子View被移除时，其他子View的动画效果<br><code>LayoutTransition.CHANGING</code>：子View在容器中位置变化时其他子View的动画效果</p>
+</blockquote>
+<h6 id="使用默认的动画样式"><a href="#使用默认的动画样式" class="headerlink" title="使用默认的动画样式"></a>使用默认的动画样式</h6><p>只需要在使用的LinearLayout、FrameLayout、RelativeLayout等ViewGroup容器的布局文件中添加<code>android:animateLayoutChanges=&quot;true&quot;</code>即可，系统会使用默认的LayoutTransition来实现子View添加、删除或变化是的动画效果。<br><img src="http://upload-images.jianshu.io/upload_images/1801191-60af20516bcae8fb.gif?imageMogr2/auto-orient/strip" alt="默认的LayoutTransition效果"></p>
+<h6 id="使用自定义动画样式"><a href="#使用自定义动画样式" class="headerlink" title="使用自定义动画样式"></a>使用自定义动画样式</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">private void init() &#123;</span><br><span class="line">    mContainer = (LinearLayout) findViewById(R.id.container);</span><br><span class="line">    setLayoutTransition();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void setLayoutTransition() &#123;</span><br><span class="line">    LayoutTransition transition = new LayoutTransition();</span><br><span class="line">    // 子View添加到mContainer时的动画</span><br><span class="line">    Animator appearAnim = ObjectAnimator</span><br><span class="line">            .ofFloat(null, &quot;rotationX&quot;, 90, 0)</span><br><span class="line">            .setDuration(transition.getDuration(LayoutTransition.APPEARING));</span><br><span class="line">    transition.setAnimator(LayoutTransition.APPEARING, appearAnim);</span><br><span class="line">    // 子Veiw从mContainer中移除时的动画</span><br><span class="line">    Animator disappearAnim = ObjectAnimator</span><br><span class="line">            .ofFloat(null, &quot;rotationX&quot;, 0, 90)</span><br><span class="line">            .setDuration(transition.getDuration(LayoutTransition.DISAPPEARING));</span><br><span class="line">    transition.setAnimator(LayoutTransition.DISAPPEARING, disappearAnim);</span><br><span class="line">    // 子Veiw添加到mContainer中时其他子View的动画</span><br><span class="line">    PropertyValuesHolder pvhLeft = PropertyValuesHolder.ofInt(&quot;left&quot;, 0, 0);</span><br><span class="line">    PropertyValuesHolder pvhTop = PropertyValuesHolder.ofInt(&quot;top&quot;, 0, 0);</span><br><span class="line">    PropertyValuesHolder pvhTranslationY = PropertyValuesHolder</span><br><span class="line">            .ofFloat(&quot;translationX&quot;, 0, 150, 0);</span><br><span class="line">    Animator changeAppearAnim = ObjectAnimator</span><br><span class="line">            .ofPropertyValuesHolder(mContainer, pvhLeft, pvhTop, pvhTranslationY)</span><br><span class="line">            .setDuration(transition.getDuration(LayoutTransition.CHANGE_APPEARING));</span><br><span class="line">    transition.setAnimator(LayoutTransition.CHANGE_APPEARING, changeAppearAnim);</span><br><span class="line">    // 子View从mContainer中移除时其他子View的动画</span><br><span class="line">    PropertyValuesHolder outLeft = PropertyValuesHolder.ofInt(&quot;left&quot;, 0, 0);</span><br><span class="line">    PropertyValuesHolder outTop = PropertyValuesHolder.ofInt(&quot;top&quot;, 0, 0);</span><br><span class="line">    PropertyValuesHolder pvhTranslationYDis = PropertyValuesHolder</span><br><span class="line">            .ofFloat(&quot;translationX&quot;, 0, -150, 0);</span><br><span class="line">    ObjectAnimator changeDisAppearAnim = ObjectAnimator</span><br><span class="line">            .ofPropertyValuesHolder(mContainer, outLeft, outTop, pvhTranslationYDis)</span><br><span class="line">            .setDuration(transition.getDuration(LayoutTransition.CHANGE_DISAPPEARING));</span><br><span class="line">    transition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, changeDisAppearAnim);</span><br><span class="line"></span><br><span class="line">    mContainer.setLayoutTransition(transition);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 添加子View到第0个位置</span><br><span class="line">public void addData(View view) &#123;</span><br><span class="line">    View child = LayoutInflater.from(this)</span><br><span class="line">            .inflate(R.layout.item, mContainer, false);</span><br><span class="line">    mContainer.addView(child, 0);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 移除第0个子View</span><br><span class="line">public void deleteData(View view) &#123;</span><br><span class="line">    if (mContainer.getChildCount() != 0) mContainer.removeViewAt(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在使用<code>PropertyValuesHolder</code>时，需要注意一下几点：<br>1.<code>LayoutTransition.CHANGE_APPEARING</code>和<code>LayoutTransition.CHANGE_DISAPPEARING</code>必须使用<code>PropertyValuesHolder</code>构造动画才会有效果，其他任何方式构造动画都不会有效果。<br>2.在使用<code>PropertyValuesHolder</code>时，<code>”left”</code>、<code>”top”</code>属性就算不需要变化也必须要写，如果不需要变化可以写成：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PropertyValuesHolder pvhLeft = PropertyValuesHolder.ofInt(&quot;left&quot;, 0, 0);</span><br><span class="line">PropertyValuesHolder pvhTop = PropertyValuesHolder.ofInt(&quot;top&quot;, 0, 0);</span><br></pre></td></tr></table></figure></p>
+<p>3.<code>ofInt</code>，<code>ofFloat</code>中的参数值，第一个值和最后一个值必须相同，不然此属性所对应的的动画将被放弃，在此属性值上将不会有效果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PropertyValuesHolder pvhTranslationY = PropertyValuesHolder</span><br><span class="line">            .ofFloat(&quot;translationX&quot;, 0, 150, 0);</span><br></pre></td></tr></table></figure></p>
+<p>4.使用的<code>ofInt</code>，<code>ofFloat</code>中，如果所有参数值都相同，也将不会有动画效果。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PropertyValuesHolder pvhTop = PropertyValuesHolder.ofInt(&quot;top&quot;, 0, 0);</span><br></pre></td></tr></table></figure></p>
+<p>动画的参数全部相同，left这个属性的动画不会有任何效果。</p>
+<p>说明：关于<code>PropertyValuesHolder</code>几个注意点参考自文章<a href="http://blog.csdn.net/xuefu_78/article/details/52449749" target="_blank" rel="noopener"><a href="http://blog.csdn.net/xuefu_78/article/details/52449749" target="_blank" rel="noopener">animateLayoutChanges与LayoutTransition</a></a>。<br><img src="http://upload-images.jianshu.io/upload_images/1801191-eeafc5d795f256d8.gif?imageMogr2/auto-orient/strip" alt="自定义动画样式配置LayoutTransition效果"></p>
+<hr>
+<h4 id="转场动画"><a href="#转场动画" class="headerlink" title="转场动画"></a>转场动画</h4><h5 id="Android-5-0之前转场动画"><a href="#Android-5-0之前转场动画" class="headerlink" title="Android 5.0之前转场动画"></a>Android 5.0之前转场动画</h5><p>在Android 5.0以前实现转场动画是通过补间动画来实现，通常是在<code>Activity</code>中是<code>overridePendingTransition(int enterAnim, int exitAnim)</code>方法。<br><code>enterAnim</code>和<code>exitAnim</code>两个参数对应的是两个View动画：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">    super.onCreate(savedInstanceState);</span><br><span class="line">    setContentView(R.layout.activity_anim);</span><br><span class="line">    setStartActivityAnim();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void setStartActivityAnim() &#123;</span><br><span class="line">    overridePendingTransition(R.anim.activity_right_in, R.anim.activity_left_out);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>入场动画<code>activity_right_in.xml</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br><span class="line">&lt;translate</span><br><span class="line">    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:duration=&quot;300&quot;</span><br><span class="line">    android:fromXDelta=&quot;100%p&quot;</span><br><span class="line">    android:toXDelta=&quot;0&quot;/&gt;</span><br></pre></td></tr></table></figure></p>
+<p>出场动画<code>activity_left_out.xml</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br><span class="line">&lt;translate</span><br><span class="line">    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:duration=&quot;300&quot;</span><br><span class="line">    android:fromXDelta=&quot;0&quot;</span><br><span class="line">    android:toXDelta=&quot;-100%p&quot;/&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在<code>Activity</code>的<code>onCreate</code>中调用<code>overridePendingTransition</code>方法只对主动启动<code>Activity</code>有效，如果我们返回上一个<code>Activity</code>也需要同样的转场动画，就需要在<code>finish</code>方法也添加上这个方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void finish() &#123;</span><br><span class="line">    super.finish();</span><br><span class="line">    setEndActivityAnim();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void setEndActivityAnim() &#123;</span><br><span class="line">    overridePendingTransition(R.anim.activity_left_in, R.anim.activity_right_out);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>finish</code>时入场动画<code>activity_left_in.xml</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br><span class="line">&lt;translate</span><br><span class="line">    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:duration=&quot;300&quot;</span><br><span class="line">    android:fromXDelta=&quot;-100%p&quot;</span><br><span class="line">    android:toXDelta=&quot;0&quot;/&gt;</span><br></pre></td></tr></table></figure></p>
+<p><code>finish</code>时出场动画<code>activity_right_out.xml</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span><br><span class="line">&lt;translate</span><br><span class="line">    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:duration=&quot;300&quot;</span><br><span class="line">    android:fromXDelta=&quot;0&quot;</span><br><span class="line">    android:toXDelta=&quot;100%p&quot;/&gt;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-b1d765a1c5381600.gif?imageMogr2/auto-orient/strip" alt="Android 5.0前转场动画效果"></p>
+<h5 id="Android-5-0之后转场动画-Activity-Transition"><a href="#Android-5-0之后转场动画-Activity-Transition" class="headerlink" title="Android 5.0之后转场动画 Activity Transition"></a>Android 5.0之后转场动画 Activity Transition</h5><p>Android 5.0之后，谷歌引入了 Activity Transition 来实现交互更加友好的转场动画效果。</p>
+<blockquote>
+<p><strong>Tansition的类型共有三种：</strong><br>进入 —— 决定Activity中的所有视图怎么进入屏幕<br>退出 —— 决定Activity中的所有视图怎么退出屏幕<br>共享元素 —— 决定两个Activity之间的过渡时怎么共享它们的视图</p>
+<p><strong>进入和退出包含如下动画效果：</strong><br>explode(分解) —— 从屏幕中间进或出<br>slide(滑动) —— 从屏幕边缘进或出地<br>fade(淡出) —— 改变屏幕上视图的不透明度实现添加或移除视图的效果</p>
+<p><strong>共享元素包含如下动画效果：</strong><br>changeBounds —— 改变目标视图的布局边界<br>changeClipBounds —— 裁剪目标视图边界<br>changeTransform —— 改变目标视图的缩放比例和旋转角度<br>changeImageTransform —— 改变目标图片的大小和缩放比例</p>
+</blockquote>
+<p>说明：Tansition分类及动画效果说明参考<a href="https://item.jd.com/11758334.html" target="_blank" rel="noopener">《Android群英传》</a></p>
+<p>先来看下<code>Explode</code>（分解）、<code>Slide</code>（滑动）、<code>Fade</code>（淡出）三种转场动画的使用。</p>
+<p>第一个<code>Activity</code>中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public void explode(View view) &#123;</span><br><span class="line">    Intent intent = new Intent(this, NextTransitionActivity.class);</span><br><span class="line">    intent.putExtra(&quot;flag&quot;, &quot;explode&quot;);</span><br><span class="line">    startActivity(intent,</span><br><span class="line">            ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void slide(View view) &#123;</span><br><span class="line">    Intent intent = new Intent(this, NextTransitionActivity.class);</span><br><span class="line">    intent.putExtra(&quot;flag&quot;, &quot;slide&quot;);</span><br><span class="line">    startActivity(intent,</span><br><span class="line">            ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void fade(View view) &#123;</span><br><span class="line">    Intent intent = new Intent(this, NextTransitionActivity.class);</span><br><span class="line">    intent.putExtra(&quot;flag&quot;, &quot;fade&quot;);</span><br><span class="line">    startActivity(intent,</span><br><span class="line">            ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>启动的第二个<code>Activity</code>中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">    super.onCreate(savedInstanceState);</span><br><span class="line">    getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);</span><br><span class="line">    switch (getIntent().getStringExtra(&quot;flag&quot;)) &#123;</span><br><span class="line">        case &quot;explode&quot;:</span><br><span class="line">            getWindow().setEnterTransition(new Explode());</span><br><span class="line">            getWindow().setExitTransition(new Explode());</span><br><span class="line">            break;</span><br><span class="line">        case &quot;slide&quot;:</span><br><span class="line">            getWindow().setEnterTransition(new Slide());</span><br><span class="line">            getWindow().setExitTransition(new Slide());</span><br><span class="line">            break;</span><br><span class="line">        case &quot;fade&quot;:</span><br><span class="line">            getWindow().setEnterTransition(new Fade());</span><br><span class="line">            getWindow().setExitTransition(new Fade());</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">    setContentView(R.layout.activity_next_transition);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在第二个<code>Activity</code>中可以通过在style中配置<code>&lt;item name=&quot;android:windowContentTransitions&quot;&gt;true&lt;/item&gt;</code><br>就不需要调用<code>getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)</code>。<br><img src="//upload-images.jianshu.io/upload_images/1801191-9377a27bf8457a40.gif" alt=""><br>共享元素转场动画，使用也比较简单：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onItemClick(AdapterView&lt;?&gt; parent, View view, int position, long id) &#123;</span><br><span class="line">    TransitionAdapter.TransitionViewHolder holder = (TransitionAdapter.TransitionViewHolder) view.getTag();</span><br><span class="line">    View shareViewImg = holder.civImg;</span><br><span class="line">    View shareViewName = holder.tvName;</span><br><span class="line">    Intent intent = new Intent(this, NextTransitionActivity.class);</span><br><span class="line">    intent.putExtra(&quot;flag&quot;, &quot;share&quot;);</span><br><span class="line">    startActivity(intent, ActivityOptionsCompat</span><br><span class="line">            .makeSceneTransitionAnimation(this,</span><br><span class="line">                    Pair.create(shareViewImg, &quot;shareView_img&quot;),</span><br><span class="line">                    Pair.create(shareViewName, &quot;shareView_name&quot;))</span><br><span class="line">            .toBundle());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里使用<code>ListView</code>实现一个列表，列表中的头像和名字作为共享元素。在<code>ListView</code>的<code>item</code>的布局以及第二个启动的<code>Activity</code>的布局中，被共享的<code>View</code>都需要在布局文件中添加上相同<code>android:transitionName</code>属性，当然也可以在Java代码中通过<code>ViewCompat.setTransitionName(View view, String transitionName)</code>方法来设置共享<code>View</code>的<code>transitionName</code>。<br>我们给头像和名称分别指定<code>android:transitionName=&quot;shareView_img&quot;</code>和<code>android:transitionName=&quot;shareView_name&quot;</code>。<br>点击<code>item</code>后启动目标<code>Activity</code>时，指定的<code>options</code>参数为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ActivityOptionsCompat.makeSceneTransitionAnimation(this,</span><br><span class="line">        Pair.create(shareViewImg,&quot;shareView_img&quot;),</span><br><span class="line">        Pair.create(shareViewName, &quot;shareView_name&quot;))</span><br><span class="line">.toBundle());</span><br></pre></td></tr></table></figure></p>
+<p>通过<code>options</code>参数，可以利用<code>Pair</code>构造多个共享元素，但是共享元素<code>View</code>的共享名称<code>transitionName</code>必须一一对应。<br><img src="http://upload-images.jianshu.io/upload_images/1801191-30545fbee6c38a0e.gif?imageMogr2/auto-orient/strip" alt="共享元素转场动画效果"></p>
+<hr>
+<p>源码：<a href="https://github.com/xiaoyanger0825/AnimationSummary" target="_blank" rel="noopener">https://github.com/xiaoyanger0825/AnimationSummary</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/动画/" rel="tag"># 动画</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/17/Android实现底部对话框BottomDialog/" rel="next" title="Android实现底部对话框BottomDialog">
+                <i class="fa fa-chevron-left"></i> Android实现底部对话框BottomDialog
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/11/Android内存优化——概述/" rel="prev" title="Android内存优化——概述">
+                Android内存优化——概述 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#布局动画"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5E03;&#x5C40;&#x52A8;&#x753B;" class="headerlink" title="&#x5E03;&#x5C40;&#x52A8;&#x753B;"></a>&#x5E03;&#x5C40;&#x52A8;&#x753B;</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#LayoutAnimation"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#LayoutAnimation" class="headerlink" title="LayoutAnimation"></a>LayoutAnimation</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#通过Java代码来定义LayoutAnimation"><span class="nav-number">1.1.1.</span> <span class="nav-text"><a href="#&#x901A;&#x8FC7;Java&#x4EE3;&#x7801;&#x6765;&#x5B9A;&#x4E49;LayoutAnimation" class="headerlink" title="&#x901A;&#x8FC7;Java&#x4EE3;&#x7801;&#x6765;&#x5B9A;&#x4E49;LayoutAnimation"></a>&#x901A;&#x8FC7;Java&#x4EE3;&#x7801;&#x6765;&#x5B9A;&#x4E49;LayoutAnimation</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#通过Xml代码来定义LayoutAnimation："><span class="nav-number">1.1.2.</span> <span class="nav-text"><a href="#&#x901A;&#x8FC7;Xml&#x4EE3;&#x7801;&#x6765;&#x5B9A;&#x4E49;LayoutAnimation&#xFF1A;" class="headerlink" title="&#x901A;&#x8FC7;Xml&#x4EE3;&#x7801;&#x6765;&#x5B9A;&#x4E49;LayoutAnimation&#xFF1A;"></a>&#x901A;&#x8FC7;Xml&#x4EE3;&#x7801;&#x6765;&#x5B9A;&#x4E49;LayoutAnimation&#xFF1A;</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LayoutTransition"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#LayoutTransition" class="headerlink" title="LayoutTransition"></a>LayoutTransition</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#使用默认的动画样式"><span class="nav-number">1.2.1.</span> <span class="nav-text"><a href="#&#x4F7F;&#x7528;&#x9ED8;&#x8BA4;&#x7684;&#x52A8;&#x753B;&#x6837;&#x5F0F;" class="headerlink" title="&#x4F7F;&#x7528;&#x9ED8;&#x8BA4;&#x7684;&#x52A8;&#x753B;&#x6837;&#x5F0F;"></a>&#x4F7F;&#x7528;&#x9ED8;&#x8BA4;&#x7684;&#x52A8;&#x753B;&#x6837;&#x5F0F;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#使用自定义动画样式"><span class="nav-number">1.2.2.</span> <span class="nav-text"><a href="#&#x4F7F;&#x7528;&#x81EA;&#x5B9A;&#x4E49;&#x52A8;&#x753B;&#x6837;&#x5F0F;" class="headerlink" title="&#x4F7F;&#x7528;&#x81EA;&#x5B9A;&#x4E49;&#x52A8;&#x753B;&#x6837;&#x5F0F;"></a>&#x4F7F;&#x7528;&#x81EA;&#x5B9A;&#x4E49;&#x52A8;&#x753B;&#x6837;&#x5F0F;</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#转场动画"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8F6C;&#x573A;&#x52A8;&#x753B;" class="headerlink" title="&#x8F6C;&#x573A;&#x52A8;&#x753B;"></a>&#x8F6C;&#x573A;&#x52A8;&#x753B;</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Android-5-0之前转场动画"><span class="nav-number">2.1.</span> <span class="nav-text"><a href="#Android-5-0&#x4E4B;&#x524D;&#x8F6C;&#x573A;&#x52A8;&#x753B;" class="headerlink" title="Android 5.0&#x4E4B;&#x524D;&#x8F6C;&#x573A;&#x52A8;&#x753B;"></a>Android 5.0&#x4E4B;&#x524D;&#x8F6C;&#x573A;&#x52A8;&#x753B;</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Android-5-0之后转场动画-Activity-Transition"><span class="nav-number">2.2.</span> <span class="nav-text"><a href="#Android-5-0&#x4E4B;&#x540E;&#x8F6C;&#x573A;&#x52A8;&#x753B;-Activity-Transition" class="headerlink" title="Android 5.0&#x4E4B;&#x540E;&#x8F6C;&#x573A;&#x52A8;&#x753B; Activity Transition"></a>Android 5.0&#x4E4B;&#x540E;&#x8F6C;&#x573A;&#x52A8;&#x753B; Activity Transition</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

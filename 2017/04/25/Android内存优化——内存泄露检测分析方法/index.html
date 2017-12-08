@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="内存泄露," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇文章总结了一些常见的内存泄露场景及优化方案，这篇文章继续总结内存泄露的一些常用的检测和分析方法。 Lint代码检查AndroidStudio自动Lint代码检查工具，一些常见的代码警告Lint工具都会给我们提示。使用也比较简单： Analyze —&amp;gt; Inspect Code 然后选择检查范围：    比如如果存在非静态内部类的Handler，可能会导致内存泄露，检查结果就会显示在An">
+<meta name="keywords" content="内存泄露">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android内存优化——内存泄露检测分析方法">
+<meta property="og:url" content="http://yoursite.com/2017/04/25/Android内存优化——内存泄露检测分析方法/index.html">
+<meta property="og:site_name" content="xiaoyanger0825">
+<meta property="og:description" content="上一篇文章总结了一些常见的内存泄露场景及优化方案，这篇文章继续总结内存泄露的一些常用的检测和分析方法。 Lint代码检查AndroidStudio自动Lint代码检查工具，一些常见的代码警告Lint工具都会给我们提示。使用也比较简单： Analyze —&amp;gt; Inspect Code 然后选择检查范围：    比如如果存在非静态内部类的Handler，可能会导致内存泄露，检查结果就会显示在An">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-bc223bbbdf6ab2af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-81edacec4a087dea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-1eb6b990be21eaf9.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-99a98b44e3a0d66f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-d27989516257bf48.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-3de57143897ccbec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-fc4b9fdcb361aabd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-b56a5fd91ae3ff96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-55e08f111e30a361.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-9712bf17dd12d5a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-98de246ca5bbe888.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-f3b3adfbd89c6ee7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-0fce4cddd18749e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-fef276943a7e358a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-8bcf65fad8f9b3f6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-948d449f47593e61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-3352c6ff39918b00.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-12-08T03:13:31.973Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android内存优化——内存泄露检测分析方法">
+<meta name="twitter:description" content="上一篇文章总结了一些常见的内存泄露场景及优化方案，这篇文章继续总结内存泄露的一些常用的检测和分析方法。 Lint代码检查AndroidStudio自动Lint代码检查工具，一些常见的代码警告Lint工具都会给我们提示。使用也比较简单： Analyze —&amp;gt; Inspect Code 然后选择检查范围：    比如如果存在非静态内部类的Handler，可能会导致内存泄露，检查结果就会显示在An">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-bc223bbbdf6ab2af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/25/Android内存优化——内存泄露检测分析方法/"/>
+
+
+
+
+
+  <title>Android内存优化——内存泄露检测分析方法 | xiaoyanger0825</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaoyanger0825</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/25/Android内存优化——内存泄露检测分析方法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaoyanger0825">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoyanger0825">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android内存优化——内存泄露检测分析方法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-25T10:55:21+08:00">
+                2017-04-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇文章总结了一些<a href="http://www.jianshu.com/p/ab4a7e353076" target="_blank" rel="noopener">常见的内存泄露场景及优化方案</a>，这篇文章继续总结内存泄露的一些常用的检测和分析方法。</p>
+<h6 id="Lint代码检查"><a href="#Lint代码检查" class="headerlink" title="Lint代码检查"></a>Lint代码检查</h6><p>AndroidStudio自动Lint代码检查工具，一些常见的代码警告Lint工具都会给我们提示。使用也比较简单：</p>
+<p>Analyze —&gt; Inspect Code 然后选择检查范围：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-bc223bbbdf6ab2af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Lint使用-1"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-81edacec4a087dea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Lint使用-2"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-1eb6b990be21eaf9.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Lint使用-3"></p>
+<p>比如如果存在非静态内部类的Handler，可能会导致内存泄露，检查结果就会显示在AndroidStudio的控制台。</p>
+<p>其实，只要我们在设置里面勾选了Lint代码检查（AnroidStudio默认是勾选了的），在写代码的时候就会自动提示可能发生内存泄露。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-99a98b44e3a0d66f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Lint检查代码内存泄露"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-d27989516257bf48.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Lint提示内存泄露"></p>
+<p>通常在写Handler、静态字段、标记对象等可能存在的内存泄露时，Lint检查工具都会有一个警告提示信息，我们可以根据Lint检查的提示信息来避免这些有可能发生的内存泄露。</p>
+<h6 id="Android-Monitor"><a href="#Android-Monitor" class="headerlink" title="Android Monitor"></a>Android Monitor</h6><p>在AndroidStudio中，可以通过Monitors来监控Memory、CPU、Network、GPU等。在Monitors监控中，我们可以获取内存的各种信息来分析内存泄露。</p>
+<p>首先运行工程后，打开控制台的Android Monitor：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-3de57143897ccbec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Android Monitor"></p>
+<p>在运行设备中使用app（各个页面的跳转，使用相应的各种功能），就可以看到内存使用的不断变化：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-fc4b9fdcb361aabd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="内存使用变化"></p>
+<p>淡蓝色和浅灰色区域就是内存分配的变化过程，浅灰色表示空闲内存，淡蓝色表示使用内存。</p>
+<p>通常，我们在打开一个新的页面后，使用的内存就会增加，相应的，关闭一个页面后，系统执行了GC，使用的内存应该下降。如果我们在退出界面并执行GC后，内存使用并未下降明显，或者使用内存没有下降初始的使用大小，那么有可能就发生了内存泄露。</p>
+<p>运行工程，在设备上操作app，观察Monitor中内存的变化，点击 initiate GC 触发GC，然后点击Dump Java Heap转出堆信息，稍等片刻，生成hprof文件，生成后会在Studio中自动打开。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-b56a5fd91ae3ff96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="hprof文件"></p>
+<p>点击右侧的Analyzer Tasks，再点击Perform Analyzer，展开下面分析结果<br>中的 Leaked Activities 就可以看到发生内存泄露的Activity了。<br><img src="http://upload-images.jianshu.io/upload_images/1801191-55e08f111e30a361.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Monitor内存泄露分析"></p>
+<p>可以根据左侧的引用树，来查找持有Activity引用的位置，从而判断出哪个地方导致了内存泄露。</p>
+<h6 id="Mat"><a href="#Mat" class="headerlink" title="Mat"></a>Mat</h6><p>使用第三方的Mat工具来分析内存泄露，需要在<a href="http://www.eclipse.org/mat/downloads.php" target="_blank" rel="noopener">官网下载</a>独立版的Mat。</p>
+<p>将Android Monitor生成的hprof文件导出为标准的hprof文件（必须这样导出，直接copy出来会报错的）：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-9712bf17dd12d5a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="导出hprof文件"></p>
+<p>使用Mat打开导出的hprof文件：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-98de246ca5bbe888.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Mat打开hprof文件"></p>
+<p>点击Histogram（直方图），可以看到类对应的实例数量的统计。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-f3b3adfbd89c6ee7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="直方图"></p>
+<p>在Class Name下面输入需要匹配的类名，根据类来查看它的实例的引用，进而分析是否存在内存泄露。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-0fce4cddd18749e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="类的实例"></p>
+<p>可以看到TestActivity和MyHandler都只有一个实例被引用。</p>
+<p>TestActivity点击右键—&gt;Merge Shortest Paths to GC Roots —&gt;exclude all phantom/weak/soft etc.references。</p>
+<blockquote>
+<p>Merge Shortest Paths to GC Roots 可以查看一个对象到RC  Roots是否存在引用链相连接， 在JAVA中是通过可达性（Reachability Analysis)来判断对象是否存活，这个算法的基本思想是通过一系列的称谓”GC Roots”的对象作为起始点，从这些节点开始向下搜索，搜索所走得路径称为引用链，当一个对象到GC Roots没有任何引用链相连则该对象被判定为可以被回收的对象，反之不能被回收，我们可以选择 exclude all phantom/weak/soft etc.references(排查虚引用/弱引用/软引用等）因为被虚引用/弱引用/软引用的对象可以直接被GC给回收。</p>
+</blockquote>
+<p>参考自<a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0309/2565.html" target="_blank" rel="noopener">Android 性能优化之使用MAT分析内存泄露问题</a>。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-fef276943a7e358a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="TestActivity实例 RC Roots引用链"></p>
+<p>可以看到TestActivity实例存在GC Roots链，TextActivity实例被mMessageQueue.mMessae.target.this$0持有，那么发生了内存泄露，我们可以根据引用链来在代码中找到内存泄露的位置。</p>
+<h6 id="LeakCanary"><a href="#LeakCanary" class="headerlink" title="LeakCanary"></a>LeakCanary</h6><p>LeakCanary是<a href="https://github.com/square" target="_blank" rel="noopener">square</a>开源的检测内存泄露的第三方库。它最大的有点就是开发者只需要添加简单代码，app在运行时如果发生了内存泄露，就会很直观的将内存泄露的详细信息展示在通知栏上，这样避免了Android Monitor或者Mat等工具的繁琐的分析过程。</p>
+<p>项目地址：<a href="https://github.com/square/leakcanary" target="_blank" rel="noopener">https://github.com/square/leakcanary</a></p>
+<p>在Gradle文件中添加依赖：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">  debugCompile &apos;com.squareup.leakcanary:leakcanary-android:1.5&apos;</span><br><span class="line">  releaseCompile &apos;com.squareup.leakcanary:leakcanary-android-no-op:1.5&apos;</span><br><span class="line">  testCompile &apos;com.squareup.leakcanary:leakcanary-android-no-op:1.5&apos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在入口的Application中进行初始化：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class App extends Application &#123;</span><br><span class="line"></span><br><span class="line">    // 模拟内存泄露场景</span><br><span class="line">    public static ArrayList&lt;Activity&gt; sActivities = new ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onCreate() &#123;</span><br><span class="line">        super.onCreate();</span><br><span class="line">        if (LeakCanary.isInAnalyzerProcess(this)) &#123;</span><br><span class="line">            // This process is dedicated to LeakCanary for heap analysis.</span><br><span class="line">            // You should not init your app in this process.</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        LeakCanary.install(this);</span><br><span class="line">        // Normal app init code...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在Application中新建一个静态List，里面存储Activity，来模拟内存泄露案例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class TestActivity extends AppCompatActivity &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_test);</span><br><span class="line">        App.sActivities.add(this);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void back(View view) &#123;</span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行app后，在控制台可以看到LeakCanary的日志：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br></pre></td><td class="code"><pre><span class="line">04-25 10:20:46.793 D/LeakCanary: In com.xiao.memoryleakexample:1.0:1.</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * com.xiao.memoryleakexample.TestActivity has leaked:</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * GC ROOT static com.xiao.memoryleakexample.app.App.sActivities</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * references java.util.ArrayList.array</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * references array java.lang.Object[].[0]</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * leaks com.xiao.memoryleakexample.TestActivity instance</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Retaining: 88 KB.</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Reference Key: 915bf11a-db9f-468e-8064-d6fb103710e9</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Device: OPPO OPPO OPPO R9 Plusm A R9PlusmA</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Android Version: 5.1.1 API: 22 LeakCanary: 1.5 00f37f5</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Durations: watch=5049ms, gc=207ms, heap dump=979ms, analysis=122889ms</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Details:</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Class com.xiao.memoryleakexample.app.App</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static $staticOverhead = byte[24]@314667009 (0x12c17001)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static sActivities = java.util.ArrayList@315492800 (0x12ce09c0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static serialVersionUID = -920324649544707127</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static $change = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Instance of java.util.ArrayList</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static $staticOverhead = byte[16]@1893824473 (0x70e177d9)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static MIN_CAPACITY_INCREMENT = 12</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static serialVersionUID = 8683452581122892189</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   array = java.lang.Object[12]@318048768 (0x12f50a00)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   size = 1</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   modCount = 1</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Array of java.lang.Object[]</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [0] = com.xiao.memoryleakexample.TestActivity@316091520 (0x12d72c80)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [1] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [2] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [3] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [4] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [5] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [6] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [7] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [8] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [9] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [10] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   [11] = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: * Instance of com.xiao.memoryleakexample.TestActivity</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static $staticOverhead = byte[16]@316125185 (0x12d7b001)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static serialVersionUID = 836998863274086997</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   static $change = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mHandler = com.xiao.memoryleakexample.TestActivity$MyHandler@318005952 (0x12f462c0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mDelegate = android.support.v7.app.AppCompatDelegateImplV14@314816320 (0x12c3b740)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mEatKeyUpEvent = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mResources = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mThemeId = 2131230884</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mCreated = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mFragments = android.support.v4.app.FragmentController@317876896 (0x12f26aa0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mHandler = android.support.v4.app.FragmentActivity$1@318005920 (0x12f462a0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mNextCandidateRequestIndex = 0</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mOptionsMenuInvalidated = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mPendingFragmentActivityResults = android.support.v4.util.SparseArrayCompat@318008352 (0x12f46c20)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mReallyStopped = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mRequestedPermissionsFromFragment = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mResumed = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mRetaining = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mStopped = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mStartedActivityFromFragment = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mStartedIntentSenderFromFragment = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mExtraDataMap = android.support.v4.util.SimpleArrayMap@318005888 (0x12f46280)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mActionBar = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mActivityInfo = android.content.pm.ActivityInfo@318009472 (0x12f47080)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mActivityTransitionState = android.app.ActivityTransitionState@317937344 (0x12f356c0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mAllLoaderManagers = android.util.ArrayMap@318081312 (0x12f58920)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mApplication = com.xiao.memoryleakexample.app.App@315492832 (0x12ce09e0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mCalled = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mChangeCanvasToTranslucent = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mChangingConfigurations = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mCheckedForLoaderManager = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mComponent = android.content.ComponentName@314990768 (0x12c660b0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mConfigChangeFlags = 0</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mContainer = android.app.Activity$1@317876848 (0x12f26a70)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mCurrentConfig = android.content.res.Configuration@317856672 (0x12f21ba0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mDecor = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mDefaultKeyMode = 0</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mDefaultKeySsb = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mDestroyed = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mDoReportFullyDrawn = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mEmbeddedID = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mEnableDefaultActionBarUp = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mEnterTransitionListener = android.app.SharedElementCallback$1@1893595344 (0x70ddf8d0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mExitTransitionListener = android.app.SharedElementCallback$1@1893595344 (0x70ddf8d0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mFinished = true</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mFragments = android.app.FragmentManagerImpl@317856448 (0x12f21ac0)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mHandler = android.os.Handler@318005856 (0x12f46260)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mIdent = 578025123</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mInstanceTracker = android.os.StrictMode$InstanceTracker@317876864 (0x12f26a80)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mInstrumentation = android.app.Instrumentation@315352176 (0x12cbe470)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mIntent = android.content.Intent@317362304 (0x12ea9080)</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mLastNonConfigurationInstances = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mLoaderManager = null</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mLoadersStarted = false</span><br><span class="line">04-25 10:20:46.793 D/LeakCanary: |   mMainThread = android.app.ActivityThread@314856000 (0x12c45240)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mManagedCursors = java.util.ArrayList@318005792 (0x12f46220)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mManagedDialogs = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mMenuInflater = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mParent = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mReferrer = java.lang.String@314984512 (0x12c64840)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mResultCode = 0</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mResultData = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mResumed = false</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mSearchManager = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mStartedActivity = false</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mStopped = true</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mTemporaryPause = false</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mTitle = java.lang.String@316164352 (0x12d84900)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mTitleColor = 0</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mTitleReady = true</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mToken = android.os.BinderProxy@314983040 (0x12c64280)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mTranslucentCallback = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mUiThread = java.lang.Thread@1967775656 (0x7549dfa8)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mVisibleBehind = false</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mVisibleFromClient = true</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mVisibleFromServer = true</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mVoiceInteractor = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mWindow = com.android.internal.policy.impl.PhoneWindow@315631936 (0x12d02940)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mWindowAdded = true</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mWindowManager = android.view.WindowManagerImpl@318006848 (0x12f46640)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mInflater = com.android.internal.policy.impl.PhoneLayoutInflater@317929312 (0x12f33760)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mOverrideConfiguration = null</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mResources = android.content.res.Resources@314591360 (0x12c04880)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mTheme = android.content.res.Resources$Theme@318006400 (0x12f46480)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mThemeResource = 2131230884</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: |   mBase = android.app.ContextImpl@317145792 (0x12e742c0)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: * Excluded Refs:</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.view.inputmethod.InputMethodManager.mNextServedView</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.view.inputmethod.InputMethodManager.mServedView</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.view.inputmethod.InputMethodManager.mServedInputConnection</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.view.inputmethod.InputMethodManager.mCurRootView</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.animation.LayoutTransition$1.val$parent</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.view.textservice.SpellCheckerSession$1.this$0</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.support.v7.internal.widget.ActivityChooserModel.mActivityChoserModelPolicy</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.widget.ActivityChooserModel.mActivityChoserModelPolicy</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.accounts.AccountManager$AmsTask$Response.this$1</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.media.MediaScannerConnection.mContext</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.os.UserManager.mContext</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.media.AudioManager$1.this$0</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.widget.Editor$Blink.this$0</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.net.ConnectivityManager.sInstance</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Field: android.view.Choreographer$FrameDisplayEventReceiver.mMessageQueue (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Static field: android.text.TextLine.sCached</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Thread:FinalizerWatchdogDaemon (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Thread:main (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Thread:LeakCanary-Heap-Dump (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Class:java.lang.ref.WeakReference (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Class:java.lang.ref.SoftReference (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Class:java.lang.ref.PhantomReference (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Class:java.lang.ref.Finalizer (always)</span><br><span class="line">04-25 10:20:46.803 D/LeakCanary: | Class:java.lang.ref.FinalizerReference (always)</span><br></pre></td></tr></table></figure></p>
+<p>日志当中展示了详细的内存泄露信息。同时，在运行设备上，会以通知的形式展示内存泄露：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-8bcf65fad8f9b3f6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="LeakCanary内存泄露通知"></p>
+<p>点击通知栏后会展示消息的内存泄露信息，包括泄露的具体实例、以及发生在哪个类中的具体引用位置：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-948d449f47593e61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="LeakCanary内存泄露详细信息-1"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1801191-3352c6ff39918b00.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="LeakCanary内存泄露详细信息-2"></p>
+<h6 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h6><p>Lint、Android Monitor、Mat，以及LeakCanary都能让我们在平常的开发过程中非常有效的避免内存泄露，至于选择哪个工具，那种方式，就看自己平常的习惯了。个人还是更喜欢使用LeakCanary，只需要简单的集成，就可以更加快速，直观展示内存泄露的信息。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/内存泄露/" rel="tag"># 内存泄露</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/13/Android内存优化——常见内存泄露及优化方案/" rel="next" title="Android内存优化——常见内存泄露及优化方案">
+                <i class="fa fa-chevron-left"></i> Android内存优化——常见内存泄露及优化方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/11/EventBus封装/" rel="prev" title="EventBus封装">
+                EventBus封装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="xiaoyanger0825" />
+            
+              <p class="site-author-name" itemprop="name">xiaoyanger0825</p>
+              <p class="site-description motion-element" itemprop="description">喜欢NBA的Android码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/xiaoyanger0825" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="xiaojianjun0825@aliyun.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#Lint代码检查"><span class="nav-number">1.</span> <span class="nav-text"><a href="#Lint&#x4EE3;&#x7801;&#x68C0;&#x67E5;" class="headerlink" title="Lint&#x4EE3;&#x7801;&#x68C0;&#x67E5;"></a>Lint&#x4EE3;&#x7801;&#x68C0;&#x67E5;</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Android-Monitor"><span class="nav-number">2.</span> <span class="nav-text"><a href="#Android-Monitor" class="headerlink" title="Android Monitor"></a>Android Monitor</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Mat"><span class="nav-number">3.</span> <span class="nav-text"><a href="#Mat" class="headerlink" title="Mat"></a>Mat</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#LeakCanary"><span class="nav-number">4.</span> <span class="nav-text"><a href="#LeakCanary" class="headerlink" title="LeakCanary"></a>LeakCanary</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#最后"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x6700;&#x540E;" class="headerlink" title="&#x6700;&#x540E;"></a>&#x6700;&#x540E;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaoyanger0825</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
