@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="React-Native," />
+  <meta name="keywords" content="抓包," />
 
 
 
@@ -79,25 +79,35 @@
 
 
 
-<meta name="description" content="flex，是flexible box的简称，意为弹性布局，在RN中是用来描述子组件在父组件中的对齐方式和相对位置，使其能够适应不同的屏幕，为界面布局带来更大的灵活性。 flex布局由flex container 和flex item组成。flex container分为主轴（main axis）和交叉轴（across axis）。主轴默认是竖直方向。  flexflex为弹性容器的属性，在css3">
-<meta name="keywords" content="React-Native">
+<meta name="description" content="Charles是一款非常实用的抓包工具。它通过电脑端代理，拦截网络请求和响应来实现数据包的抓取。支持http/https。 安装Charles需要Java环境，在安装之前确保已有配置Java运行环境。然后到官网下载Charles并安装。破解的话，可以使用网友提供的工具： Charles 在线破解。 设置打开Charles抓包工具：电脑端设置代理：Proxy —&amp;gt; Proxy Setting：">
+<meta name="keywords" content="抓包">
 <meta property="og:type" content="article">
-<meta property="og:title" content="React Native —— flex（弹性布局）">
-<meta property="og:url" content="http://yoursite.com/2017/07/10/React-Native-——-flex（弹性布局）/index.html">
+<meta property="og:title" content="使用Charles抓取app数据包">
+<meta property="og:url" content="http://yoursite.com/2017/12/20/使用Charles抓取app数据包/index.html">
 <meta property="og:site_name" content="小样儿">
-<meta property="og:description" content="flex，是flexible box的简称，意为弹性布局，在RN中是用来描述子组件在父组件中的对齐方式和相对位置，使其能够适应不同的屏幕，为界面布局带来更大的灵活性。 flex布局由flex container 和flex item组成。flex container分为主轴（main axis）和交叉轴（across axis）。主轴默认是竖直方向。  flexflex为弹性容器的属性，在css3">
+<meta property="og:description" content="Charles是一款非常实用的抓包工具。它通过电脑端代理，拦截网络请求和响应来实现数据包的抓取。支持http/https。 安装Charles需要Java环境，在安装之前确保已有配置Java运行环境。然后到官网下载Charles并安装。破解的话，可以使用网友提供的工具： Charles 在线破解。 设置打开Charles抓包工具：电脑端设置代理：Proxy —&amp;gt; Proxy Setting：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-517b49c48be19b07.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-9a87feb9851eaffa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-0a6619ed589c1b23.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-7f96e13f4583ffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-724ea62db55c6aea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1801191-c9028f76ba22edb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-12-08T02:52:06.827Z">
+<meta property="og:image" content="https://i.imgur.com/6s0i6lQ.png">
+<meta property="og:image" content="https://i.imgur.com/pvsqxAo.png">
+<meta property="og:image" content="https://i.imgur.com/FPF1EXl.png">
+<meta property="og:image" content="https://i.imgur.com/KuVrvO7.png">
+<meta property="og:image" content="https://i.imgur.com/FY8MGKV.png">
+<meta property="og:image" content="https://i.imgur.com/iZuT861.png">
+<meta property="og:image" content="https://i.imgur.com/4UkPZp0.png">
+<meta property="og:image" content="https://i.imgur.com/b55ZY50.png">
+<meta property="og:image" content="https://i.imgur.com/SWq1r42.png">
+<meta property="og:image" content="https://i.imgur.com/eJQKMRJ.png">
+<meta property="og:image" content="https://i.imgur.com/Wfok0Ce.png">
+<meta property="og:image" content="https://i.imgur.com/T0brCzV.png">
+<meta property="og:image" content="https://i.imgur.com/Fbym9NC.png">
+<meta property="og:image" content="https://i.imgur.com/00PGG3a.png">
+<meta property="og:image" content="https://i.imgur.com/8crhley.png">
+<meta property="og:image" content="https://i.imgur.com/TMatYxg.png">
+<meta property="og:updated_time" content="2017-12-21T07:55:39.721Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="React Native —— flex（弹性布局）">
-<meta name="twitter:description" content="flex，是flexible box的简称，意为弹性布局，在RN中是用来描述子组件在父组件中的对齐方式和相对位置，使其能够适应不同的屏幕，为界面布局带来更大的灵活性。 flex布局由flex container 和flex item组成。flex container分为主轴（main axis）和交叉轴（across axis）。主轴默认是竖直方向。  flexflex为弹性容器的属性，在css3">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1801191-517b49c48be19b07.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="使用Charles抓取app数据包">
+<meta name="twitter:description" content="Charles是一款非常实用的抓包工具。它通过电脑端代理，拦截网络请求和响应来实现数据包的抓取。支持http/https。 安装Charles需要Java环境，在安装之前确保已有配置Java运行环境。然后到官网下载Charles并安装。破解的话，可以使用网友提供的工具： Charles 在线破解。 设置打开Charles抓包工具：电脑端设置代理：Proxy —&amp;gt; Proxy Setting：">
+<meta name="twitter:image" content="https://i.imgur.com/6s0i6lQ.png">
 
 
 
@@ -127,13 +137,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/07/10/React-Native-——-flex（弹性布局）/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/12/20/使用Charles抓取app数据包/"/>
 
 
 
 
 
-  <title>React Native —— flex（弹性布局） | 小样儿</title>
+  <title>使用Charles抓取app数据包 | 小样儿</title>
   
 
 
@@ -270,7 +280,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/10/React-Native-——-flex（弹性布局）/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/20/使用Charles抓取app数据包/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xiaoyanger0825">
@@ -287,7 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">React Native —— flex（弹性布局）</h1>
+          <h1 class="post-title" itemprop="name headline">使用Charles抓取app数据包</h1>
         
 
         <div class="post-meta">
@@ -299,8 +309,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-10T23:14:56+08:00">
-                2017-07-10
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-20T17:56:27+08:00">
+                2017-12-20
               </time>
             
 
@@ -322,8 +332,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/React-Native/" itemprop="url" rel="index">
-                    <span itemprop="name">React-Native</span>
+                  <a href="/categories/抓包工具/" itemprop="url" rel="index">
+                    <span itemprop="name">抓包工具</span>
                   </a>
                 </span>
 
@@ -359,63 +369,14 @@
       
 
       
-        <p>flex，是flexible box的简称，意为弹性布局，在RN中是用来描述子组件在父组件中的对齐方式和相对位置，使其能够适应不同的屏幕，为界面布局带来更大的灵活性。</p>
-<p>flex布局由flex container 和flex item组成。flex container分为主轴（main axis）和交叉轴（across axis）。主轴默认是竖直方向。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/1801191-517b49c48be19b07.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<h4 id="flex"><a href="#flex" class="headerlink" title="flex"></a>flex</h4><p>flex为弹性容器的属性，在css3中由flex-grow、flex-shrink、flex-basis三个属性组合起来，其中后面两个是可选参数。在RN中<code>flex</code>默认为<code>flexGrow</code>属性。</p>
-<ul>
-<li>flexGrow 元素主轴尺寸占当前容器主轴尺寸的比重，默认值为0。</li>
-</ul>
-<h4 id="flexDirection"><a href="#flexDirection" class="headerlink" title="flexDirection"></a>flexDirection</h4><p><code>flexDirection</code>属性为主轴方向，取值为<code>column</code>、<code>column-reverse</code>、<code>row</code>、<code>row-reverse</code>。默认值为<code>column</code>。</p>
-<ul>
-<li>column 竖直方向，起点在顶部，子组件从上到下排列。</li>
-<li>column-reverse 竖直方向，起点在底部，子组件从下到上排列。</li>
-<li>row 水平方向，起点在左侧，子组件从左到右排列。</li>
-<li>row-reverse 水平方向，起点在右侧，子组件从右到左排列。</li>
-</ul>
-<h4 id="flexWrap"><a href="#flexWrap" class="headerlink" title="flexWrap"></a>flexWrap</h4><p>flexWrap表示沿主轴方向放不下是否需要换行。取值为：<code>wrap</code>、<code>nowrap</code>，默认值为<code>wrap</code>。</p>
-<ul>
-<li>wrap 主轴方向放不下要换行。</li>
-<li>nowrap 主轴方向放不下不换行。</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/1801191-9a87feb9851eaffa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="flexWrap属性值对比图（其中`flexDirection: &#39;row&#39;`）"></p>
-<h4 id="justifyContent"><a href="#justifyContent" class="headerlink" title="justifyContent"></a>justifyContent</h4><p>justifyContent表示容器中的子组件在主轴方向上的对齐方式，取值为<code>flex-start</code>、<code>flex-end</code>、<code>center</code>、<code>space-between</code>、<code>space-around</code>，默认值为<code>flex-start</code>。</p>
-<ul>
-<li>flex-start 在主轴方向上和主轴的起点对齐。</li>
-<li>flex-end 在主轴方向上和主轴的终点对齐。</li>
-<li>center 在主轴方向上居中对齐。</li>
-<li>space-between 在主轴方向上两端对齐，每个item的间隔相等，第一个item和主轴起点、最后一个item和主轴终点没有间隔。</li>
-<li>space-around  在主轴方向上分散对齐，每个item的两边都有相同的间隔。主轴起点和终点与邻近的两个item的间隔只有中间item之间的间隔的一半。</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/1801191-0a6619ed589c1b23.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="justifyContent属性值对比图（其中`flexDirection: &#39;row&#39;`）"></p>
-<h4 id="alignItems"><a href="#alignItems" class="headerlink" title="alignItems"></a>alignItems</h4><p>alignItems表示容器中子组件在交叉轴方向上的对齐方式，取值为：<code>flex-start</code>、<code>flex-end</code>、<code>center</code>、<code>stretch</code>、<code>baseline</code>，默认值为<code>flex-start</code>。</p>
-<ul>
-<li>flex-start 在交叉轴方向上和交叉轴的起点对齐。</li>
-<li>flex-end 在交叉轴方向上和交叉轴的终点对齐。</li>
-<li>center 在交叉轴方向上居中对齐。</li>
-<li>stretch 如果子组件未设置交叉轴方向的大小或设为auto，将会在交叉轴方向占满整个容器。</li>
-<li>baseline 与子组件第一行文字的基线对齐。</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/1801191-7f96e13f4583ffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="alignItems属性值对比图（其中`flexDirection: &#39;row&#39;`）"></p>
-<h4 id="alignContent"><a href="#alignContent" class="headerlink" title="alignContent"></a>alignContent</h4><p>alignContent定义了多根轴线时，交叉轴方向的对齐方式，如果只有一根轴，该属性是没有效果的。取值为：<code>flex-start</code>、<code>flex-end</code>、<code>center</code>、<code>space-between</code>、<code>space-around</code>、<code>stretch</code>。默认值为<code>flex-start</code>。</p>
-<ul>
-<li>flex-start  在交叉轴方向上和交叉轴的起点对齐。</li>
-<li>flex-end 在交叉轴方向上和交叉轴的终点对齐。</li>
-<li>center 在交叉轴方向上居中对齐。</li>
-<li>space-between 与交叉轴两端对齐，轴线之间的间距间隔相等，第一根轴线上的item与交叉轴起点、最后一根轴线上的item与交叉轴终点没有间隔。</li>
-<li>space-around   与交叉轴两端对齐，轴线之间的间距间隔相等，第一根轴线上的item与交叉轴起点、最后一根轴线上的item与交叉轴终点的间隔只有中间轴线上item间隔的一半。</li>
-<li>stretch 如果子组件未设置交叉轴方向的大小或设为auto，将会在交叉轴方向占满整个容器。</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/1801191-724ea62db55c6aea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="alignContent属性值对比图（其中`flexDirection: &#39;row&#39;`）"></p>
-<h4 id="alignSelf"><a href="#alignSelf" class="headerlink" title="alignSelf"></a>alignSelf</h4><p>alignSelf定义了子组件自身对齐方式，该属性会覆盖父组件的alignItems属性。取值为：<code>auto</code>、<code>flex-start</code>、<code>flex-end</code>、<code>center</code>、<code>stretch</code>，默认值为<code>auto</code>。</p>
-<ul>
-<li>auto 继承了它的父组件的 alignItems属性，如父组件没有，则为<code>stretch</code>。</li>
-<li>flex-start 子组件在交叉轴方向与交叉轴起点对齐。</li>
-<li>flex-end 子组件在交叉轴方向与交叉轴终点对齐。</li>
-<li>center 子组件在交叉轴方向居中对齐。</li>
-<li>stretch 如果没有在交叉轴方向没有设置大小，则会拉伸在交叉轴方向占满整个容器。</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/1801191-c9028f76ba22edb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="alignSelf属性值对比图（其中父组件`flexDirection: &#39;row&#39;`）"></p>
+        <p>Charles是一款非常实用的抓包工具。它通过电脑端代理，拦截网络请求和响应来实现数据包的抓取。支持http/https。</p>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>Charles需要Java环境，在安装之前确保已有配置Java运行环境。然后到<a href="https://www.charlesproxy.com" target="_blank" rel="noopener">官网</a>下载Charles并安装。破解的话，可以使用网友提供的工具： <a href="https://www.zzzmode.com/mytools/charles/" target="_blank" rel="noopener">Charles 在线破解</a>。</p>
+<h4 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h4><p>打开Charles抓包工具：<br><img src="https://i.imgur.com/6s0i6lQ.png" alt="Charles"><br>电脑端设置代理：Proxy —&gt; Proxy Setting：<br><img src="https://i.imgur.com/pvsqxAo.png" alt="设置代理"><br>端口号填写8888，并选中Enable transparent HTTP proxying。<br>Android手机端设置：首选将手机和电脑连接在同一无线局域网上（同一个路由器）。然后利用cmd-ipconfig查看自己电脑的ip：<br><img src="https://i.imgur.com/FPF1EXl.png" alt=""><br>然后在手机wifi连接中进行设置：<br><img src="https://i.imgur.com/KuVrvO7.png" alt=""><br>这里代理设置选择手动，主机名即是电脑的局域网ip，端口号为电脑端Charles设置的端口号。</p>
+<h4 id="抓取http数据"><a href="#抓取http数据" class="headerlink" title="抓取http数据"></a>抓取http数据</h4><p>安卓上面的步骤就设置完成了。我们使用小米商城app来试一下抓取的数据包。<br>手机端打开小米商城：<br><img src="https://i.imgur.com/FY8MGKV.png" alt=""><br>同时监测电脑端Charles的数据抓取：<br><img src="https://i.imgur.com/iZuT861.png" alt=""><br>需要自己筛选一下，可以看到红框中就是小米商城http请求的域名，点开可以看到详细的网络请求接口：<br><img src="https://i.imgur.com/4UkPZp0.png" alt=""><br>点击选中对应的接口，在右侧可以看到抓包的结果，选中Contents可以看到抓取的内容，上部分为请求的数据包，有Headers、Cookie、请求体的Text/Hex/Form形式。下部分为响应的数据包。包括有Headers、响应结果Json、JsonText等形式。<br><img src="https://i.imgur.com/b55ZY50.png" alt=""></p>
+<h4 id="抓取https数据包"><a href="#抓取https数据包" class="headerlink" title="抓取https数据包"></a>抓取https数据包</h4><p>上面的方式只能抓取到http数据包，要抓https还需要安装证书。<br>首先安装电脑端的CA证书：Help —&gt; SSL Proxyging —&gt; Install Charles Root Certificate：<br><img src="https://i.imgur.com/SWq1r42.png" alt=""><br>安装证书：<br><img src="https://i.imgur.com/eJQKMRJ.png" alt=""><br>下一步：<br><img src="https://i.imgur.com/Wfok0Ce.png" alt=""><br>将所有证书都放入下列储存 —&gt; 浏览 —&gt; 受信任的根证书颁发机构 —&gt; 确定 —&gt; 下一步：<br><img src="https://i.imgur.com/T0brCzV.png" alt=""><br>最后点击完成。</p>
+<p>安卓手机端安卓证书：很多手机通过浏览器下载证书安装会提示无法安装，所以这里通过在电脑上下载好手机端的证书，传到手机上再来安装。</p>
+<p>在浏览器中地址中输入chsl.pro/ssl，下载手机端证书并传到手机储存上：<br><img src="https://i.imgur.com/Fbym9NC.png" alt=""><br>在手机设置里面找到系统安全/安全与隐私（小米5手机：设置 —&gt; 更多设置 —&gt; 系统安全）<br><img src="https://i.imgur.com/00PGG3a.png" alt=""><br>找到之前存放证书的位置，选择证书文件：<br><img src="https://i.imgur.com/8crhley.png" alt=""><br>输入证书名称charles，点击确定，安装完成。</p>
+<p>通过小米商城lite的微信小程序来测试下抓取https数据包。打开微信小程序“小米商城Lite”，并监测Charles抓取的数据：<br><img src="https://i.imgur.com/TMatYxg.png" alt=""><br>可以看到这就抓取到了小米商城Lite小程序的https请求数据包。</p>
 
       
     </div>
@@ -433,7 +394,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/React-Native/" rel="tag"># React-Native</a>
+            <a href="/tags/抓包/" rel="tag"># 抓包</a>
           
         </div>
       
@@ -446,8 +407,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/03/React-Native-——-Component（组件）/" rel="next" title="React Native —— Component（组件）">
-                <i class="fa fa-chevron-left"></i> React Native —— Component（组件）
+              <a href="/2017/09/21/Java集合框架-——-HashSet、LinkedHashSet源码分析/" rel="next" title="Java集合框架 —— HashSet、LinkedHashSet源码分析">
+                <i class="fa fa-chevron-left"></i> Java集合框架 —— HashSet、LinkedHashSet源码分析
               </a>
             
           </div>
@@ -455,10 +416,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/21/React-Native-——-react-navigation的使用/" rel="prev" title="React Native —— react-navigation的使用">
-                React Native —— react-navigation的使用 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -610,7 +567,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#flex"><span class="nav-number">1.</span> <span class="nav-text"><a href="#flex" class="headerlink" title="flex"></a>flex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#flexDirection"><span class="nav-number">2.</span> <span class="nav-text"><a href="#flexDirection" class="headerlink" title="flexDirection"></a>flexDirection</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#flexWrap"><span class="nav-number">3.</span> <span class="nav-text"><a href="#flexWrap" class="headerlink" title="flexWrap"></a>flexWrap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#justifyContent"><span class="nav-number">4.</span> <span class="nav-text"><a href="#justifyContent" class="headerlink" title="justifyContent"></a>justifyContent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#alignItems"><span class="nav-number">5.</span> <span class="nav-text"><a href="#alignItems" class="headerlink" title="alignItems"></a>alignItems</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#alignContent"><span class="nav-number">6.</span> <span class="nav-text"><a href="#alignContent" class="headerlink" title="alignContent"></a>alignContent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#alignSelf"><span class="nav-number">7.</span> <span class="nav-text"><a href="#alignSelf" class="headerlink" title="alignSelf"></a>alignSelf</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5B89;&#x88C5;" class="headerlink" title="&#x5B89;&#x88C5;"></a>&#x5B89;&#x88C5;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8BBE;&#x7F6E;" class="headerlink" title="&#x8BBE;&#x7F6E;"></a>&#x8BBE;&#x7F6E;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#抓取http数据"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x6293;&#x53D6;http&#x6570;&#x636E;" class="headerlink" title="&#x6293;&#x53D6;http&#x6570;&#x636E;"></a>&#x6293;&#x53D6;http&#x6570;&#x636E;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#抓取https数据包"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x6293;&#x53D6;https&#x6570;&#x636E;&#x5305;" class="headerlink" title="&#x6293;&#x53D6;https&#x6570;&#x636E;&#x5305;"></a>&#x6293;&#x53D6;https&#x6570;&#x636E;&#x5305;</span></a></li></ol></div>
             
 
           </div>
