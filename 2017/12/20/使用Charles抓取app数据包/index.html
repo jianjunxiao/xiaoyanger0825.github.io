@@ -103,7 +103,7 @@
 <meta property="og:image" content="https://i.imgur.com/00PGG3a.png">
 <meta property="og:image" content="https://i.imgur.com/8crhley.png">
 <meta property="og:image" content="https://i.imgur.com/TMatYxg.png">
-<meta property="og:updated_time" content="2017-12-21T07:55:39.721Z">
+<meta property="og:updated_time" content="2017-12-21T07:58:38.300Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用Charles抓取app数据包">
 <meta name="twitter:description" content="Charles是一款非常实用的抓包工具。它通过电脑端代理，拦截网络请求和响应来实现数据包的抓取。支持http/https。 安装Charles需要Java环境，在安装之前确保已有配置Java运行环境。然后到官网下载Charles并安装。破解的话，可以使用网友提供的工具： Charles 在线破解。 设置打开Charles抓包工具：电脑端设置代理：Proxy —&amp;gt; Proxy Setting：">
@@ -376,7 +376,7 @@
 <h4 id="抓取https数据包"><a href="#抓取https数据包" class="headerlink" title="抓取https数据包"></a>抓取https数据包</h4><p>上面的方式只能抓取到http数据包，要抓https还需要安装证书。<br>首先安装电脑端的CA证书：Help —&gt; SSL Proxyging —&gt; Install Charles Root Certificate：<br><img src="https://i.imgur.com/SWq1r42.png" alt=""><br>安装证书：<br><img src="https://i.imgur.com/eJQKMRJ.png" alt=""><br>下一步：<br><img src="https://i.imgur.com/Wfok0Ce.png" alt=""><br>将所有证书都放入下列储存 —&gt; 浏览 —&gt; 受信任的根证书颁发机构 —&gt; 确定 —&gt; 下一步：<br><img src="https://i.imgur.com/T0brCzV.png" alt=""><br>最后点击完成。</p>
 <p>安卓手机端安卓证书：很多手机通过浏览器下载证书安装会提示无法安装，所以这里通过在电脑上下载好手机端的证书，传到手机上再来安装。</p>
 <p>在浏览器中地址中输入chsl.pro/ssl，下载手机端证书并传到手机储存上：<br><img src="https://i.imgur.com/Fbym9NC.png" alt=""><br>在手机设置里面找到系统安全/安全与隐私（小米5手机：设置 —&gt; 更多设置 —&gt; 系统安全）<br><img src="https://i.imgur.com/00PGG3a.png" alt=""><br>找到之前存放证书的位置，选择证书文件：<br><img src="https://i.imgur.com/8crhley.png" alt=""><br>输入证书名称charles，点击确定，安装完成。</p>
-<p>通过小米商城lite的微信小程序来测试下抓取https数据包。打开微信小程序“小米商城Lite”，并监测Charles抓取的数据：<br><img src="https://i.imgur.com/TMatYxg.png" alt=""><br>可以看到这就抓取到了小米商城Lite小程序的https请求数据包。</p>
+<p>通过小米商城lite的微信小程序来测试下抓取https数据包。打开微信小程序“小米商城Lite”，点击页面跳转。并监测Charles抓取的数据：<br><img src="https://i.imgur.com/TMatYxg.png" alt=""><br>可以看到这就抓取到了小米商城Lite小程序的https请求数据包。</p>
 
       
     </div>
