@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Java线程并发相关的优秀技术文章]]></title>
+    <url>%2F2018%2F03%2F05%2FJava%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%2F</url>
+    <content type="text"><![CDATA[Java并发编程：Thread类的使用 Java并发编程：synchronized Java并发编程：Lock Java并发编程：volatile关键字解析 Java并发编程：深入剖析ThreadLocal Java并发编程：同步容器 Java并发编程：线程间协作的两种方式：wait、notify、notifyAll和Condition]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java并发</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[使用Charles抓取app数据包]]></title>
     <url>%2F2017%2F12%2F20%2F%E4%BD%BF%E7%94%A8Charles%E6%8A%93%E5%8F%96app%E6%95%B0%E6%8D%AE%E5%8C%85%2F</url>
     <content type="text"><![CDATA[Charles是一款非常实用的抓包工具。它通过电脑端代理，拦截网络请求和响应来实现数据包的抓取。支持http/https。 安装Charles需要Java环境，在安装之前确保已有配置Java运行环境。然后到官网下载Charles并安装。破解的话，可以使用网友提供的工具： Charles 在线破解。 设置打开Charles抓包工具：电脑端设置代理：Proxy —&gt; Proxy Setting：端口号填写8888，并选中Enable transparent HTTP proxying。Android手机端设置：首选将手机和电脑连接在同一无线局域网上（同一个路由器）。然后利用cmd-ipconfig查看自己电脑的ip：然后在手机wifi连接中进行设置：这里代理设置选择手动，主机名即是电脑的局域网ip，端口号为电脑端Charles设置的端口号。 抓取http数据安卓上面的步骤就设置完成了。我们使用小米商城app来试一下抓取的数据包。手机端打开小米商城：同时监测电脑端Charles的数据抓取：需要自己筛选一下，可以看到红框中就是小米商城http请求的域名，点开可以看到详细的网络请求接口：点击选中对应的接口，在右侧可以看到抓包的结果，选中Contents可以看到抓取的内容，上部分为请求的数据包，有Headers、Cookie、请求体的Text/Hex/Form形式。下部分为响应的数据包。包括有Headers、响应结果Json、JsonText等形式。 抓取https数据包上面的方式只能抓取到http数据包，要抓https还需要安装证书。首先安装电脑端的CA证书：Help —&gt; SSL Proxyging —&gt; Install Charles Root Certificate：安装证书：下一步：将所有证书都放入下列储存 —&gt; 浏览 —&gt; 受信任的根证书颁发机构 —&gt; 确定 —&gt; 下一步：最后点击完成。 安卓手机端安卓证书：很多手机通过浏览器下载证书安装会提示无法安装，所以这里通过在电脑上下载好手机端的证书，传到手机上再来安装。 在浏览器中地址中输入chsl.pro/ssl，下载手机端证书并传到手机储存上：在手机设置里面找到系统安全/安全与隐私（小米5手机：设置 —&gt; 更多设置 —&gt; 系统安全）找到之前存放证书的位置，选择证书文件：输入证书名称charles，点击确定，安装完成。 通过小米商城lite的微信小程序来测试下抓取https数据包。打开微信小程序“小米商城Lite”，点击页面跳转。并监测Charles抓取的数据：可以看到这就抓取到了小米商城Lite小程序的https请求数据包。]]></content>
